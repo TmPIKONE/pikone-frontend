@@ -1,0 +1,58 @@
+name: React CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  react-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create .env
+        run: |
+          echo "${{ secrets.CLIENT_ENV }}" > .env
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build React
+        run: npm run build
+
+      - name: Upload Build Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "dist/*"
+          target: "/home/${{ secrets.EC2_USER }}/frontend"
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script_stop: true
+          script: |
+            sudo mkdir -p /var/www/html
+
+            sudo rm -rf /var/www/html/*
+
+            sudo cp -r /home/${{ secrets.EC2_USER }}/frontend/dist/* /var/www/html/
+
+            sudo systemctl restart nginx
+
+            rm -rf /home/${{ secrets.EC2_USER }}/frontend
+
+            echo "Frontend Deploy Success"
