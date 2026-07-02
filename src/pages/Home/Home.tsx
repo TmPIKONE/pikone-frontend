@@ -1,55 +1,60 @@
-import { logout, withdrawal } from "../../apis/auth/auth";
-import { useNavigate } from "react-router-dom";
-import {useApiMutation} from "../../apis/config/ApiBuilder";
+import { useNavigate } from 'react-router-dom';
+import { useMyInfo } from '~/hooks/useMyInfo';
+import { useRecentRecords } from '~/hooks/useRecentRecords';
+import { usePendingDraftCount } from '~/hooks/usePendingDraftCount';
+import * as S from './Home.styles';
 
-export default function Home() {
+const DEFAULT_AVATAR = '/default-avatar.png';
 
-    const navigate = useNavigate();
+const Home = () => {
+  const navigate = useNavigate();
+  const { data: user } = useMyInfo();
+  const { data: recentRecords, isLoading: isRecordsLoading } = useRecentRecords(3);
+  const { data: pendingCount } = usePendingDraftCount();
 
-    const logoutMutation = useApiMutation(
-        logout(),
-        {
-            onSuccess: () => {
-                sessionStorage.clear();
-                navigate("/login");
-            }
-        }
-    );
+  return (
+    <S.Container>
+      <S.GreetingSection>
+        <S.Avatar src={user?.imageUrl || DEFAULT_AVATAR} alt="프로필 이미지" />
+        <S.GreetingTextBox>
+          <S.Nickname>{user?.nickname ?? '피콘'}님</S.Nickname>
+          <S.GreetingSub>오늘은 어떤 맛집을 다녀오셨나요?</S.GreetingSub>
+        </S.GreetingTextBox>
+      </S.GreetingSection>
 
-    const withdrawalMutation = useApiMutation(
-        withdrawal(),
-        {
-            onSuccess: () => {
-                sessionStorage.clear();
-                navigate("/login");
-            }
-        }
-    );
+      {!!pendingCount && pendingCount > 0 && (
+        <S.DraftBanner onClick={() => navigate('/draft')}>
+          <span>확인 대기 중인 자동 기록이 {pendingCount}개 있어요</span>
+          <span>{'>'}</span>
+        </S.DraftBanner>
+      )}
 
-    return (
-        <div
-            style={{
-                display:"flex",
-                flexDirection:"column",
-                justifyContent:"center",
-                alignItems:"center",
-                gap:20,
-                height:"100vh",
-                fontSize:30,
-            }}
-        >
-            로그인 성공 🎉
-            <button
-                onClick={() => logoutMutation.mutate()}
-            >
-                로그아웃
-            </button>
+      <section>
+        <S.SectionTitle>최근 기록</S.SectionTitle>
 
-            <button
-                onClick={() => withdrawalMutation.mutate()}
-            >
-                회원탈퇴
-            </button>
-        </div>
-    );
-}
+        {isRecordsLoading ? (
+          <S.EmptyState>불러오는 중...</S.EmptyState>
+        ) : recentRecords && recentRecords.length > 0 ? (
+          <S.RecordList>
+            {recentRecords.map((record) => (
+              <S.RecordCard
+                key={record.recordId}
+                onClick={() => navigate(`/record/${record.recordId}`)}
+              >
+                <S.RecordThumbnail src={record.thumbnailUrl} alt={record.visitDate} />
+                <S.RecordDate>{record.visitDate}</S.RecordDate>
+                {record.companionName && (
+                  <S.RecordCompanion>{record.companionName}</S.RecordCompanion>
+                )}
+              </S.RecordCard>
+            ))}
+          </S.RecordList>
+        ) : (
+          <S.EmptyState>아직 이번 달 기록이 없어요. 첫 기록을 남겨보세요!</S.EmptyState>
+        )}
+      </section>
+    </S.Container>
+  );
+};
+
+export default Home;
