@@ -1,54 +1,29 @@
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-} from "react";
-
-import type {
-    AuthContextType,
-    AuthProviderProps,
-} from "./AuthContext.types";
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { AuthContextType, AuthProviderProps } from './AuthContext.types';
 
 const defaultContext: AuthContextType = {
-    isAuthenticated: false,
-    isLoading: true,
+  isAuthenticated: false,
+  isLoading: true,
+  setIsAuthenticated: () => {},
 };
 
-const AuthContext = createContext<AuthContextType>(defaultContext);
+export const AuthContext = createContext<AuthContextType>(defaultContext);
 
-export function AuthProvider({
-                                 children
-                             }: AuthProviderProps) {
-    const [isAuthenticated, setIsAuthenticated] =
-        useState(false);
-    const [isLoading, setIsLoading] =
-        useState(true);
-    useEffect(() => {
-        const token =
-            sessionStorage.getItem("accessToken");
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-        if(token){
-            setIsAuthenticated(true);
-        }
-        else{
-            setIsAuthenticated(false);
-        }
-        setIsLoading(false);
+  useEffect(() => {
+    const token = sessionStorage.getItem('accessToken');
+    setIsAuthenticated(!!token);
+    setIsLoading(false);
+  }, []);
 
-    }, []);
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, setIsAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-    return (
-        <AuthContext.Provider
-            value={{
-                isAuthenticated,
-                isLoading
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
-}
-export function useAuth(){
-    return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);

@@ -1,35 +1,25 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '~/contexts/Auth/AuthContext';
 
+export default function TokenProcessor() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
-export default function TokenProcessor(){
-    const location = useLocation();
-    const navigate = useNavigate();
-    useEffect(()=>{
-        const params =
-            new URLSearchParams(location.search);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
 
-        const accessToken =
-            params.get("accessToken");
+    if (accessToken && refreshToken) {
+      sessionStorage.setItem('accessToken', accessToken);
+      sessionStorage.setItem('refreshToken', refreshToken);
+      setIsAuthenticated(true);
+    }
 
-        const refreshToken =
-            params.get("refreshToken");
+    navigate('/home', { replace: true });
+  }, [location, navigate, setIsAuthenticated]);
 
-        if(accessToken && refreshToken){
-            sessionStorage.setItem(
-                "accessToken",
-                accessToken
-            );
-            sessionStorage.setItem(
-                "refreshToken",
-                refreshToken
-            );
-        }
-        navigate("/home", {
-            replace:true
-        });
-    },[location, navigate]);
-
-    return <>로그인 처리중...</>;
-
+  return <>로그인 처리중...</>;
 }
