@@ -44,7 +44,7 @@ const Router = () => {
               <Route path="/home" element={<Home />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/record/add" element={<RecordAdd />} />
-              <Route path="/record/:id" element={<RecordDetail />} />
+              <Route path="/record/:date" element={<RecordDetail />} />
               <Route path="/draft" element={<Draft />} />
               <Route path="/ai" element={<AI />} />
               <Route path="/ai/result" element={<AIResult />} />

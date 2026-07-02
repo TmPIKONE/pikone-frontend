@@ -1,5 +1,5 @@
-import { useApiQuery } from '~/apis/config/ApiBuilder';
-import { getCalendarBuilder } from '~/apis/record/record.api';
+import { useMemo } from 'react';
+import { useCalendar } from './useCalendar';
 import type { CalendarResponse } from '~/apis/record/record.types';
 
 const sortByVisitDateDesc = (records: CalendarResponse[]) =>
@@ -10,11 +10,12 @@ export const useRecentRecords = (limit = 3) => {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  return useApiQuery<void, CalendarResponse[], CalendarResponse[]>(
-    getCalendarBuilder(year, month),
-    ['records', 'calendar', year, month],
-    {
-      select: (records) => sortByVisitDateDesc(records).slice(0, limit),
-    },
-  );
+  const query = useCalendar(year, month);
+
+  const recentRecords = useMemo(() => {
+    if (!query.data) return undefined;
+    return sortByVisitDateDesc(query.data).slice(0, limit);
+  }, [query.data, limit]);
+
+  return { ...query, data: recentRecords };
 };

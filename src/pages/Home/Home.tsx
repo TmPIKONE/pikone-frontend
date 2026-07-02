@@ -39,7 +39,7 @@ const Home = () => {
             {recentRecords.map((record) => (
               <S.RecordCard
                 key={record.recordId}
-                onClick={() => navigate(`/record/${record.recordId}`)}
+                onClick={() => navigate(`/record/${record.visitDate}?highlight=${record.recordId}`)}
               >
                 <S.RecordThumbnail src={record.thumbnailUrl} alt={record.visitDate} />
                 <S.RecordDate>{record.visitDate}</S.RecordDate>
