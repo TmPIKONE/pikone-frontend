@@ -1,0 +1,55 @@
+export const theme = {
+  colors: {
+    primary: '#3B82F6',
+    primaryDark: '#1D4ED8',
+    primaryLight: '#DBEAFE',
+    white: '#FFFFFF',
+    black: '#111111',
+    gray100: '#F5F5F5',
+    gray200: '#EEEEEE',
+    gray300: '#E0E0E0',
+    gray400: '#BDBDBD',
+    gray500: '#9E9E9E',
+    gray600: '#757575',
+    gray700: '#424242',
+    error: '#EF4444',
+    success: '#22C55E',
+  },
+  fonts: {
+    base: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  },
+  fontSizes: {
+    xs: '11px',
+    sm: '13px',
+    md: '15px',
+    lg: '17px',
+    xl: '20px',
+    xxl: '24px',
+  },
+  fontWeights: {
+    regular: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+  },
+  radius: {
+    sm: '8px',
+    md: '12px',
+    lg: '16px',
+    xl: '24px',
+    full: '9999px',
+  },
+  spacing: {
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px',
+  },
+  nav: {
+    height: '65px',
+  },
+  app: {
+    maxWidth: '500px',
+  },
+} as const;
