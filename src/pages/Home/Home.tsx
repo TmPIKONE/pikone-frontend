@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { useMyInfo } from '~/hooks/useMyInfo';
 import { useRecentRecords } from '~/hooks/useRecentRecords';
 import { usePendingDraftCount } from '~/hooks/usePendingDraftCount';
@@ -53,6 +54,10 @@ const Home = () => {
           <S.EmptyState>아직 이번 달 기록이 없어요. 첫 기록을 남겨보세요!</S.EmptyState>
         )}
       </section>
+
+      <S.FloatingButton onClick={() => navigate('/record/add')} aria-label="기록 추가하기">
+        <Plus size={24} strokeWidth={2.2} />
+      </S.FloatingButton>
     </S.Container>
   );
 };

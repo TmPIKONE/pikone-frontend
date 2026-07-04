@@ -4,6 +4,10 @@ import { useApiMutation } from '~/apis/config/ApiBuilder';
 import { respondCompanionRequestBuilder } from '~/apis/companion/companion.api';
 import type { RespondRequestDto, RespondRequestResponse } from '~/apis/companion/companion.types';
 
+type OnSuccess = NonNullable<
+  UseMutationOptions<RespondRequestResponse, unknown, RespondRequestDto>['onSuccess']
+>;
+
 export const useRespondCompanionRequest = (
   options?: UseMutationOptions<RespondRequestResponse, unknown, RespondRequestDto>,
 ) => {
@@ -13,10 +17,10 @@ export const useRespondCompanionRequest = (
     respondCompanionRequestBuilder(),
     {
       ...options,
-      onSuccess: (data, variables, context) => {
+      onSuccess: (...args: Parameters<OnSuccess>) => {
         queryClient.invalidateQueries({ queryKey: ['companions', 'pendingRequests'] });
         queryClient.invalidateQueries({ queryKey: ['companions'] });
-        options?.onSuccess?.(data, variables, context);
+        options?.onSuccess?.(...args);
       },
     },
   );

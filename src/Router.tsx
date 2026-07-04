@@ -13,6 +13,7 @@ const Calendar = lazy(() => import('~/pages/Calendar/Calendar'));
 const RecordAdd = lazy(() => import('~/pages/RecordAdd/RecordAdd'));
 const RecordDetail = lazy(() => import('~/pages/RecordDetail/RecordDetail'));
 const Draft = lazy(() => import('~/pages/Draft/Draft'));
+const DraftDetail = lazy(() => import('~/pages/DraftDetail/DraftDetail'));
 const AI = lazy(() => import('~/pages/AI/AI'));
 const AIResult = lazy(() => import('~/pages/AIResult/AIResult'));
 const MyPage = lazy(() => import('~/pages/MyPage/MyPage'));
@@ -46,6 +47,7 @@ const Router = () => {
               <Route path="/record/add" element={<RecordAdd />} />
               <Route path="/record/:date" element={<RecordDetail />} />
               <Route path="/draft" element={<Draft />} />
+              <Route path="/draft/:draftId" element={<DraftDetail />} />
               <Route path="/ai" element={<AI />} />
               <Route path="/ai/result" element={<AIResult />} />
               <Route path="/mypage" element={<MyPage />} />

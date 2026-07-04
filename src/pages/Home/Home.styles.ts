@@ -105,3 +105,21 @@ export const EmptyState = styled.div`
   color: ${theme.colors.gray500};
   font-size: ${theme.fontSizes.xs};
 `;
+
+export const FloatingButton = styled.button`
+  position: fixed;
+  right: 20px;
+  bottom: calc(${theme.nav.height} + 20px);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: ${theme.radius.full};
+  background-color: ${theme.colors.primary};
+  color: ${theme.colors.white};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 10;
+`;

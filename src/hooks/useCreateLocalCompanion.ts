@@ -7,6 +7,10 @@ import type {
   CreateLocalCompanionResponse,
 } from '~/apis/companion/companion.types';
 
+type OnSuccess = NonNullable<
+  UseMutationOptions<CreateLocalCompanionResponse, unknown, CreateLocalCompanionDto>['onSuccess']
+>;
+
 export const useCreateLocalCompanion = (
   options?: UseMutationOptions<CreateLocalCompanionResponse, unknown, CreateLocalCompanionDto>,
 ) => {
@@ -16,9 +20,9 @@ export const useCreateLocalCompanion = (
     createLocalCompanionBuilder(),
     {
       ...options,
-      onSuccess: (data, variables, context) => {
+      onSuccess: (...args: Parameters<OnSuccess>) => {
         queryClient.invalidateQueries({ queryKey: ['companions'] });
-        options?.onSuccess?.(data, variables, context);
+        options?.onSuccess?.(...args);
       },
     },
   );
