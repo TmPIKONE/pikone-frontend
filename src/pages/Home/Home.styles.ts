@@ -108,7 +108,7 @@ export const EmptyState = styled.div`
 
 export const FloatingButton = styled.button`
   position: fixed;
-  right: 20px;
+  right: max(20px, calc((100vw - ${theme.app.maxWidth}) / 2 + 20px));
   bottom: calc(${theme.nav.height} + 20px);
   width: 56px;
   height: 56px;
