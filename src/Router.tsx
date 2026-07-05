@@ -16,7 +16,6 @@ const Draft = lazy(() => import('~/pages/Draft/Draft'));
 const DraftDetail = lazy(() => import('~/pages/DraftDetail/DraftDetail'));
 const AI = lazy(() => import('~/pages/AI/AI'));
 const AIResult = lazy(() => import('~/pages/AIResult/AIResult'));
-const MyPage = lazy(() => import('~/pages/MyPage/MyPage'));
 const Settings = lazy(() => import('~/pages/Settings/Settings'));
 const Companion = lazy(() => import('~/pages/Companion/Companion'));
 const CompanionAdd = lazy(() => import('~/pages/CompanionAdd/CompanionAdd'));
@@ -50,7 +49,6 @@ const Router = () => {
               <Route path="/draft/:draftId" element={<DraftDetail />} />
               <Route path="/ai" element={<AI />} />
               <Route path="/ai/result" element={<AIResult />} />
-              <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/settings" element={<Settings />} />
               <Route path="/companion" element={<Companion />} />
               <Route path="/companion/add" element={<CompanionAdd />} />

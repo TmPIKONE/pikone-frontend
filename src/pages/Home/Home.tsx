@@ -15,10 +15,10 @@ const Home = () => {
 
   return (
     <S.Container>
-      <S.GreetingSection>
+      <S.GreetingSection onClick={() => navigate('/mypage/settings')} style={{ cursor: 'pointer' }}>
         <S.Avatar src={user?.imageUrl || DEFAULT_AVATAR} alt="프로필 이미지" />
         <S.GreetingTextBox>
-          <S.Nickname>{user?.nickname ?? '피콘'}님</S.Nickname>
+          <S.Nickname>{user?.nickname ?? '피코'}님</S.Nickname>
           <S.GreetingSub>오늘은 어떤 맛집을 다녀오셨나요?</S.GreetingSub>
         </S.GreetingTextBox>
       </S.GreetingSection>
