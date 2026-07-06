@@ -6,6 +6,7 @@ import { useMyCompanionCode } from '~/hooks/useMyCompanionCode';
 import { useRespondCompanionRequest } from '~/hooks/useRespondCompanionRequest';
 import { useUpdateCompanionName } from '~/hooks/useUpdateCompanionName';
 import { useDeleteCompanion } from '~/hooks/useDeleteCompanion';
+import { resolveImageUrl } from '~/utils/image';
 import type { CompanionResponse, CompanionType } from '~/apis/companion/companion.types';
 import * as S from './Companion.styles';
 
@@ -112,7 +113,10 @@ const Companion = () => {
           {pendingRequests.map((request) => (
             <S.RequestRow key={request.requestId}>
               <S.RequestProfile>
-                <S.RequestAvatar src={request.fromUserImageUrl} alt={request.fromUserNickname} />
+                <S.RequestAvatar
+                  src={resolveImageUrl(request.fromUserImageUrl)}
+                  alt={request.fromUserNickname}
+                />
                 <span>{request.fromUserNickname}</span>
               </S.RequestProfile>
               <S.RequestActions>

@@ -31,7 +31,7 @@ export const analyzeImageBuilder = (latitude?: number, longitude?: number) =>
     .setParams({ latitude, longitude });
 
 export const saveRecordBuilder = () =>
-  ApiBuilder.create<SaveRequest, SaveResponse>(RECORDS).setMethod('POST');
+  ApiBuilder.create<FormData, SaveResponse>(RECORDS).setMethod('POST');
 
 export const updateRecordBuilder = (recordId: number) =>
   ApiBuilder.create<UpdateRecordRequest, void>(`${RECORDS}/${recordId}`).setMethod('PATCH');

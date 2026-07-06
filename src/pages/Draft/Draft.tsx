@@ -11,7 +11,7 @@ const Draft = () => {
     <S.Container>
       <S.HeaderRow>
         <S.BackButton onClick={() => navigate(-1)}>{'<'}</S.BackButton>
-        <S.Title>확인할 자동 기록</S.Title>
+        <S.Title>확인할 기록</S.Title>
         {!!drafts?.length && <S.CountBadge>{drafts.length}</S.CountBadge>}
       </S.HeaderRow>
 
@@ -28,7 +28,7 @@ const Draft = () => {
           ))}
         </S.DraftList>
       ) : (
-        <S.EmptyState>확인할 자동 기록이 없어요.</S.EmptyState>
+        <S.EmptyState>확인할 기록이 없어요.</S.EmptyState>
       )}
     </S.Container>
   );

@@ -5,6 +5,7 @@ import { useUpdateRecord } from '~/hooks/useUpdateRecord';
 import { useUpdateVisibility } from '~/hooks/useUpdateVisibility';
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import Switch from '~/components/Switch/Switch';
+import { resolveImageUrl } from '~/utils/image';
 import type { RecordDetailResponse } from '~/apis/record/record.types';
 import * as S from './RecordDetail.styles';
 
@@ -45,7 +46,7 @@ const RecordItem = ({ record, highlighted }: RecordItemProps) => {
 
   return (
     <S.RecordCard $highlighted={highlighted}>
-      <S.RecordImage src={record.imageUrl} alt={record.foodName} />
+      <S.RecordImage src={resolveImageUrl(record.imageUrl)} alt={record.foodName} />
 
       <S.RecordInfo>
         <S.FoodNameRow>

@@ -3,7 +3,13 @@ import ImageUploader from '~/components/ImageUploader/ImageUploader';
 import * as S from './Step1Photo.styles';
 import type { Step1PhotoProps } from './Step1Photo.types';
 
-const Step1Photo = ({ file, onFileChange, onLocationResolved, onNext }: Step1PhotoProps) => {
+const Step1Photo = ({
+  file,
+  isLocationResolved,
+  onFileChange,
+  onLocationResolved,
+  onNext,
+}: Step1PhotoProps) => {
   useEffect(() => {
     if (!navigator.geolocation) {
       onLocationResolved(undefined, undefined);
@@ -28,8 +34,8 @@ const Step1Photo = ({ file, onFileChange, onLocationResolved, onNext }: Step1Pho
 
       <ImageUploader file={file} onChange={onFileChange} />
 
-      <S.NextButton type="button" disabled={!file} onClick={onNext}>
-        다음
+      <S.NextButton type="button" disabled={!file || !isLocationResolved} onClick={onNext}>
+        {isLocationResolved ? '다음' : '현재 위치 확인 중...'}
       </S.NextButton>
     </S.Container>
   );

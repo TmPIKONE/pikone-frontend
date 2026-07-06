@@ -36,6 +36,11 @@ export const FoodName = styled.span`
   font-weight: ${theme.fontWeights.semibold};
 `;
 
+export const SharedText = styled.span`
+  font-size: ${theme.fontSizes.xs};
+  color: ${theme.colors.primaryDark};
+`;
+
 export const CapturedAt = styled.span`
   font-size: ${theme.fontSizes.xs};
   color: ${theme.colors.gray500};

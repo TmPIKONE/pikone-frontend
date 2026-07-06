@@ -5,6 +5,7 @@ import { useApproveDraft } from '~/hooks/useApproveDraft';
 import { useRejectDraft } from '~/hooks/useRejectDraft';
 import { useUpdateDraftLocationType } from '~/hooks/useUpdateDraftLocationType';
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
+import { resolveImageUrl } from '~/utils/image';
 import type { LocationType, RestaurantCandidate } from '~/apis/record/record.types';
 import * as S from './DraftDetail.styles';
 
@@ -57,7 +58,7 @@ const DraftDetail = () => {
       <S.Container>
         <S.HeaderRow>
           <S.BackButton onClick={() => navigate('/draft')}>{'<'}</S.BackButton>
-          <S.Title>자동 기록</S.Title>
+          <S.Title>기록 확인</S.Title>
         </S.HeaderRow>
         <S.EmptyState>이미 처리됐거나 찾을 수 없는 기록이에요.</S.EmptyState>
       </S.Container>
@@ -69,7 +70,7 @@ const DraftDetail = () => {
   };
 
   const handleReject = () => {
-    if (!window.confirm('이 자동 기록을 거절할까요? 거절하면 되돌릴 수 없어요.')) return;
+    if (!window.confirm('이 기록을 거절할까요? 거절하면 되돌릴 수 없어요.')) return;
     rejectDraft(undefined, { onSuccess: () => navigate('/draft') });
   };
 
@@ -100,14 +101,21 @@ const DraftDetail = () => {
     <S.Container>
       <S.HeaderRow>
         <S.BackButton onClick={() => navigate('/draft')}>{'<'}</S.BackButton>
-        <S.Title>자동 기록 확인</S.Title>
+        <S.Title>{draft.shared ? '공유받은 기록 확인' : '자동 기록 확인'}</S.Title>
       </S.HeaderRow>
 
-      <S.Image src={draft.imageUrl} alt={draft.foodName} />
+      <S.Image src={resolveImageUrl(draft.imageUrl)} alt={draft.foodName} />
 
-      {!draft.hasExifGps && (
+      {draft.shared && draft.sourceUserNickname && (
+        <S.SharedNotice>
+          {draft.sourceUserNickname}님이 같이 먹은 기록을 보냈어요. 내 기록에도 추가할지
+          선택해주세요.
+        </S.SharedNotice>
+      )}
+
+      {!draft.shared && !draft.hasExifGps && (
         <S.GpsWarning>
-          사진에 위치 정보가 없어서 근처 식당을 자동으로 찾지 못했어요. 아래에서 직접 선택해주세요.
+          사진 EXIF 위치 정보가 없어 현재 위치 기준으로 후보를 찾았어요. 맞는 식당인지 확인해주세요.
         </S.GpsWarning>
       )}
 
@@ -170,7 +178,7 @@ const DraftDetail = () => {
         </S.Field>
       )}
 
-      <CompanionSelector value={companionId} onChange={setCompanionId} />
+      {!draft.shared && <CompanionSelector value={companionId} onChange={setCompanionId} />}
 
       <S.ToggleRow>
         <S.ToggleLabel>재방문 의사가 있어요</S.ToggleLabel>
@@ -191,7 +199,7 @@ const DraftDetail = () => {
           onClick={handleApprove}
           disabled={!canApprove || isApproving}
         >
-          {isApproving ? '승인 중...' : '승인하고 저장'}
+          {isApproving ? '승인 중...' : '내 기록에 추가'}
         </S.ApproveButton>
       </S.ButtonRow>
     </S.Container>

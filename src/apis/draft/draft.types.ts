@@ -7,6 +7,8 @@ export interface PendingCountResponse {
 export interface DraftResponse {
   draftId: number;
   imageUrl: string;
+  sourceUserNickname?: string;
+  shared: boolean;
   foodName: string;
   foodTags: string[];
   sceneTags: string[];

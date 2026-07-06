@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { useMyInfo } from '~/hooks/useMyInfo';
 import { useRecentRecords } from '~/hooks/useRecentRecords';
 import { usePendingDraftCount } from '~/hooks/usePendingDraftCount';
+import { resolveImageUrl } from '~/utils/image';
 import * as S from './Home.styles';
 
 const DEFAULT_AVATAR = '/default-avatar.png';
@@ -16,7 +17,7 @@ const Home = () => {
   return (
     <S.Container>
       <S.GreetingSection onClick={() => navigate('/mypage/settings')} style={{ cursor: 'pointer' }}>
-        <S.Avatar src={user?.imageUrl || DEFAULT_AVATAR} alt="프로필 이미지" />
+        <S.Avatar src={resolveImageUrl(user?.imageUrl) || DEFAULT_AVATAR} alt="프로필 이미지" />
         <S.GreetingTextBox>
           <S.Nickname>{user?.nickname ?? '피코'}님</S.Nickname>
           <S.GreetingSub>오늘은 어떤 맛집을 다녀오셨나요?</S.GreetingSub>
@@ -25,7 +26,7 @@ const Home = () => {
 
       {!!pendingCount && pendingCount > 0 && (
         <S.DraftBanner onClick={() => navigate('/draft')}>
-          <span>확인 대기 중인 자동 기록이 {pendingCount}개 있어요</span>
+          <span>확인 대기 중인 기록이 {pendingCount}개 있어요</span>
           <span>{'>'}</span>
         </S.DraftBanner>
       )}
@@ -42,7 +43,10 @@ const Home = () => {
                 key={record.recordId}
                 onClick={() => navigate(`/record/${record.visitDate}?highlight=${record.recordId}`)}
               >
-                <S.RecordThumbnail src={record.thumbnailUrl} alt={record.visitDate} />
+                <S.RecordThumbnail
+                  src={resolveImageUrl(record.thumbnailUrl)}
+                  alt={record.visitDate}
+                />
                 <S.RecordDate>{record.visitDate}</S.RecordDate>
                 {record.companionName && (
                   <S.RecordCompanion>{record.companionName}</S.RecordCompanion>

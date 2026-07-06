@@ -88,6 +88,15 @@ export const GpsWarning = styled.div`
   font-size: ${theme.fontSizes.xs};
 `;
 
+export const SharedNotice = styled.div`
+  padding: 12px 14px;
+  border-radius: ${theme.radius.md};
+  background-color: ${theme.colors.primaryLight};
+  color: ${theme.colors.primaryDark};
+  font-size: ${theme.fontSizes.sm};
+  line-height: 1.5;
+`;
+
 export const RestaurantList = styled.div`
   display: flex;
   flex-direction: column;

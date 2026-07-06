@@ -11,6 +11,7 @@ import { useLogout } from '~/hooks/useLogout';
 import { useWithdrawal } from '~/hooks/useWithdrawal';
 import HomeLocationList from '~/components/HomeLocationList/HomeLocationList';
 import AllergenForm from '~/components/AllergenForm/AllergenForm';
+import { resolveImageUrl } from '~/utils/image';
 import type {
   HomeLocationResponse,
   HomeLocationType,
@@ -151,7 +152,10 @@ const Settings = () => {
 
       <S.Section>
         <S.ProfileRow>
-          <S.ProfileAvatar src={user?.imageUrl || DEFAULT_AVATAR} alt="프로필 이미지" />
+          <S.ProfileAvatar
+            src={resolveImageUrl(user?.imageUrl) || DEFAULT_AVATAR}
+            alt="프로필 이미지"
+          />
           <S.ProfileInfo>
             <S.ProfileNickname>{user?.nickname}</S.ProfileNickname>
             <S.ProfileEmail>{user?.email}</S.ProfileEmail>

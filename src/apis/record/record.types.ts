@@ -56,6 +56,7 @@ export interface SaveRequest {
   willRevisit?: boolean;
   isPublic?: boolean;
   companionId?: number;
+  shareWithCompanion?: boolean;
   locationType?: LocationType;
   placeName?: string;
   category?: string;
