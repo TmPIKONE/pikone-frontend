@@ -13,14 +13,28 @@ const NAV_ITEMS: NavItemType[] = [
 const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const activeIndex = Math.max(
+    NAV_ITEMS.findIndex(({ path }) => location.pathname.startsWith(path)),
+    0,
+  );
 
   return (
-    <Nav>
+    <Nav $activeIndex={activeIndex}>
       {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
         const isActive = location.pathname.startsWith(path);
         return (
-          <NavItem key={path} $active={isActive} onClick={() => navigate(path)}>
-            <Icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />
+          <NavItem
+            key={path}
+            $active={isActive}
+            aria-label={label}
+            aria-current={isActive ? 'page' : undefined}
+            onClick={() => navigate(path)}
+          >
+            <Icon
+              fill={isActive ? '#000' : 'none'}
+              stroke="#000"
+              strokeWidth={isActive ? 1.9 : 1.8}
+            />
             <span>{label}</span>
           </NavItem>
         );
