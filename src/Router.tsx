@@ -7,7 +7,6 @@ import ProtectedRoute from '~/components/ProtectedRoute/ProtectedRoute';
 import TokenProcessor from '~/utils/Authorization/TokenProcessor';
 
 const LoginPage = lazy(() => import('~/pages/Auth/LoginPage'));
-const SignUpPage = lazy(() => import('~/pages/SignUp/SignUpPage'));
 const Home = lazy(() => import('~/pages/Home/Home'));
 const Calendar = lazy(() => import('~/pages/Calendar/Calendar'));
 const RecordAdd = lazy(() => import('~/pages/RecordAdd/RecordAdd'));
@@ -22,7 +21,10 @@ const CompanionAdd = lazy(() => import('~/pages/CompanionAdd/CompanionAdd'));
 const CompanionRecord = lazy(() => import('~/pages/CompanionRecord/CompanionRecord'));
 
 const RootRedirect = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
   return <Navigate to={isAuthenticated ? '/home' : '/login'} replace />;
 };
 
@@ -35,7 +37,6 @@ const Router = () => {
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
             <Route path="/loginwait" element={<TokenProcessor />} />
           </Route>
 

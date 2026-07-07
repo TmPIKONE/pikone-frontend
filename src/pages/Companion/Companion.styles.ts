@@ -5,7 +5,64 @@ export const Container = styled.div`
   padding: 20px 16px 32px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 22px;
+`;
+
+export const ProfileHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 2px;
+`;
+
+export const ProfileButton = styled.button`
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+`;
+
+export const ProfileAvatar = styled.img`
+  width: 44px;
+  height: 44px;
+  border-radius: ${theme.radius.full};
+  object-fit: cover;
+  background-color: ${theme.colors.gray200};
+`;
+
+export const ProfileTextBox = styled.div`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const ProfileLabel = styled.span`
+  font-size: ${theme.fontSizes.xs};
+  color: ${theme.colors.gray500};
+`;
+
+export const ProfileName = styled.span`
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${theme.fontSizes.lg};
+  font-weight: ${theme.fontWeights.bold};
+  color: ${theme.colors.black};
+`;
+
+export const SettingsButton = styled.button`
+  width: 38px;
+  height: 38px;
+  border-radius: ${theme.radius.full};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${theme.colors.gray100};
+  color: ${theme.colors.gray700};
 `;
 
 export const HeaderRow = styled.div`
@@ -118,6 +175,7 @@ export const CompanionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   padding: 12px 0;
   border-bottom: 1px solid ${theme.colors.gray200};
 `;
@@ -126,6 +184,7 @@ export const CompanionInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 `;
 
 export const CompanionName = styled.span`
@@ -147,7 +206,19 @@ export const NameEditInput = styled.input`
 
 export const RowActions = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 4px;
+`;
+
+export const ViewButton = styled.button`
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  color: ${theme.colors.primary};
+  font-size: ${theme.fontSizes.xs};
+  font-weight: ${theme.fontWeights.semibold};
+  cursor: pointer;
 `;
 
 export const EditButton = styled.button`

@@ -11,14 +11,18 @@ export default function TokenProcessor() {
     const params = new URLSearchParams(location.search);
     const accessToken = params.get('accessToken');
     const refreshToken = params.get('refreshToken');
-
     if (accessToken && refreshToken) {
       sessionStorage.setItem('accessToken', accessToken);
       sessionStorage.setItem('refreshToken', refreshToken);
       setIsAuthenticated(true);
+      navigate('/home', { replace: true });
+      return;
     }
 
-    navigate('/home', { replace: true });
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    setIsAuthenticated(false);
+    navigate('/login', { replace: true });
   }, [location, navigate, setIsAuthenticated]);
 
   return <>로그인 처리중...</>;

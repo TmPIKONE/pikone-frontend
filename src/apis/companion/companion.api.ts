@@ -10,6 +10,7 @@ import type {
   CreateLocalCompanionResponse,
   UpdateDisplayNameDto,
   MyCodeResponse,
+  FriendRecordResponse,
 } from './companion.types';
 
 const COMPANIONS = '/companions';
@@ -28,6 +29,11 @@ export const getPendingCompanionRequestsBuilder = () =>
 
 export const getMyCompanionCodeBuilder = () =>
   ApiBuilder.create<void, MyCodeResponse>(COMPANIONS_CODE).setMethod('GET');
+
+export const getCompanionRecordsBuilder = (companionId: number) =>
+  ApiBuilder.create<void, FriendRecordResponse[]>(`${COMPANIONS}/${companionId}/records`).setMethod(
+    'GET',
+  );
 
 // 변경
 export const sendCompanionRequestBuilder = () =>

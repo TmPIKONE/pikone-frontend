@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 import { useCompanions } from '~/hooks/useCompanions';
 import { usePendingCompanionRequests } from '~/hooks/usePendingCompanionRequests';
 import { useMyCompanionCode } from '~/hooks/useMyCompanionCode';
 import { useRespondCompanionRequest } from '~/hooks/useRespondCompanionRequest';
 import { useUpdateCompanionName } from '~/hooks/useUpdateCompanionName';
 import { useDeleteCompanion } from '~/hooks/useDeleteCompanion';
+import { useMyInfo } from '~/hooks/useMyInfo';
+import { useToast } from '~/components/Toast/Toast';
 import { resolveImageUrl } from '~/utils/image';
 import type { CompanionResponse, CompanionType } from '~/apis/companion/companion.types';
 import * as S from './Companion.styles';
+
+const DEFAULT_AVATAR = '/default-avatar.png';
 
 const COMPANION_TYPE_LABEL: Record<CompanionType, string> = {
   ALONE: '혼자',
@@ -19,6 +24,7 @@ const COMPANION_TYPE_LABEL: Record<CompanionType, string> = {
 };
 
 const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(companion.displayName);
 
@@ -65,6 +71,11 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
       </S.CompanionInfo>
 
       <S.RowActions>
+        {companion.isAppUser && (
+          <S.ViewButton onClick={() => navigate(`/companion/${companion.companionId}/records`)}>
+            기록보기
+          </S.ViewButton>
+        )}
         {isEditing ? (
           <S.EditButton onClick={handleSave} disabled={isUpdating}>
             저장
@@ -82,18 +93,45 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
 
 const Companion = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { data: user } = useMyInfo();
   const { data: companions, isLoading: isCompanionsLoading } = useCompanions();
   const { data: pendingRequests } = usePendingCompanionRequests();
   const { data: myCode } = useMyCompanionCode();
   const { mutate: respondRequest } = useRespondCompanionRequest();
 
-  const handleCopyCode = () => {
+  const handleCopyCode = async () => {
     if (!myCode?.myCode) return;
-    navigator.clipboard.writeText(myCode.myCode);
+    try {
+      await navigator.clipboard.writeText(myCode.myCode);
+      showToast('내 코드를 복사했어요.');
+    } catch {
+      showToast('코드 복사에 실패했어요.', 'error');
+    }
   };
 
   return (
     <S.Container>
+      <S.ProfileHeader>
+        <S.ProfileButton type="button" onClick={() => navigate('/mypage/settings')}>
+          <S.ProfileAvatar
+            src={resolveImageUrl(user?.imageUrl) || DEFAULT_AVATAR}
+            alt="프로필 이미지"
+          />
+          <S.ProfileTextBox>
+            <S.ProfileLabel>내 프로필</S.ProfileLabel>
+            <S.ProfileName>{user?.nickname ?? '피코'}님</S.ProfileName>
+          </S.ProfileTextBox>
+        </S.ProfileButton>
+        <S.SettingsButton
+          type="button"
+          aria-label="마이페이지 열기"
+          onClick={() => navigate('/mypage/settings')}
+        >
+          <Settings size={19} strokeWidth={2.2} />
+        </S.SettingsButton>
+      </S.ProfileHeader>
+
       <S.HeaderRow>
         <S.Title>동반자</S.Title>
         <S.AddButton onClick={() => navigate('/companion/add')}>+ 추가</S.AddButton>

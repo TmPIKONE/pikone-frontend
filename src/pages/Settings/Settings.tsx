@@ -9,6 +9,7 @@ import { useUpdateHomeLocation } from '~/hooks/useUpdateHomeLocation';
 import { useCurrentLocation } from '~/hooks/useCurrentLocation';
 import { useLogout } from '~/hooks/useLogout';
 import { useWithdrawal } from '~/hooks/useWithdrawal';
+import { useToast } from '~/components/Toast/Toast';
 import HomeLocationList from '~/components/HomeLocationList/HomeLocationList';
 import AllergenForm from '~/components/AllergenForm/AllergenForm';
 import { resolveImageUrl } from '~/utils/image';
@@ -39,6 +40,7 @@ const EMPTY_FORM: LocationFormState = { type: 'HOME', label: '', radiusMeters: '
 const Settings = () => {
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
+  const { showToast } = useToast();
 
   const { data: user } = useMyInfo();
 
@@ -121,12 +123,13 @@ const Settings = () => {
       onSuccess: () => {
         sessionStorage.clear();
         setIsAuthenticated(false);
+        showToast('로그아웃했어요.');
         navigate('/login');
       },
       onError: () => {
-        // 서버 로그아웃이 실패해도 클라이언트는 로그아웃 상태로 전환해요.
         sessionStorage.clear();
         setIsAuthenticated(false);
+        showToast('기기에서 로그아웃했어요.', 'info');
         navigate('/login');
       },
     });
@@ -138,7 +141,11 @@ const Settings = () => {
       onSuccess: () => {
         sessionStorage.clear();
         setIsAuthenticated(false);
+        showToast('회원탈퇴가 완료됐어요.');
         navigate('/login');
+      },
+      onError: () => {
+        showToast('회원탈퇴에 실패했어요.', 'error');
       },
     });
   };

@@ -48,3 +48,14 @@ export interface UpdateDisplayNameDto {
 export interface MyCodeResponse {
   myCode: string;
 }
+
+export interface FriendRecordResponse {
+  recordId: number;
+  imageUrl: string;
+  foodName: string;
+  restaurantName: string;
+  restaurantAddress?: string;
+  latitude?: number;
+  longitude?: number;
+  visitDate: string;
+}
