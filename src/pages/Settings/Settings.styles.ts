@@ -114,14 +114,6 @@ export const Input = styled.input`
   font-size: ${theme.fontSizes.sm};
 `;
 
-export const Select = styled.select`
-  padding: 10px 12px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.sm};
-  font-size: ${theme.fontSizes.sm};
-  background-color: ${theme.colors.white};
-`;
-
 export const LocationButtonRow = styled.div`
   display: flex;
   align-items: center;

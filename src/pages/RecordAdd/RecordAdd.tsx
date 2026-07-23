@@ -32,6 +32,7 @@ const RecordAdd = () => {
   const [isLocationResolved, setIsLocationResolved] = useState(false);
 
   const [analysis, setAnalysis] = useState<AiFoodResponse | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
   const [foodName, setFoodName] = useState('');
   const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantCandidate | null>(null);
 
@@ -60,6 +61,7 @@ const RecordAdd = () => {
     analyzeImage(formData, {
       onSuccess: (data) => {
         setAnalysis(data);
+        setUploadedImageUrl(data.imageUrl);
       },
       onError: () => {
         setAnalysis(null);
@@ -90,6 +92,7 @@ const RecordAdd = () => {
 
   const handleRetakePhoto = () => {
     setAnalysis(null);
+    setUploadedImageUrl('');
     setPhotoFile(null);
     setFoodName('');
     setSelectedRestaurant(null);
@@ -97,7 +100,7 @@ const RecordAdd = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedRestaurant || !photoFile || isSaving) return;
+    if (!selectedRestaurant || !uploadedImageUrl || isSaving) return;
 
     const restaurant: RestaurantInfo = {
       kakaoPlaceId: selectedRestaurant.kakaoPlaceId,
@@ -112,6 +115,7 @@ const RecordAdd = () => {
       kakaoPlaceId: restaurant.kakaoPlaceId,
       restaurant,
       foodName: foodName.trim(),
+      imageUrl: uploadedImageUrl,
       visitDate,
       willRevisit,
       isPublic,
@@ -124,21 +128,12 @@ const RecordAdd = () => {
       longitude: restaurant.longitude,
     };
 
-    const formData = new FormData();
-
-    formData.append(
-      'request',
-      new Blob([JSON.stringify(request)], {
-        type: 'application/json',
-      }),
-    );
-
-    formData.append('image', photoFile);
-
     try {
       setIsSaving(true);
 
-      await saveRecord(formData);
+      // 분석 단계에서 원본 업로드와 서버 최적화가 끝났으므로
+      // 최종 저장에서는 imageUrl을 포함한 작은 JSON만 전송한다.
+      await saveRecord(request);
 
       navigate(`/record/${visitDate}`);
     } catch (error) {

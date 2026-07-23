@@ -5,8 +5,9 @@ import { useApproveDraft } from '~/hooks/useApproveDraft';
 import { useRejectDraft } from '~/hooks/useRejectDraft';
 import { useUpdateDraftLocationType } from '~/hooks/useUpdateDraftLocationType';
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
-import { resolveImageUrl } from '~/utils/image';
+import { resolveOptimizedImageUrl } from '~/utils/image';
 import type { LocationType, RestaurantCandidate } from '~/apis/record/record.types';
+import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
 import * as S from './DraftDetail.styles';
 
 const LOCATION_TYPE_OPTIONS: { value: LocationType; label: string }[] = [
@@ -104,14 +105,13 @@ const DraftDetail = () => {
         <S.Title>{draft.shared ? '공유받은 기록 확인' : '자동 기록 확인'}</S.Title>
       </S.HeaderRow>
 
-      <S.Image src={resolveImageUrl(draft.imageUrl)} alt={draft.foodName} />
+      <S.Image
+        src={resolveOptimizedImageUrl(draft.imageUrl)}
+        alt={draft.foodName}
+        decoding="async"
+      />
 
-      {draft.shared && draft.sourceUserNickname && (
-        <S.SharedNotice>
-          {draft.sourceUserNickname}님이 같이 먹은 기록을 보냈어요. 내 기록에도 추가할지
-          선택해주세요.
-        </S.SharedNotice>
-      )}
+      {draft.shared && draft.sourceUserNickname && <></>}
 
       {!draft.shared && !draft.hasExifGps && (
         <S.GpsWarning>
@@ -134,16 +134,11 @@ const DraftDetail = () => {
 
       <S.Field>
         <S.Label>장소 유형</S.Label>
-        <S.Select
+        <PlaceTypeWheelPicker
           value={locationType}
-          onChange={(e) => setLocationType(e.target.value as LocationType)}
-        >
-          {LOCATION_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </S.Select>
+          options={LOCATION_TYPE_OPTIONS}
+          onChange={(value) => setLocationType(value as LocationType)}
+        />
         <S.SaveLocationButton
           type="button"
           onClick={handleSaveLocationOnly}

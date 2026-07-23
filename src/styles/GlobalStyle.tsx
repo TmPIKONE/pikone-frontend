@@ -12,15 +12,18 @@ export const GlobalStyle = () => (
         padding: 0;
       }
 
-      html,
-      body {
-        height: 100%;
+      html {
+        min-height: 100%;
+        background-color: #d9d9d9;
       }
 
       body {
+        min-height: 100vh;
+        min-height: 100dvh;
         background-color: #d9d9d9;
         display: flex;
         justify-content: center;
+        align-items: flex-start;
         font-family: ${theme.fonts.base};
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -29,11 +32,12 @@ export const GlobalStyle = () => (
       #root {
         width: 100%;
         max-width: ${theme.app.maxWidth};
+        min-height: 100vh;
         min-height: 100dvh;
         background-color: ${theme.colors.white};
         position: relative;
         box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
-        overflow-x: hidden;
+        overflow-x: clip;
       }
 
       a {

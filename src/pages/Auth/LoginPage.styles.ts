@@ -94,7 +94,7 @@ export const FoodIcon = styled.img<{
     ${({ $position }) => FOOD_ICON_POSITION[$position]};
 
     @media (max-width: 450px) {
-        width: clamp(130px, 42vw, 190px);
+        width: clamp(130px, 50vw, 150px);
         
         ${({ $position }) => FOOD_ICON_POSITION_MOBILE[$position]};
     }
@@ -191,11 +191,4 @@ export const LoginText = styled.span`
   justify-self: center;
 `;
 
-export const OtherLoginButton = styled.button`
-  align-self: center;
-  padding: 8px 12px;
 
-  color: #8e98a8;
-  font-size: ${theme.fontSizes.md};
-  font-weight: ${theme.fontWeights.bold};
-`;

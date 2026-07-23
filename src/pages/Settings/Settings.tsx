@@ -12,6 +12,7 @@ import { useWithdrawal } from '~/hooks/useWithdrawal';
 import { useToast } from '~/components/Toast/Toast';
 import HomeLocationList from '~/components/HomeLocationList/HomeLocationList';
 import AllergenForm from '~/components/AllergenForm/AllergenForm';
+import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
 import { resolveImageUrl } from '~/utils/image';
 import type {
   HomeLocationResponse,
@@ -165,7 +166,6 @@ const Settings = () => {
           />
           <S.ProfileInfo>
             <S.ProfileNickname>{user?.nickname}</S.ProfileNickname>
-            <S.ProfileEmail>{user?.email}</S.ProfileEmail>
           </S.ProfileInfo>
         </S.ProfileRow>
       </S.Section>
@@ -181,18 +181,14 @@ const Settings = () => {
             {editingId == null && (
               <S.Field>
                 <S.Label>유형</S.Label>
-                <S.Select
+                <PlaceTypeWheelPicker
                   value={form.type}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, type: e.target.value as HomeLocationType }))
+                  options={HOME_LOCATION_TYPE_OPTIONS}
+                  title="고정 장소 유형 선택"
+                  onChange={(value) =>
+                    setForm((prev) => ({ ...prev, type: value as HomeLocationType }))
                   }
-                >
-                  {HOME_LOCATION_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </S.Select>
+                />
               </S.Field>
             )}
 

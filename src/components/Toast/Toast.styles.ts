@@ -9,16 +9,16 @@ const TYPE_COLOR: Record<ToastType, string> = {
 };
 
 export const ToastViewport = styled.div`
-  position: fixed;
-  bottom: calc(${theme.nav.height} + 42px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  width: min(calc(100% - 32px), 250px);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: none;
+    position: fixed;
+    bottom: calc(112px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: min(calc(100% - 32px), 250px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
 `;
 
 export const ToastItem = styled.div<{ $type: ToastType }>`

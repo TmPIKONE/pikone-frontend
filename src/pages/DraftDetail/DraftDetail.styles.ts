@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
 export const Container = styled.div`
-  padding: 20px 16px 40px;
+  padding: 20px 16px 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -11,13 +11,13 @@ export const Container = styled.div`
 export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const BackButton = styled.button`
   border: none;
   background: none;
-  font-size: ${theme.fontSizes.lg};
+  font-size: ${theme.fontSizes.xxl};
   color: ${theme.colors.gray600};
   cursor: pointer;
   padding: 4px 8px;
@@ -67,14 +67,6 @@ export const Input = styled.input`
   border: 1px solid ${theme.colors.gray300};
   border-radius: ${theme.radius.md};
   font-size: ${theme.fontSizes.md};
-`;
-
-export const Select = styled.select`
-  padding: 12px 14px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  font-size: ${theme.fontSizes.md};
-  background-color: ${theme.colors.white};
 `;
 
 export const GpsWarning = styled.div`

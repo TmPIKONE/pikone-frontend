@@ -10,7 +10,7 @@ const Draft = () => {
   return (
     <S.Container>
       <S.HeaderRow>
-        <S.BackButton onClick={() => navigate(-1)}>{'<'}</S.BackButton>
+        <S.BackButton onClick={() => navigate('/home')}>{'<'}</S.BackButton>
         <S.Title>확인할 기록</S.Title>
         {!!drafts?.length && <S.CountBadge>{drafts.length}</S.CountBadge>}
       </S.HeaderRow>

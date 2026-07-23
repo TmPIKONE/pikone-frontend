@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronRight } from 'lucide-react';
-import { resolveImageUrl } from '~/utils/image';
+import { resolveThumbnailUrl } from '~/utils/image';
 import * as S from './DraftCard.styles';
 import type { DraftCardProps } from './DraftCard.types';
 
@@ -14,13 +14,16 @@ const formatCapturedAt = (isoString: string) => {
 const DraftCard = ({ draft, onClick }: DraftCardProps) => {
   return (
     <S.Card type="button" onClick={onClick}>
-      <S.Thumbnail src={resolveImageUrl(draft.imageUrl)} alt={draft.foodName} />
+      <S.Thumbnail
+        src={resolveThumbnailUrl(draft.imageUrl)}
+        alt={draft.foodName}
+        loading="lazy"
+        decoding="async"
+      />
 
       <S.Info>
         <S.FoodName>{draft.foodName || '음식 이름 없음'}</S.FoodName>
-        {draft.shared && draft.sourceUserNickname && (
-          <S.SharedText>{draft.sourceUserNickname}님이 함께한 기록을 보냈어요.</S.SharedText>
-        )}
+
         <S.CapturedAt>{formatCapturedAt(draft.capturedAt)}</S.CapturedAt>
 
         {!draft.hasExifGps && (

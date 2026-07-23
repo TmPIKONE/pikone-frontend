@@ -46,9 +46,6 @@ export const theme = {
     lg: '24px',
     xl: '32px',
   },
-  nav: {
-    height: '65px',
-  },
   app: {
     maxWidth: '500px',
   },

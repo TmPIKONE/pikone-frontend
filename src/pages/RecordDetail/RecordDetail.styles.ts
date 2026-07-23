@@ -34,15 +34,13 @@ export const RecordList = styled.div`
   gap: 16px;
 `;
 
-export const RecordCard = styled.div<{ $highlighted?: boolean }>`
+export const RecordCard = styled.div`
   display: flex;
   gap: 12px;
   padding: 12px;
   border-radius: ${theme.radius.md};
-  border: 1px solid
-    ${({ $highlighted }) => ($highlighted ? theme.colors.primary : theme.colors.gray200)};
-  background-color: ${({ $highlighted }) =>
-    $highlighted ? theme.colors.primaryLight : theme.colors.white};
+  border: 1px solid ${theme.colors.gray200};
+  background-color: ${theme.colors.white};
 `;
 
 export const RecordImage = styled.img`

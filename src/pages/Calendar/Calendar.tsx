@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCalendar } from '~/hooks/useCalendar';
-import { resolveImageUrl } from '~/utils/image';
+import { resolveThumbnailUrl } from '~/utils/image';
 import * as S from './Calendar.styles';
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -134,7 +134,9 @@ const Calendar = () => {
                     {record && (
                       <S.DayPhotoCard>
                         <S.DayThumbnail
-                          src={resolveImageUrl(record.thumbnailUrl)}
+                          src={resolveThumbnailUrl(record.thumbnailUrl)}
+                          loading="lazy"
+                          decoding="async"
                           alt={`${dateStr} 기록`}
                         />
                       </S.DayPhotoCard>

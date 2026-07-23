@@ -36,6 +36,7 @@ export interface AiFoodResponse {
   confidence: number;
   restaurants: RestaurantCandidate[];
   recommendedRestaurant?: RestaurantCandidate;
+  imageUrl: string;
 }
 
 export interface RestaurantInfo {

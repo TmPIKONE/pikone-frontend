@@ -1,4 +1,5 @@
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
+import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
 import * as S from './Step2Save.styles';
 import type { Step2SaveProps } from './Step2Save.types';
 import type { LocationType } from '~/apis/record/record.types';
@@ -131,16 +132,11 @@ const Step2Save = ({
 
       <S.Field>
         <S.Label>장소 유형</S.Label>
-        <S.Select
+        <PlaceTypeWheelPicker
           value={locationType}
-          onChange={(e) => onLocationTypeChange(e.target.value as LocationType)}
-        >
-          {LOCATION_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </S.Select>
+          options={LOCATION_TYPE_OPTIONS}
+          onChange={(value) => onLocationTypeChange(value as LocationType)}
+        />
       </S.Field>
 
       <S.ToggleRow>

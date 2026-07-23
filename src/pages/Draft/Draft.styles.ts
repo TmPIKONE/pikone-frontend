@@ -11,13 +11,13 @@ export const Container = styled.div`
 export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const BackButton = styled.button`
   border: none;
   background: none;
-  font-size: ${theme.fontSizes.lg};
+  font-size: ${theme.fontSizes.xxl};
   color: ${theme.colors.gray600};
   cursor: pointer;
   padding: 4px 8px;

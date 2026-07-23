@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useCompanions } from '~/hooks/useCompanions';
 import { useCompanionRecords } from '~/hooks/useCompanionRecords';
-import { resolveImageUrl } from '~/utils/image';
+import { resolveOptimizedImageUrl, resolveThumbnailUrl } from '~/utils/image';
 import type { FriendRecordResponse } from '~/apis/companion/companion.types';
 import * as S from './CompanionRecord.styles';
 import type { CompanionRecordRouteParams } from './CompanionRecord.types';
@@ -39,7 +39,12 @@ const CompanionRecord = () => {
           {records.map((record) => (
             <S.RecordCard key={record.recordId}>
               <S.ImageButton type="button" onClick={() => setSelectedRecord(record)}>
-                <S.RecordImage src={resolveImageUrl(record.imageUrl)} alt={record.foodName} />
+                <S.RecordImage
+                  src={resolveThumbnailUrl(record.imageUrl)}
+                  alt={record.foodName}
+                  loading="lazy"
+                  decoding="async"
+                />
               </S.ImageButton>
               <S.RecordInfo>
                 <S.FoodNameRow>
@@ -67,7 +72,8 @@ const CompanionRecord = () => {
           </S.ViewerCloseButton>
           <S.ViewerContent onClick={(e) => e.stopPropagation()}>
             <S.ViewerImage
-              src={resolveImageUrl(selectedRecord.imageUrl)}
+              src={resolveOptimizedImageUrl(selectedRecord.imageUrl)}
+              decoding="async"
               alt={selectedRecord.foodName}
             />
             <S.ViewerCaption>

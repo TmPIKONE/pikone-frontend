@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecordsByDate } from '~/hooks/useRecordsByDate';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
 import { useUpdateVisibility } from '~/hooks/useUpdateVisibility';
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import Switch from '~/components/Switch/Switch';
-import { resolveImageUrl } from '~/utils/image';
+import { resolveOptimizedImageUrl } from '~/utils/image';
 import type { RecordDetailResponse } from '~/apis/record/record.types';
 import * as S from './RecordDetail.styles';
 
 interface RecordItemProps {
   record: RecordDetailResponse;
-  highlighted: boolean;
 }
 
-const RecordItem = ({ record, highlighted }: RecordItemProps) => {
+const RecordItem = ({ record }: RecordItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [foodName, setFoodName] = useState(record.foodName);
 
@@ -45,8 +44,12 @@ const RecordItem = ({ record, highlighted }: RecordItemProps) => {
   };
 
   return (
-    <S.RecordCard $highlighted={highlighted}>
-      <S.RecordImage src={resolveImageUrl(record.imageUrl)} alt={record.foodName} />
+    <S.RecordCard>
+      <S.RecordImage
+        src={resolveOptimizedImageUrl(record.imageUrl)}
+        alt={record.foodName}
+        decoding="async"
+      />
 
       <S.RecordInfo>
         <S.FoodNameRow>
@@ -96,9 +99,6 @@ const RecordItem = ({ record, highlighted }: RecordItemProps) => {
 const RecordDetail = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
-  const [searchParams] = useSearchParams();
-  const highlightId = searchParams.get('highlight');
-
   const { data: records, isLoading } = useRecordsByDate(date ?? '');
 
   return (
@@ -113,11 +113,7 @@ const RecordDetail = () => {
       ) : records && records.length > 0 ? (
         <S.RecordList>
           {records.map((record) => (
-            <RecordItem
-              key={record.recordId}
-              record={record}
-              highlighted={String(record.recordId) === highlightId}
-            />
+            <RecordItem key={record.recordId} record={record} />
           ))}
         </S.RecordList>
       ) : (

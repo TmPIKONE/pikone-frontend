@@ -93,14 +93,6 @@ export const Input = styled.input`
   }
 `;
 
-export const Select = styled.select`
-  padding: 12px 14px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  font-size: ${theme.fontSizes.md};
-  background-color: ${theme.colors.white};
-`;
-
 /* ── 태그 ── */
 
 export const TagRow = styled.div`

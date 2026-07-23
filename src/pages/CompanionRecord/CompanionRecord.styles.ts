@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
 export const Container = styled.div`
-  padding: 20px 16px 36px;
+  padding: 20px 16px 40px;
   display: flex;
   flex-direction: column;
   gap: 18px;
