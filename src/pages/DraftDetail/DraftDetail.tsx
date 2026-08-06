@@ -1,13 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { usePendingDrafts } from '~/hooks/usePendingDrafts';
-import { useApproveDraft } from '~/hooks/useApproveDraft';
-import { useRejectDraft } from '~/hooks/useRejectDraft';
-import { useUpdateDraftLocationType } from '~/hooks/useUpdateDraftLocationType';
+import {
+  useApproveDraft,
+  usePendingDrafts,
+  useRejectDraft,
+  useUpdateDraftLocationType,
+} from '~/features/drafts/draft.queries';
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
-import { resolveOptimizedImageUrl } from '~/utils/image';
-import type { LocationType, RestaurantCandidate } from '~/apis/record/record.types';
 import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
+import Switch from '~/components/Switch/Switch';
+import { resolveOptimizedImageUrl } from '~/utils/image';
+import type { DraftResponse } from '~/apis/draft/draft.types';
+import type { LocationType, RestaurantCandidate } from '~/apis/record/record.types';
 import * as S from './DraftDetail.styles';
 
 const LOCATION_TYPE_OPTIONS: { value: LocationType; label: string }[] = [
@@ -18,57 +23,26 @@ const LOCATION_TYPE_OPTIONS: { value: LocationType; label: string }[] = [
   { value: 'UNKNOWN', label: '미정' },
 ];
 
-const DraftDetail = () => {
+interface DraftEditorProps {
+  draft: DraftResponse;
+}
+
+const DraftEditor = ({ draft }: DraftEditorProps) => {
   const navigate = useNavigate();
-  const { draftId } = useParams<{ draftId: string }>();
-  const numericDraftId = Number(draftId);
-
-  const { data: drafts, isLoading } = usePendingDrafts();
-  const draft = drafts?.find((d) => d.draftId === numericDraftId);
-
-  const [foodName, setFoodName] = useState('');
-  const [locationType, setLocationType] = useState<LocationType>('UNKNOWN');
-  const [selectedCandidate, setSelectedCandidate] = useState<RestaurantCandidate | null>(null);
+  const [foodName, setFoodName] = useState(draft.foodName);
+  const [locationType, setLocationType] = useState<LocationType>(draft.locationType);
+  const [selectedCandidate, setSelectedCandidate] = useState<RestaurantCandidate | null>(
+    draft.restaurantCandidates[0] ?? null,
+  );
   const [companionId, setCompanionId] = useState<number | null>(null);
   const [willRevisit, setWillRevisit] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
 
-  // draft 데이터가 (비동기로) 도착하면 그때 폼 초기값을 채워요.
-  useEffect(() => {
-    if (!draft) return;
-    setFoodName(draft.foodName);
-    setLocationType(draft.locationType);
-    setSelectedCandidate(draft.restaurantCandidates[0] ?? null);
-  }, [draft]);
-
-  const { mutate: approveDraft, isPending: isApproving } = useApproveDraft(numericDraftId);
-  const { mutate: rejectDraft, isPending: isRejecting } = useRejectDraft(numericDraftId);
-  const { mutate: saveLocationType, isPending: isSavingLocation } =
-    useUpdateDraftLocationType(numericDraftId);
-
-  if (isLoading) {
-    return (
-      <S.Container>
-        <S.EmptyState>불러오는 중...</S.EmptyState>
-      </S.Container>
-    );
-  }
-
-  if (!draft) {
-    return (
-      <S.Container>
-        <S.HeaderRow>
-          <S.BackButton onClick={() => navigate('/draft')}>{'<'}</S.BackButton>
-          <S.Title>기록 확인</S.Title>
-        </S.HeaderRow>
-        <S.EmptyState>이미 처리됐거나 찾을 수 없는 기록이에요.</S.EmptyState>
-      </S.Container>
-    );
-  }
-
-  const handleSaveLocationOnly = () => {
-    saveLocationType({ locationType });
-  };
+  const { mutate: approveDraft, isPending: isApproving } = useApproveDraft(draft.draftId);
+  const { mutate: rejectDraft, isPending: isRejecting } = useRejectDraft(draft.draftId);
+  const { mutate: saveLocationType, isPending: isSavingLocation } = useUpdateDraftLocationType(
+    draft.draftId,
+  );
 
   const handleReject = () => {
     if (!window.confirm('이 기록을 거절할까요? 거절하면 되돌릴 수 없어요.')) return;
@@ -96,12 +70,20 @@ const DraftDetail = () => {
     );
   };
 
-  const canApprove = !!foodName.trim() && (locationType !== 'RESTAURANT' || !!selectedCandidate);
+  const canApprove = Boolean(
+    foodName.trim() && (locationType !== 'RESTAURANT' || selectedCandidate),
+  );
 
   return (
     <S.Container>
       <S.HeaderRow>
-        <S.BackButton onClick={() => navigate('/draft')}>{'<'}</S.BackButton>
+        <S.BackButton
+          type="button"
+          aria-label="기록 목록으로 돌아가기"
+          onClick={() => navigate('/draft')}
+        >
+          <ChevronLeft size={22} />
+        </S.BackButton>
         <S.Title>{draft.shared ? '공유받은 기록 확인' : '자동 기록 확인'}</S.Title>
       </S.HeaderRow>
 
@@ -111,11 +93,13 @@ const DraftDetail = () => {
         decoding="async"
       />
 
-      {draft.shared && draft.sourceUserNickname && <></>}
+      {draft.shared && draft.sourceUserNickname && (
+        <S.GpsWarning>{draft.sourceUserNickname}님이 공유한 기록이에요.</S.GpsWarning>
+      )}
 
       {!draft.shared && !draft.hasExifGps && (
         <S.GpsWarning>
-          사진 EXIF 위치 정보가 없어 현재 위치 기준으로 후보를 찾았어요. 맞는 식당인지 확인해주세요.
+          사진에 위치 정보가 없어 현재 위치 기준으로 찾았어요. 식당이 맞는지 확인해주세요.
         </S.GpsWarning>
       )}
 
@@ -128,23 +112,28 @@ const DraftDetail = () => {
       )}
 
       <S.Field>
-        <S.Label>음식 이름</S.Label>
-        <S.Input value={foodName} onChange={(e) => setFoodName(e.target.value)} />
+        <S.Label htmlFor="draft-food-name">음식 이름</S.Label>
+        <S.Input
+          id="draft-food-name"
+          value={foodName}
+          onChange={(event) => setFoodName(event.target.value)}
+        />
       </S.Field>
 
       <S.Field>
-        <S.Label>장소 유형</S.Label>
+        <S.Label htmlFor="draft-location-type">장소 유형</S.Label>
         <PlaceTypeWheelPicker
+          id="draft-location-type"
           value={locationType}
           options={LOCATION_TYPE_OPTIONS}
           onChange={(value) => setLocationType(value as LocationType)}
         />
         <S.SaveLocationButton
           type="button"
-          onClick={handleSaveLocationOnly}
+          onClick={() => saveLocationType({ locationType })}
           disabled={isSavingLocation}
         >
-          {isSavingLocation ? '저장 중...' : '위치만 저장하기'}
+          {isSavingLocation ? '저장 중...' : '위치만 먼저 저장'}
         </S.SaveLocationButton>
       </S.Field>
 
@@ -176,29 +165,65 @@ const DraftDetail = () => {
       {!draft.shared && <CompanionSelector value={companionId} onChange={setCompanionId} />}
 
       <S.ToggleRow>
-        <S.ToggleLabel>재방문 의사가 있어요</S.ToggleLabel>
-        <S.Switch $on={willRevisit} onClick={() => setWillRevisit(!willRevisit)} />
+        <S.ToggleLabel>이 식당에 다시 가고 싶어요</S.ToggleLabel>
+        <Switch checked={willRevisit} onChange={setWillRevisit} ariaLabel="재방문 의사" />
       </S.ToggleRow>
 
       <S.ToggleRow>
-        <S.ToggleLabel>다른 사람에게 공개할래요</S.ToggleLabel>
-        <S.Switch $on={isPublic} onClick={() => setIsPublic(!isPublic)} />
+        <S.ToggleLabel>동반자에게 기록을 공개해요</S.ToggleLabel>
+        <Switch checked={isPublic} onChange={setIsPublic} ariaLabel="동반자 공개 여부" />
       </S.ToggleRow>
 
       <S.ButtonRow>
         <S.RejectButton type="button" onClick={handleReject} disabled={isRejecting}>
-          거절
+          {isRejecting ? '처리 중...' : '제외'}
         </S.RejectButton>
         <S.ApproveButton
           type="button"
           onClick={handleApprove}
           disabled={!canApprove || isApproving}
         >
-          {isApproving ? '승인 중...' : '내 기록에 추가'}
+          {isApproving ? '추가 중...' : '내 기록에 추가'}
         </S.ApproveButton>
       </S.ButtonRow>
     </S.Container>
   );
+};
+
+const DraftDetail = () => {
+  const navigate = useNavigate();
+  const { draftId } = useParams<{ draftId: string }>();
+  const numericDraftId = Number(draftId);
+  const { data: drafts, isLoading } = usePendingDrafts();
+  const draft = drafts?.find((item) => item.draftId === numericDraftId);
+
+  if (isLoading) {
+    return (
+      <S.Container>
+        <S.EmptyState>기록을 불러오고 있어요...</S.EmptyState>
+      </S.Container>
+    );
+  }
+
+  if (!draft) {
+    return (
+      <S.Container>
+        <S.HeaderRow>
+          <S.BackButton
+            type="button"
+            aria-label="기록 목록으로 돌아가기"
+            onClick={() => navigate('/draft')}
+          >
+            <ChevronLeft size={22} />
+          </S.BackButton>
+          <S.Title>기록 확인</S.Title>
+        </S.HeaderRow>
+        <S.EmptyState>이미 처리됐거나 찾을 수 없는 기록이에요.</S.EmptyState>
+      </S.Container>
+    );
+  }
+
+  return <DraftEditor key={draft.draftId} draft={draft} />;
 };
 
 export default DraftDetail;

@@ -1,71 +1,103 @@
 import styled from '@emotion/styled';
+import { theme } from '~/styles/theme';
 
 export const Banner = styled.button`
-    width: calc(100% + 36px);
-    min-height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin: 0px -18px 0;
-    padding: 28px 42px;
-
-    border: none;
-    background: #315f9e;
-    color: #ffffff;
-    text-align: left;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-
-    &:active {
-        transform: scale(0.99);
-    }
-    
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  display: block;
+  overflow: hidden;
+  padding: 36px ${theme.app.pagePadding} 42px;
+  background: ${theme.colors.powderBlue};
+  color: ${theme.colors.white};
+  text-align: left;
 `;
 
-export const Copy = styled.div`
-  width: 100%;
+export const TopRow = styled.span`
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(50, 94, 148, 0.66);
+  font-size: 16px;
+  font-weight: 900;
+`;
+
+export const Theme = styled.strong`
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 15px;
+  border-radius: ${theme.radius.full};
+  background: #5e8fc5;
+  color: ${theme.colors.white};
+  font-size: 12px;
+`;
+
+export const Score = styled.span`
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+
+  strong {
+    color: ${theme.colors.white};
+    font-size: 40px;
+    font-weight: 950;
+    letter-spacing: -0.055em;
+  }
+
+  span {
+    margin-top: 7px;
+    color: rgba(50, 94, 148, 0.72);
+    font-size: 13px;
+    font-weight: 850;
+  }
 `;
 
-export const Eyebrow = styled.span`
-  margin-bottom: 10px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-`;
+export const Mascot = styled.span`
+  position: relative;
+  width: 250px;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  margin: 28px auto 0;
+  border-radius: 50% 50% 42% 42%;
+  background: rgba(100, 146, 199, 0.42);
 
-export const Title = styled.h2`
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(24px, 6vw, 30px);
-  font-weight: 900;
-  line-height: 1.2;
-  letter-spacing: -0.05em;
-`;
+  &::before {
+    content: '';
+    position: absolute;
+    width: 176px;
+    height: 176px;
+    border-radius: 48% 48% 44% 44%;
+    background: #ffe0af;
+  }
 
-export const Description = styled.p`
-  margin: 14px 0 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.6;
+  span {
+    position: relative;
+    z-index: 1;
+    font-size: 74px;
+  }
 `;
 
 export const Action = styled.span`
-  min-height: 42px;
-  display: inline-flex;
+  position: absolute;
+  left: ${theme.app.pagePadding};
+  right: ${theme.app.pagePadding};
+  bottom: 34px;
+  z-index: 1;
+  min-height: 60px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  margin-top: 20px;
-  padding: 0 18px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #315f9e;
-  font-size: 12px;
-  font-weight: 800;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-radius: 20px;
+  background: #5e8fc5;
+  color: ${theme.colors.white};
+  font-size: 14px;
+  font-weight: 900;
 `;

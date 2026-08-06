@@ -1,11 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Check, Info, X } from 'lucide-react';
+import { ToastContext } from './Toast.context';
 import * as S from './Toast.styles';
-import type { ToastContextValue, ToastMessage, ToastProviderProps, ToastType } from './Toast.types';
-
-const ToastContext = createContext<ToastContextValue>({
-  showToast: () => {},
-});
+import type { ToastMessage, ToastProviderProps, ToastType } from './Toast.types';
 
 const TOAST_DURATION_MS = 2400;
 
@@ -46,5 +43,3 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     </ToastContext.Provider>
   );
 };
-
-export const useToast = () => useContext(ToastContext);

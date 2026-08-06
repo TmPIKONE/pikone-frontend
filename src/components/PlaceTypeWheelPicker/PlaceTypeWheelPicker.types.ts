@@ -4,6 +4,7 @@ export interface PlaceTypeOption {
 }
 
 export interface PlaceTypeWheelPickerProps {
+  id?: string;
   value: string;
   options: readonly PlaceTypeOption[];
   onChange: (value: string) => void;

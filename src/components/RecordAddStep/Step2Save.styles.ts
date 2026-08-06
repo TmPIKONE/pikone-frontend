@@ -1,11 +1,26 @@
-import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+`;
+
+export const PageTitle = styled.h1`
+  color: ${theme.colors.black};
+  font-size: clamp(30px, 8vw, 39px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.06em;
+`;
+
+export const PageDescription = styled.p`
+  margin-top: -11px;
+  color: ${theme.colors.gray400};
+  font-size: 13px;
+  font-weight: 650;
 `;
 
 const spin = keyframes`
@@ -13,100 +28,144 @@ const spin = keyframes`
 `;
 
 export const AnalysisBanner = styled.div<{ $state: 'analyzing' | 'ready' | 'error' }>`
+  min-height: 60px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
-  border-radius: ${theme.radius.md};
-  background-color: ${({ $state }) =>
-    $state === 'ready' ? theme.colors.primaryLight : theme.colors.gray100};
+  margin-top: 8px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: ${({ $state }) => ($state === 'ready' ? '#EAF5F0' : theme.colors.gray100)};
 `;
 
 export const Spinner = styled.div`
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
   border: 2px solid ${theme.colors.gray300};
-  border-top-color: ${theme.colors.primary};
+  border-top-color: ${theme.colors.black};
+  border-radius: 50%;
   animation: ${spin} 0.7s linear infinite;
 `;
 
 export const AnalysisText = styled.span`
+  min-width: 0;
   flex: 1;
-  font-size: ${theme.fontSizes.sm};
   color: ${theme.colors.gray700};
+  font-size: 12px;
+  font-weight: 700;
 `;
 
 export const UseAnalysisButton = styled.button`
-  padding: 8px 12px;
-  border: none;
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.primary};
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.black};
   color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.semibold};
+  font-size: 10px;
+  font-weight: 800;
   white-space: nowrap;
-  cursor: pointer;
 `;
 
 export const RetryButton = styled.button`
-  padding: 8px 12px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.gray700};
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.medium};
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.white};
+  color: ${theme.colors.black};
+  font-size: 10px;
+  font-weight: 800;
   white-space: nowrap;
-  cursor: pointer;
-`;
-
-export const StatusBox = styled.div`
-  padding: 20px 0;
-  text-align: center;
-  color: ${theme.colors.gray500};
-  font-size: ${theme.fontSizes.sm};
 `;
 
 export const Field = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 11px;
 `;
 
-export const Label = styled.label`
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.medium};
-  color: ${theme.colors.gray600};
+export const AutoCard = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid ${theme.colors.gray200};
+  border-radius: 26px;
+  background: ${theme.colors.white};
 `;
 
-export const Input = styled.input`
-  padding: 12px 14px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  font-size: ${theme.fontSizes.md};
+export const AutoCardHeading = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.primary};
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: ${theme.colors.accent};
+    font-size: 12px;
+    font-weight: 850;
+  }
+
+  small {
+    color: ${theme.colors.gray400};
+    font-size: 9px;
+    font-weight: 700;
   }
 `;
 
-/* ── 태그 ── */
+export const Label = styled.label`
+  color: ${theme.colors.gray500};
+  font-size: 14px;
+  font-weight: 800;
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  min-height: 60px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 20px;
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.black};
+  font-size: 16px;
+  font-weight: 700;
+
+  &::placeholder {
+    color: ${theme.colors.gray400};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${theme.colors.black};
+    outline-offset: 0;
+  }
+`;
+
+export const StatusBox = styled.div`
+  padding: 24px 0;
+  color: ${theme.colors.gray400};
+  font-size: 12px;
+  font-weight: 650;
+  text-align: center;
+`;
 
 export const TagRow = styled.div`
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
+  gap: 8px;
 `;
 
 export const Tag = styled.span`
-  padding: 4px 10px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 15px;
   border-radius: ${theme.radius.full};
-  background-color: ${theme.colors.gray100};
-  color: ${theme.colors.gray600};
-  font-size: ${theme.fontSizes.xs};
+  background: #eaf2fb;
+  color: #78a8dc;
+  font-size: 12px;
+  font-weight: 800;
 `;
 
 export const RestaurantList = styled.div`
@@ -116,107 +175,162 @@ export const RestaurantList = styled.div`
 `;
 
 export const RestaurantCard = styled.button<{ $selected: boolean }>`
+  min-height: 72px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: ${theme.radius.md};
-  border: 1.5px solid
-    ${({ $selected }) => ($selected ? theme.colors.primary : theme.colors.gray200)};
-  background-color: ${({ $selected }) =>
-    $selected ? theme.colors.primaryLight : theme.colors.white};
+  justify-content: center;
+  gap: 4px;
+  padding: 13px 17px;
+  border-radius: 20px;
+  background: ${({ $selected }) => ($selected ? theme.colors.black : theme.colors.gray100)};
+  color: ${({ $selected }) => ($selected ? theme.colors.white : theme.colors.black)};
   text-align: left;
-  cursor: pointer;
 `;
 
 export const RestaurantName = styled.span`
-  font-size: ${theme.fontSizes.md};
-  font-weight: ${theme.fontWeights.semibold};
+  font-size: 14px;
+  font-weight: 850;
 `;
 
 export const RestaurantMeta = styled.span`
-  font-size: ${theme.fontSizes.xs};
-  color: ${theme.colors.gray500};
+  overflow: hidden;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const EmptyRestaurantBox = styled.div`
-  padding: 20px;
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.gray100};
-  color: ${theme.colors.gray600};
-  font-size: ${theme.fontSizes.sm};
+  padding: 22px;
+  border-radius: 20px;
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.gray500};
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.5;
   text-align: center;
 `;
 
+export const DatePickerButton = styled.button`
+  width: 100%;
+  min-height: 60px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 0 12px;
+  border-radius: 20px;
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.black};
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid ${theme.colors.black};
+  }
+`;
+
+export const DateIcon = styled.span`
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: ${theme.colors.white};
+`;
+
+export const CapacityText = styled.p<{ $isFull: boolean }>`
+  margin: -2px 2px 0;
+  color: ${({ $isFull }) => ($isFull ? theme.colors.error : theme.colors.gray500)};
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.45;
+`;
+
+export const LocationTypeRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+`;
+
+export const LocationTypeChip = styled.button<{ $active: boolean }>`
+  min-height: 46px;
+  border: 1px solid ${({ $active }) => ($active ? theme.colors.black : theme.colors.gray200)};
+  border-radius: 15px;
+  background: ${({ $active }) => ($active ? theme.colors.black : theme.colors.white)};
+  color: ${({ $active }) => ($active ? theme.colors.white : theme.colors.gray700)};
+  font-size: 11px;
+  font-weight: 800;
+`;
+
+export const OptionsCard = styled.section`
+  overflow: hidden;
+  padding: 0 16px;
+  border-radius: 22px;
+  background: ${theme.colors.gray100};
+`;
+
 export const ToggleRow = styled.div`
+  min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 0;
+  padding: 0 1px;
+  border-bottom: 1px solid ${theme.colors.white};
+
+  &:last-child {
+    border-bottom: 0;
+  }
+`;
+
+export const ToggleCopy = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  > span {
+    color: ${theme.colors.gray700};
+    font-size: 14px;
+    font-weight: 750;
+  }
 `;
 
 export const ToggleLabel = styled.span`
-  font-size: ${theme.fontSizes.sm};
-`;
-
-export const Switch = styled.button<{ $on: boolean }>`
-  width: 44px;
-  height: 26px;
-  border-radius: ${theme.radius.full};
-  border: none;
-  background-color: ${({ $on }) => ($on ? theme.colors.primary : theme.colors.gray300)};
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: ${({ $on }) => ($on ? '21px' : '3px')};
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: ${theme.colors.white};
-    transition: left 0.15s ease;
-  }
+  color: ${theme.colors.black};
+  font-size: 14px;
+  font-weight: 750;
 `;
 
 export const ButtonRow = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin-top: 20px;
 `;
 
 export const BackButton = styled.button`
-  flex: 1;
-  padding: 14px 0;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.gray700};
-  font-size: ${theme.fontSizes.md};
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  min-height: 62px;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.black};
+  font-size: 14px;
+  font-weight: 800;
 `;
 
 export const SaveButton = styled.button`
-  flex: 2;
-  padding: 14px 0;
-  border: none;
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.primary};
+  min-height: 62px;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.black};
   color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.md};
-  font-weight: ${theme.fontWeights.semibold};
-  cursor: pointer;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.25;
 
   &:disabled {
-    background-color: ${theme.colors.gray300};
-    cursor: not-allowed;
+    background: ${theme.colors.gray100};
+    color: ${theme.colors.gray400};
   }
 `;

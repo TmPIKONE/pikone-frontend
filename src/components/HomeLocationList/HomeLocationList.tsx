@@ -1,4 +1,4 @@
-import { useDeleteHomeLocation } from '~/hooks/useDeleteHomeLocation';
+import { useDeleteHomeLocation } from '~/features/homeLocations/homeLocation.queries';
 import type {
   HomeLocationResponse,
   HomeLocationType,

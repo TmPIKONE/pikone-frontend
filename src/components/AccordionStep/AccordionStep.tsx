@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Check, Pencil } from 'lucide-react';
 import * as S from './AccordionStep.styles';
 

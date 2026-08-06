@@ -5,16 +5,29 @@ export interface CalendarResponse {
   visitDate: string;
   thumbnailUrl: string;
   companionName: string;
+  companionIds?: number[];
+  companionNames?: string[];
   isPublic: boolean;
+  restaurantName?: string;
+  foodName?: string;
+  willRevisit?: boolean;
 }
 
 export interface RecordDetailResponse {
   recordId: number;
   imageUrl: string;
   restaurantName: string;
+  restaurantAddress?: string;
+  kakaoPlaceId?: string;
+  latitude?: number;
+  longitude?: number;
   foodName: string;
+  visitDate?: string;
+  locationType?: LocationType;
   willRevisit: boolean;
   companionName: string;
+  companionIds?: number[];
+  companionNames?: string[];
   isPublic: boolean;
 }
 
@@ -57,6 +70,7 @@ export interface SaveRequest {
   willRevisit?: boolean;
   isPublic?: boolean;
   companionId?: number;
+  companionIds?: number[];
   shareWithCompanion?: boolean;
   locationType?: LocationType;
   placeName?: string;
@@ -80,9 +94,13 @@ export interface VisibilityResponse {
 }
 
 export interface UpdateRecordRequest {
+  restaurant?: RestaurantInfo;
   foodName?: string;
+  visitDate?: string;
+  imageUrl?: string;
   willRevisit?: boolean;
   isPublic?: boolean;
   companionId?: number;
+  companionIds?: number[];
   locationType?: LocationType;
 }

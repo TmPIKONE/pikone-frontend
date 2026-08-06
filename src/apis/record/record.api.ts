@@ -8,12 +8,14 @@ import type {
   VisibilityRequest,
   VisibilityResponse,
   UpdateRecordRequest,
+  RestaurantCandidate,
 } from './record.types';
 
 const RECORDS = '/records';
 const RECORDS_ANALYZE = '/records/analyze';
 const RECORDS_CALENDAR = '/records/calendar';
 const RECORDS_CALENDAR_DETAIL = '/records/calendar/detail';
+const RECORDS_RESTAURANT_SEARCH = '/records/restaurants/search';
 
 export const getCalendarBuilder = (year: number, month: number) =>
   ApiBuilder.create<void, CalendarResponse[]>(RECORDS_CALENDAR)
@@ -29,6 +31,11 @@ export const analyzeImageBuilder = (latitude?: number, longitude?: number) =>
   ApiBuilder.create<FormData, AiFoodResponse>(RECORDS_ANALYZE)
     .setMethod('POST')
     .setParams({ latitude, longitude });
+
+export const searchRestaurantsBuilder = (query: string, latitude?: number, longitude?: number) =>
+  ApiBuilder.create<void, RestaurantCandidate[]>(RECORDS_RESTAURANT_SEARCH)
+    .setMethod('GET')
+    .setParams({ query, latitude, longitude });
 
 export const saveRecordBuilder = () =>
   ApiBuilder.create<SaveRequest, SaveResponse>(RECORDS).setMethod('POST');

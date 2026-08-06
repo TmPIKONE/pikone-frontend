@@ -1,18 +1,15 @@
-export const BASE_URL = (
-    import.meta.env.VITE_BASE_URL || 'http://localhost:8080'
-).replace(/\/$/, '');
+export const BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:8080').replace(
+  /\/$/,
+  '',
+);
 
-export const KAKAO_LOGIN =
-    "/oauth2/authorization/kakao";
+export const KAKAO_LOGIN = '/oauth2/authorization/kakao';
 
-export const NAVER_LOGIN =
-    "/oauth2/authorization/naver";
+export const NAVER_LOGIN = '/oauth2/authorization/naver';
 
-export const REISSUE =
-    "/reissue";
+export const REISSUE = '/reissue';
+export const OAUTH_EXCHANGE = '/oauth2/exchange';
 
-export const LOGOUT =
-    "/logout";
+export const LOGOUT = '/logout';
 
-export const WITHDRAWAL =
-    "/withdrawal";
+export const WITHDRAWAL = '/withdrawal';

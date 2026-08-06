@@ -1,30 +1,33 @@
 import { useState } from 'react';
+import { CalendarDays, ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { HomeDatePicker } from '~/components/HomeDatePicker/HomeDatePicker';
 import Step1Photo from '~/components/RecordAddStep/Step1Photo';
 import Step2Save from '~/components/RecordAddStep/Step2Save';
-import { useAnalyzeImage } from '~/hooks/useAnalyzeImage';
-import { useSaveRecord } from '~/hooks/useSaveRecord';
+import { MAX_RECORDS_PER_DAY } from '~/features/records/record.constants';
+import {
+  createRecordViewState,
+  RECORD_VIEW_PATH,
+} from '~/features/records/recordViewNavigation';
+import {
+  useAnalyzeImage,
+  useRecordsByDate,
+  useSaveRecord,
+} from '~/features/records/record.queries';
 import type {
   AiFoodResponse,
   LocationType,
   RestaurantCandidate,
   RestaurantInfo,
 } from '~/apis/record/record.types';
+import { toLocalIsoDate } from '~/utils/date';
 import * as S from './RecordAdd.styles';
-
-const todayStr = () => {
-  const now = new Date();
-
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
-    now.getDate(),
-  ).padStart(2, '0')}`;
-};
 
 const RecordAdd = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const initialDate = searchParams.get('date') ?? todayStr();
+  const initialDate = searchParams.get('date') ?? toLocalIsoDate(new Date());
 
   const [step, setStep] = useState<1 | 2>(1);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -36,18 +39,22 @@ const RecordAdd = () => {
   const [foodName, setFoodName] = useState('');
   const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantCandidate | null>(null);
 
-  const [companionId, setCompanionId] = useState<number | null>(null);
+  const [companionIds, setCompanionIds] = useState<number[]>([]);
   const [visitDate, setVisitDate] = useState(initialDate);
   const [willRevisit, setWillRevisit] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
   const [locationType, setLocationType] = useState<LocationType>('RESTAURANT');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLimitDatePickerOpen, setIsLimitDatePickerOpen] = useState(false);
 
   const { mutate: analyzeImage, isPending: isAnalyzing } = useAnalyzeImage(
     coords.latitude,
     coords.longitude,
   );
   const { mutateAsync: saveRecord } = useSaveRecord();
+  const { data: existingRecords = [], isLoading: isDateCapacityLoading = false } =
+    useRecordsByDate(visitDate);
+  const isDateLimitReached = existingRecords.length >= MAX_RECORDS_PER_DAY;
 
   const handleLocationResolved = (latitude?: number, longitude?: number) => {
     setCoords({ latitude, longitude });
@@ -62,6 +69,8 @@ const RecordAdd = () => {
       onSuccess: (data) => {
         setAnalysis(data);
         setUploadedImageUrl(data.imageUrl);
+        setFoodName(data.foodName);
+        setSelectedRestaurant(data.recommendedRestaurant ?? data.restaurants[0] ?? null);
       },
       onError: () => {
         setAnalysis(null);
@@ -71,6 +80,10 @@ const RecordAdd = () => {
 
   const handleGoToSave = () => {
     if (!photoFile) return;
+    if (isDateLimitReached) {
+      setIsLimitDatePickerOpen(true);
+      return;
+    }
 
     setStep(2);
     setAnalysis(null);
@@ -83,13 +96,6 @@ const RecordAdd = () => {
     runAnalysis(photoFile);
   };
 
-  const handleApplyAnalysis = () => {
-    if (!analysis) return;
-
-    setFoodName(analysis.foodName);
-    setSelectedRestaurant(analysis.recommendedRestaurant ?? analysis.restaurants[0] ?? null);
-  };
-
   const handleRetakePhoto = () => {
     setAnalysis(null);
     setUploadedImageUrl('');
@@ -100,7 +106,14 @@ const RecordAdd = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedRestaurant || !uploadedImageUrl || isSaving) return;
+    if (
+      !selectedRestaurant ||
+      !uploadedImageUrl ||
+      isSaving ||
+      isDateCapacityLoading ||
+      isDateLimitReached
+    )
+      return;
 
     const restaurant: RestaurantInfo = {
       kakaoPlaceId: selectedRestaurant.kakaoPlaceId,
@@ -119,7 +132,8 @@ const RecordAdd = () => {
       visitDate,
       willRevisit,
       isPublic,
-      companionId: companionId ?? undefined,
+      companionId: companionIds[0],
+      companionIds,
       locationType,
       placeName: restaurant.placeName,
       category: restaurant.category,
@@ -135,9 +149,12 @@ const RecordAdd = () => {
       // 최종 저장에서는 imageUrl을 포함한 작은 JSON만 전송한다.
       await saveRecord(request);
 
-      navigate(`/record/${visitDate}`);
-    } catch (error) {
-      console.error('기록 저장 실패:', error);
+      navigate(RECORD_VIEW_PATH, {
+        replace: true,
+        state: createRecordViewState(visitDate),
+      });
+    } catch {
+      // useSaveRecord가 사용자에게 실패 토스트를 표시한다.
     } finally {
       setIsSaving(false);
     }
@@ -155,11 +172,37 @@ const RecordAdd = () => {
   return (
     <S.Container>
       <S.HeaderRow>
-        <S.BackButton onClick={handleBackFromStep}>{'<'}</S.BackButton>
-        <S.ProgressTrack>
-          <S.ProgressFill $step={step} />
-        </S.ProgressTrack>
+        <S.BackButton type="button" aria-label="이전 단계" onClick={handleBackFromStep}>
+          <ChevronLeft size={29} strokeWidth={2.1} />
+        </S.BackButton>
       </S.HeaderRow>
+
+      {step === 1 && isDateLimitReached && (
+        <S.RecordLimitBanner>
+          <S.RecordLimitIcon>
+            <CalendarDays size={19} strokeWidth={2.3} aria-hidden="true" />
+          </S.RecordLimitIcon>
+          <S.RecordLimitCopy>
+            <strong>이 날짜의 기록이 꽉 찼어요</strong>
+            <span>하루에는 최대 {MAX_RECORDS_PER_DAY}개까지 기록할 수 있어요.</span>
+          </S.RecordLimitCopy>
+          <S.ChangeDateButton type="button" onClick={() => setIsLimitDatePickerOpen(true)}>
+            날짜 변경
+          </S.ChangeDateButton>
+        </S.RecordLimitBanner>
+      )}
+
+      {isLimitDatePickerOpen && (
+        <HomeDatePicker
+          isOpen
+          selectedDate={visitDate}
+          title="방문 날짜 변경"
+          ariaLabel="기록할 날짜 선택"
+          actionLabel="이 날짜로 변경"
+          onClose={() => setIsLimitDatePickerOpen(false)}
+          onDateChange={setVisitDate}
+        />
+      )}
 
       {step === 1 && (
         <Step1Photo
@@ -175,16 +218,19 @@ const RecordAdd = () => {
         <Step2Save
           isAnalyzing={isAnalyzing}
           analysis={analysis}
-          onApplyAnalysis={handleApplyAnalysis}
           onRetryAnalysis={handleRetryAnalysis}
           foodName={foodName}
           onFoodNameChange={setFoodName}
           selectedRestaurant={selectedRestaurant}
           onSelectRestaurant={setSelectedRestaurant}
-          companionId={companionId}
-          onCompanionChange={setCompanionId}
+          companionIds={companionIds}
+          onCompanionChange={setCompanionIds}
+          latitude={coords.latitude}
+          longitude={coords.longitude}
           visitDate={visitDate}
           onVisitDateChange={setVisitDate}
+          existingRecordCount={existingRecords.length}
+          isDateCapacityLoading={isDateCapacityLoading}
           willRevisit={willRevisit}
           onWillRevisitChange={setWillRevisit}
           isPublic={isPublic}

@@ -4,7 +4,6 @@ export interface Step2SaveProps {
   // AI 분석 상태
   isAnalyzing: boolean;
   analysis: AiFoodResponse | null;
-  onApplyAnalysis: () => void;
   onRetryAnalysis: () => void;
 
   // 음식 / 식당 (직접입력 + AI결과 공용 필드)
@@ -14,10 +13,14 @@ export interface Step2SaveProps {
   onSelectRestaurant: (candidate: RestaurantCandidate) => void;
 
   // 저장 폼
-  companionId: number | null;
-  onCompanionChange: (companionId: number | null) => void;
+  companionIds: number[];
+  onCompanionChange: (companionIds: number[]) => void;
+  latitude?: number;
+  longitude?: number;
   visitDate: string;
   onVisitDateChange: (value: string) => void;
+  existingRecordCount: number;
+  isDateCapacityLoading: boolean;
   willRevisit: boolean;
   onWillRevisitChange: (value: boolean) => void;
   isPublic: boolean;

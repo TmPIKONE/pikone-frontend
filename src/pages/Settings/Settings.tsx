@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '~/contexts/Auth/AuthContext';
-import { useMyInfo } from '~/hooks/useMyInfo';
-import { useHomeLocations } from '~/hooks/useHomeLocations';
-import { useCreateHomeLocation } from '~/hooks/useCreateHomeLocation';
-import { useUpdateHomeLocation } from '~/hooks/useUpdateHomeLocation';
+import { useAuth } from '~/contexts/Auth/useAuth';
+import { useLogout, useWithdrawal } from '~/features/auth/auth.queries';
+import {
+  useCreateHomeLocation,
+  useHomeLocations,
+  useUpdateHomeLocation,
+} from '~/features/homeLocations/homeLocation.queries';
+import { useMyInfo } from '~/features/user/user.queries';
 import { useCurrentLocation } from '~/hooks/useCurrentLocation';
-import { useLogout } from '~/hooks/useLogout';
-import { useWithdrawal } from '~/hooks/useWithdrawal';
-import { useToast } from '~/components/Toast/Toast';
+import { useToast } from '~/components/Toast/useToast';
 import HomeLocationList from '~/components/HomeLocationList/HomeLocationList';
 import AllergenForm from '~/components/AllergenForm/AllergenForm';
 import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
@@ -18,6 +19,8 @@ import type {
   HomeLocationResponse,
   HomeLocationType,
 } from '~/apis/homeLocation/homeLocation.types';
+import { clearAuthTokens } from '~/utils/authTokens';
+import SessionManager from '~/features/auth/SessionManager/SessionManager';
 import * as S from './Settings.styles';
 
 const DEFAULT_AVATAR = '/default-avatar.png';
@@ -119,16 +122,16 @@ const Settings = () => {
   };
 
   const handleLogout = () => {
-    if (!window.confirm('로그아웃할까요?')) return;
+    if (!window.confirm('이 기기에서 로그아웃할까요? 다른 기기의 로그인은 유지돼요.')) return;
     logout(undefined, {
       onSuccess: () => {
-        sessionStorage.clear();
+        clearAuthTokens();
         setIsAuthenticated(false);
-        showToast('로그아웃했어요.');
+        showToast('이 기기에서 로그아웃했어요.');
         navigate('/login');
       },
       onError: () => {
-        sessionStorage.clear();
+        clearAuthTokens();
         setIsAuthenticated(false);
         showToast('기기에서 로그아웃했어요.', 'info');
         navigate('/login');
@@ -140,7 +143,7 @@ const Settings = () => {
     if (!window.confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제되고 되돌릴 수 없어요.')) return;
     withdraw(undefined, {
       onSuccess: () => {
-        sessionStorage.clear();
+        clearAuthTokens();
         setIsAuthenticated(false);
         showToast('회원탈퇴가 완료됐어요.');
         navigate('/login');
@@ -154,7 +157,6 @@ const Settings = () => {
   return (
     <S.Container>
       <S.HeaderRow>
-        <S.BackButton onClick={() => navigate(-1)}>{'<'}</S.BackButton>
         <S.Title>마이페이지</S.Title>
       </S.HeaderRow>
 
@@ -180,8 +182,9 @@ const Settings = () => {
           <S.Form onSubmit={handleSubmitLocation}>
             {editingId == null && (
               <S.Field>
-                <S.Label>유형</S.Label>
+                <S.Label htmlFor="location-type">유형</S.Label>
                 <PlaceTypeWheelPicker
+                  id="location-type"
                   value={form.type}
                   options={HOME_LOCATION_TYPE_OPTIONS}
                   title="고정 장소 유형 선택"
@@ -193,8 +196,9 @@ const Settings = () => {
             )}
 
             <S.Field>
-              <S.Label>이름</S.Label>
+              <S.Label htmlFor="location-label">이름</S.Label>
               <S.Input
+                id="location-label"
                 value={form.label}
                 onChange={(e) => setForm((prev) => ({ ...prev, label: e.target.value }))}
                 placeholder="예: 우리집, 본사 사무실"
@@ -202,9 +206,13 @@ const Settings = () => {
             </S.Field>
 
             <S.Field>
-              <S.Label>반경 (m)</S.Label>
+              <S.Label htmlFor="location-radius">반경 (m)</S.Label>
               <S.Input
+                id="location-radius"
                 type="number"
+                inputMode="numeric"
+                min="20"
+                max="2000"
                 value={form.radiusMeters}
                 onChange={(e) => setForm((prev) => ({ ...prev, radiusMeters: e.target.value }))}
               />
@@ -249,13 +257,19 @@ const Settings = () => {
 
       <S.Section>
         <S.SectionTitle>계정</S.SectionTitle>
+        <S.AccountHint>로그아웃해도 다른 휴대폰이나 PC의 로그인은 유지돼요.</S.AccountHint>
         <S.AccountButton type="button" onClick={handleLogout} disabled={isLoggingOut}>
-          {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+          {isLoggingOut ? '로그아웃 중...' : '이 기기에서 로그아웃'}
         </S.AccountButton>
         <S.DangerButton type="button" onClick={handleWithdrawal} disabled={isWithdrawing}>
           {isWithdrawing ? '처리 중...' : '회원탈퇴'}
         </S.DangerButton>
       </S.Section>
+
+      <S.SessionSection>
+        <SessionManager />
+      </S.SessionSection>
+
     </S.Container>
   );
 };

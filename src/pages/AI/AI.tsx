@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentLocation } from '~/hooks/useCurrentLocation';
-import { useRecommendations } from '~/hooks/useRecommendations';
+import { useRecommendations } from '~/features/recommendations/recommendation.queries';
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
 import AccordionStep from '~/components/AccordionStep/AccordionStep';
 import {
@@ -66,15 +66,27 @@ const AI = () => {
 
   return (
     <S.Container>
-      <S.Title>PikOne이</S.Title>
-      <S.Description>당신의 취향과 상황에 딱 맞는 음식점을 추천해드릴게요.</S.Description>
+      <S.Hero>
+        <S.HeroVisual aria-hidden="true">✨</S.HeroVisual>
+        <S.Eyebrow>PIKONE AI</S.Eyebrow>
+        <S.Title>오늘, 어디서 뭐 먹지?</S.Title>
+        <S.Description>
+          함께 먹을 사람과 지금 당기는 맛을 알려주세요.
+          <br />내 기록을 읽고 딱 맞는 곳을 골라드릴게요.
+        </S.Description>
+      </S.Hero>
 
-      <S.ProgressBarTrack>
-        <S.ProgressBarFill $percent={(completedCount / TOTAL_STEPS) * 100} />
-      </S.ProgressBarTrack>
-      <S.ProgressLabel>
-        {completedCount}/{TOTAL_STEPS}
-      </S.ProgressLabel>
+      <S.ProgressSection>
+        <S.ProgressHeader>
+          <strong>추천 준비</strong>
+          <S.ProgressLabel>
+            {completedCount}/{TOTAL_STEPS}
+          </S.ProgressLabel>
+        </S.ProgressHeader>
+        <S.ProgressBarTrack>
+          <S.ProgressBarFill $percent={(completedCount / TOTAL_STEPS) * 100} />
+        </S.ProgressBarTrack>
+      </S.ProgressSection>
 
       {location.isResolved && location.permissionDenied && (
         <S.LocationWarning>
@@ -162,7 +174,7 @@ const AI = () => {
 
       {step2Done && (
         <S.SubmitButton type="button" onClick={handleSubmit} disabled={isPending}>
-          {isPending ? '추천받는 중...' : '추천받기'}
+          {isPending ? '취향을 분석하고 있어요...' : '내 취향 맛집 추천받기'}
         </S.SubmitButton>
       )}
     </S.Container>

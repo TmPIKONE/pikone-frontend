@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -5,5 +7,5 @@ export interface AuthContextType {
 }
 
 export interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }

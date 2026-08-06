@@ -1,37 +1,25 @@
 import styled from '@emotion/styled';
+import { theme } from '~/styles/theme';
 
 export const Card = styled.button`
-    position: relative;
-    width: min(calc(100vw - 76px), 400px);
-    aspect-ratio: 4 / 5;
-    flex: 0 0 min(calc(100vw - 76px), 400px);
-    overflow: hidden;
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.84);
-    border-radius: 25px;
-    background: #dbeafe;
-    scroll-snap-align: center;
-    cursor: pointer;
-    transform: translateZ(0);
-    transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+  position: relative;
+  min-width: 0;
+  min-height: 220px;
+  overflow: hidden;
+  padding: 18px;
+  border-radius: 22px;
+  background: ${theme.colors.navyDark};
+  color: ${theme.colors.white};
+  text-align: left;
 
-    &:active {
-        transform: scale(0.987);
-        box-shadow:
-                0 15px 28px rgba(39, 77, 137, 0.15),
-                0 4px 12px rgba(21, 37, 64, 0.08);
-    }
+  &:active {
+    transform: scale(0.985);
+  }
 
-    &:hover img {
-        transform: scale(1.025);
-    }
-
-    @media (min-width: 520px) {
-        width: 400px;
-        flex-basis: 400px;
-    }
+  @media (max-width: 370px) {
+    min-height: 195px;
+    padding: 17px;
+  }
 `;
 
 export const Image = styled.img`
@@ -39,65 +27,68 @@ export const Image = styled.img`
   inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
-  transition: transform 0.5s ease;
 `;
 
-export const ImageFallback = styled.div`
+export const Overlay = styled.span<{ $hasImage: boolean }>`
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 28%;
-  background:
-    radial-gradient(circle at 72% 20%, rgba(255, 255, 255, 0.45), transparent 24%),
-    linear-gradient(145deg, #a8c8f7 0%, #6f9fdf 100%);
+  background: ${({ $hasImage }) =>
+    $hasImage
+      ? 'linear-gradient(180deg, rgba(18, 34, 58, 0.08), rgba(18, 34, 58, 0.86))'
+      : 'transparent'};
 `;
 
-export const Shade = styled.div`
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(5, 14, 30, 0) 43%,
-    rgba(5, 14, 30, 0.05) 56%,
-    rgba(5, 14, 30, 0.26) 72%,
-    rgba(5, 14, 30, 0.84) 100%
-  );
-  pointer-events: none;
+export const TopRow = styled.span`
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 `;
 
-export const Meta = styled.div`
+export const Emoji = styled.span`
+  font-size: 38px;
+  line-height: 1;
+`;
+
+export const Check = styled.span`
+  color: rgba(255, 255, 255, 0.92);
+`;
+
+export const Copy = styled.span`
   position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 22px;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 7px;
-  color: #ffffff;
-  text-align: left;
 `;
 
-export const Date = styled.span`
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 12px;
-  font-weight: 760;
-  line-height: 1.2;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42);
+export const SlotLabel = styled.span`
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 750;
 `;
 
-export const Location = styled.strong`
-  width: 100%;
+export const FoodName = styled.strong`
   overflow: hidden;
-  color: #ffffff;
-  font-size: clamp(21px, 5.8vw, 27px);
-  font-weight: 860;
-  line-height: 1.22;
+  margin-top: 4px;
+  color: ${theme.colors.white};
+  font-size: 19px;
+  font-weight: 900;
   letter-spacing: -0.045em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 3px 15px rgba(0, 0, 0, 0.5);
+`;
+
+export const Restaurant = styled.span`
+  overflow: hidden;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;

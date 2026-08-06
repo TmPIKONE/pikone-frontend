@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import ImageUploader from '~/components/ImageUploader/ImageUploader';
-import * as S from './Step1Photo.styles';
 import type { Step1PhotoProps } from './Step1Photo.types';
+import * as S from './Step1Photo.styles';
 
 const Step1Photo = ({
   file,
@@ -16,27 +16,34 @@ const Step1Photo = ({
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        onLocationResolved(position.coords.latitude, position.coords.longitude);
-      },
-      () => {
-        // 위치 권한 거부 시 좌표 없이 진행 — 다음 단계에서 근처 식당 후보가 안 나올 수 있어요.
-        onLocationResolved(undefined, undefined);
-      },
+      (position) => onLocationResolved(position.coords.latitude, position.coords.longitude),
+      () => onLocationResolved(undefined, undefined),
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300_000 },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <S.Container>
-      <S.Title>오늘 뭐 드셨어요?</S.Title>
-      <S.Description>음식 사진을 올려주시면 AI가 메뉴와 식당을 찾아드려요.</S.Description>
+      <S.Title>
+        오늘의 식사를
+        <br />한 장으로 남겨주세요
+      </S.Title>
+      <S.Description>사진을 고르면 AI가 메뉴와 식당을 먼저 찾아드려요.</S.Description>
 
-      <ImageUploader file={file} onChange={onFileChange} />
+      <S.Field>
+        <S.Label>사진 등록 (1장)</S.Label>
+        <ImageUploader file={file} onChange={onFileChange} />
+      </S.Field>
 
-      <S.NextButton type="button" disabled={!file || !isLocationResolved} onClick={onNext}>
-        {isLocationResolved ? '다음' : '현재 위치 확인 중...'}
+      <S.Guide>
+        <span>메뉴와 가까운 식당을 자동으로 채우고, 틀린 것만 바꿀 수 있어요.</span>
+      </S.Guide>
+
+      <S.NextButton type="button" disabled={!file} onClick={onNext}>
+        다음
       </S.NextButton>
+      {!isLocationResolved && <S.LocationStatus>현재 위치를 확인하고 있어요.</S.LocationStatus>}
     </S.Container>
   );
 };

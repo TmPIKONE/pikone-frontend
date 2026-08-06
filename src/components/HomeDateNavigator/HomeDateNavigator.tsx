@@ -1,88 +1,42 @@
 import { useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, TouchEvent } from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, CalendarDays, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { HomeDatePicker } from '~/components/HomeDatePicker/HomeDatePicker';
-import { usePendingDraftCount } from '~/hooks/usePendingDraftCount';
+import { usePendingDraftCount } from '~/features/drafts/draft.queries';
+import { addLocalDays, parseLocalDate, toLocalIsoDate } from '~/utils/date';
 import type { HomeDateNavigatorProps } from './HomeDateNavigator.types';
 import * as S from './HomeDateNavigator.styles';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 const SWIPE_THRESHOLD_PX = 42;
 
-const parseLocalDate = (value: string) => new Date(`${value}T00:00:00`);
-
-const toLocalIsoDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
-const addDays = (value: string, amount: number) => {
-  const date = parseLocalDate(value);
-  date.setDate(date.getDate() + amount);
-  return toLocalIsoDate(date);
-};
-
-const formatMonthDay = (value: string) => {
+const formatDate = (value: string) => {
   const date = parseLocalDate(value);
   return `${date.getMonth() + 1}.${date.getDate()}`;
 };
 
-const formatHeaderDate = (value: string) => {
+const formatSideDate = (value: string) => {
   const date = parseLocalDate(value);
-
-  return {
-    year: `${date.getFullYear()}년`,
-    monthDay: `${date.getMonth() + 1}월 ${date.getDate()}일`,
-  };
+  return `${formatDate(value)} ${WEEKDAYS[date.getDay()]}`;
 };
 
-const getWeekday = (value: string) => WEEKDAYS[parseLocalDate(value).getDay()];
-
-const getAccessibleDate = (value: string) =>
-  new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
-  }).format(parseLocalDate(value));
-
-export const HomeDateNavigator = ({
-  selectedDate,
-  onDateChange,
-}: HomeDateNavigatorProps) => {
+export const HomeDateNavigator = ({ selectedDate, onDateChange }: HomeDateNavigatorProps) => {
   const navigate = useNavigate();
   const touchStartX = useRef<number | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const { data: pendingCount = 0 } = usePendingDraftCount();
   const today = useMemo(() => toLocalIsoDate(new Date()), []);
-  const previousDate = addDays(selectedDate, -1);
-  const nextDate = addDays(selectedDate, 1);
+  const previousDate = addLocalDays(selectedDate, -1);
+  const nextDate = addLocalDays(selectedDate, 1);
   const isToday = selectedDate === today;
-  const headerDate = formatHeaderDate(selectedDate);
 
-  const moveDate = (amount: number) => {
-    onDateChange(addDays(selectedDate, amount));
-  };
+  const moveDate = (amount: number) => onDateChange(addLocalDays(selectedDate, amount));
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      moveDate(-1);
-    }
-
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      moveDate(1);
-    }
-
-    if (event.key === 'Home') {
-      event.preventDefault();
-      onDateChange(today);
-    }
+    if (event.key === 'ArrowLeft') moveDate(-1);
+    if (event.key === 'ArrowRight') moveDate(1);
+    if (event.key === 'Home') onDateChange(today);
   };
 
   const handleTouchStart = (event: TouchEvent<HTMLElement>) => {
@@ -91,89 +45,74 @@ export const HomeDateNavigator = ({
 
   const handleTouchEnd = (event: TouchEvent<HTMLElement>) => {
     if (touchStartX.current === null) return;
-
     const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
     const distance = endX - touchStartX.current;
     touchStartX.current = null;
-
-    if (Math.abs(distance) < SWIPE_THRESHOLD_PX) return;
-
-    moveDate(distance > 0 ? -1 : 1);
+    if (Math.abs(distance) >= SWIPE_THRESHOLD_PX) moveDate(distance > 0 ? -1 : 1);
   };
 
   return (
     <>
       <S.Shell
-        aria-label="홈 기록 날짜 선택"
+        aria-label="기록 날짜 선택"
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <S.HeaderRow>
-          <S.DatePickerButton
-            type="button"
-            onClick={() => setIsDatePickerOpen(true)}
-            aria-label={`${getAccessibleDate(selectedDate)} 날짜 직접 선택`}
-            aria-expanded={isDatePickerOpen}
-          >
-            <S.HeaderDateCopy>
-              <S.HeaderYear>{headerDate.year}</S.HeaderYear>
-              <S.HeaderMonthDay>{headerDate.monthDay}</S.HeaderMonthDay>
-            </S.HeaderDateCopy>
-            <ChevronDown size={18} strokeWidth={2.4} />
-          </S.DatePickerButton>
+          <S.ModuleTabs>
+            <S.ActiveModule>기록</S.ActiveModule>
+            <S.ModuleButton type="button" onClick={() => navigate('/ai')}>
+              AI
+            </S.ModuleButton>
+            <S.ModuleButton type="button" onClick={() => navigate('/calendar')}>
+              통계
+            </S.ModuleButton>
+          </S.ModuleTabs>
 
-          <S.NotificationButton
-            type="button"
-            onClick={() => navigate('/draft')}
-            aria-label={
-              pendingCount > 0
-                ? `확인 대기 기록 ${pendingCount}개 보기`
-                : '확인 대기 기록 보기'
-            }
-          >
-            <Bell size={26} strokeWidth={2.1} />
-            {pendingCount > 0 && <S.NotificationBadge>N</S.NotificationBadge>}
-          </S.NotificationButton>
+          <S.HeaderActions>
+            <S.IconButton type="button" aria-label="AI 추천" onClick={() => navigate('/ai')}>
+              <Sparkles size={25} strokeWidth={2.4} />
+            </S.IconButton>
+            <S.IconButton
+              type="button"
+              aria-label="날짜 선택"
+              onClick={() => setIsDatePickerOpen(true)}
+            >
+              <CalendarDays size={24} strokeWidth={2.2} />
+            </S.IconButton>
+            <S.IconButton type="button" aria-label="대기 기록" onClick={() => navigate('/draft')}>
+              <Bell size={24} strokeWidth={2.2} />
+              {pendingCount > 0 && (
+                <S.NotificationBadge>{pendingCount > 9 ? '9+' : pendingCount}</S.NotificationBadge>
+              )}
+            </S.IconButton>
+          </S.HeaderActions>
         </S.HeaderRow>
 
-        <S.Rail>
-          <S.SideDate
-            type="button"
-            $side="previous"
-            onClick={() => onDateChange(previousDate)}
-            aria-label={`${getAccessibleDate(previousDate)} 기록 보기`}
-          >
-            <S.SideNumber>{formatMonthDay(previousDate)}</S.SideNumber>
-            <S.SideWeekday>{getWeekday(previousDate)}</S.SideWeekday>
+        <S.DateRail>
+          <S.SideDate type="button" onClick={() => onDateChange(previousDate)}>
+            {formatSideDate(previousDate)}
           </S.SideDate>
-
-          <S.Selected aria-current="date">
-            <S.SelectedNumber>{formatMonthDay(selectedDate)}</S.SelectedNumber>
-            <S.SelectedBadge $isToday={isToday}>
-              {isToday ? '오늘' : getWeekday(selectedDate)}
-            </S.SelectedBadge>
-          </S.Selected>
-
-          <S.SideDate
-            type="button"
-            $side="next"
-            onClick={() => onDateChange(nextDate)}
-            aria-label={`${getAccessibleDate(nextDate)} 기록 보기`}
-          >
-            <S.SideNumber>{formatMonthDay(nextDate)}</S.SideNumber>
-            <S.SideWeekday>{getWeekday(nextDate)}</S.SideWeekday>
+          <S.CurrentDate type="button" onClick={() => setIsDatePickerOpen(true)}>
+            <strong>{formatDate(selectedDate)}</strong>
+            {isToday && <span>오늘</span>}
+          </S.CurrentDate>
+          <S.SideDate type="button" onClick={() => onDateChange(nextDate)}>
+            {formatSideDate(nextDate)}
           </S.SideDate>
-        </S.Rail>
+        </S.DateRail>
       </S.Shell>
 
-      <HomeDatePicker
-        isOpen={isDatePickerOpen}
-        selectedDate={selectedDate}
-        onClose={() => setIsDatePickerOpen(false)}
-        onDateChange={onDateChange}
-      />
+      {isDatePickerOpen && (
+        <HomeDatePicker
+          isOpen
+          selectedDate={selectedDate}
+          onClose={() => setIsDatePickerOpen(false)}
+          onDateChange={onDateChange}
+        />
+      )}
     </>
   );
 };

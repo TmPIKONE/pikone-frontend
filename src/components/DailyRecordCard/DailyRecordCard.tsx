@@ -1,49 +1,32 @@
+import { CheckCircle2 } from 'lucide-react';
 import { resolveOptimizedImageUrl } from '~/utils/image';
-import { RecordPlaceholderIllustration } from '~/components/RecordPlaceholderIllustration/RecordPlaceholderIllustration';
 import type { DailyRecordCardProps } from './DailyRecordCard.types';
 import * as S from './DailyRecordCard.styles';
 
-const formatVisitDate = (value: string) =>
-  new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'short',
-  }).format(new Date(`${value}T00:00:00`));
-
 export const DailyRecordCard = ({
   record,
-  visitDate,
+  slotLabel,
+  slotEmoji,
   onClick,
 }: DailyRecordCardProps) => {
   const imageUrl = resolveOptimizedImageUrl(record.imageUrl);
-  const locationLabel = record.restaurantName?.trim() || '위치 정보 없음';
-  const dateLabel = formatVisitDate(visitDate);
+  const foodLabel = record.foodName?.trim() || '오늘의 식사';
 
   return (
-    <S.Card
-      type="button"
-      onClick={onClick}
-      aria-label={`${dateLabel} ${locationLabel} 기록 보기`}
-    >
-      {imageUrl ? (
-        <S.Image
-          src={imageUrl}
-          loading="lazy"
-          decoding="async"
-          alt={`${locationLabel}에서 남긴 식사 기록`}
-        />
-      ) : (
-        <S.ImageFallback>
-          <RecordPlaceholderIllustration />
-        </S.ImageFallback>
-      )}
-
-      <S.Shade />
-      <S.Meta>
-        <S.Date>{dateLabel}</S.Date>
-        <S.Location>{locationLabel}</S.Location>
-      </S.Meta>
+    <S.Card type="button" onClick={onClick} aria-label={`${slotLabel} ${foodLabel} 기록 보기`}>
+      {imageUrl && <S.Image src={imageUrl} loading="lazy" decoding="async" alt={foodLabel} />}
+      <S.Overlay $hasImage={Boolean(imageUrl)} />
+      <S.TopRow>
+        <S.Emoji>{slotEmoji}</S.Emoji>
+        <S.Check>
+          <CheckCircle2 size={22} strokeWidth={2.5} />
+        </S.Check>
+      </S.TopRow>
+      <S.Copy>
+        <S.SlotLabel>{slotLabel}</S.SlotLabel>
+        <S.FoodName>{foodLabel}</S.FoodName>
+        <S.Restaurant>{record.restaurantName || '장소 미등록'}</S.Restaurant>
+      </S.Copy>
     </S.Card>
   );
 };

@@ -4,15 +4,16 @@ import { theme } from '~/styles/theme';
 import NavBar from '~/components/NavBar/NavBar';
 
 const Layout = styled.div`
-    min-height: 100vh;
-    min-height: 100dvh;
-    background-color: ${theme.colors.white};
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: ${theme.colors.surfaceSubtle};
 `;
 
-const Content = styled.main`
-    min-height: 100vh;
-    min-height: 100dvh;
-    background-color: ${theme.colors.white};
+const Content = styled.main<{ $reserveNavSpace: boolean }>`
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: ${({ $reserveNavSpace }) => ($reserveNavSpace ? theme.app.bottomNavSpace : '0')};
+  background-color: ${theme.colors.white};
 `;
 
 const MainLayout = () => {
@@ -20,15 +21,19 @@ const MainLayout = () => {
 
   const hideNav =
     pathname === '/draft' ||
-    pathname === '/mypage/settings' ||
     !!matchPath('/draft/:draftId', pathname) ||
+    pathname === '/companion/add' ||
     !!matchPath('/companion/:companionId/records', pathname) ||
-    !!matchPath('/record/:date', pathname) ||
-    pathname === '/record/add';
+    !!matchPath('/companion/:companionId/records/:recordId', pathname) ||
+    pathname === '/record/add' ||
+    pathname === '/record/view' ||
+    !!matchPath('/record/edit/:recordId', pathname);
+
+  const reserveNavSpace = !hideNav && pathname !== '/companion';
 
   return (
     <Layout>
-      <Content>
+      <Content $reserveNavSpace={reserveNavSpace}>
         <Outlet />
       </Content>
 

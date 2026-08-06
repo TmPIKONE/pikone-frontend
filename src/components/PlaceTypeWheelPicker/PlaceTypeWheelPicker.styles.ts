@@ -27,74 +27,13 @@ export const Trigger = styled.button`
   }
 `;
 
-export const TriggerIcon = styled(ChevronDown)<{ $isOpen: boolean }>`
+export const TriggerIcon = styled(ChevronDown, {
+  shouldForwardProp: (prop) => prop !== '$isOpen',
+})<{ $isOpen: boolean }>`
   flex-shrink: 0;
   color: #708198;
   transform: rotate(${({ $isOpen }) => ($isOpen ? '180deg' : '0deg')});
   transition: transform 0.2s ease;
-`;
-
-export const Overlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(15, 23, 42, 0.34);
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transition:
-    opacity 0.22s ease,
-    visibility 0.22s ease;
-`;
-
-export const Sheet = styled.section<{ $isOpen: boolean }>`
-  width: min(100%, 480px);
-  padding: 10px 18px calc(env(safe-area-inset-bottom, 0px) + 18px);
-  border-radius: 28px 28px 0 0;
-  background: #ffffff;
-  box-shadow: 0 -18px 50px rgba(15, 23, 42, 0.18);
-  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '24px')});
-  transition: transform 0.22s ease;
-`;
-
-export const Handle = styled.div`
-  width: 42px;
-  height: 5px;
-  margin: 0 auto 12px;
-  border-radius: 999px;
-  background: #d8e0eb;
-`;
-
-export const Header = styled.div`
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-`;
-
-export const Title = styled.h2`
-  margin: 0;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 820;
-  letter-spacing: -0.035em;
-`;
-
-export const CloseButton = styled.button`
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #f3f6fa;
-  color: #53647a;
-  cursor: pointer;
 `;
 
 export const WheelFrame = styled.div`
@@ -171,17 +110,4 @@ export const WheelItem = styled.button<{ $isSelected: boolean }>`
   transition:
     color 0.16s ease,
     font-size 0.16s ease;
-`;
-
-export const ApplyButton = styled.button`
-  width: 100%;
-  min-height: 52px;
-  border: 0;
-  border-radius: 17px;
-  background: #111827;
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 780;
-  letter-spacing: -0.02em;
-  cursor: pointer;
 `;

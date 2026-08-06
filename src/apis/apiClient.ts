@@ -1,16 +1,61 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 import { REISSUE } from '../constants/endPoint';
+import {
+  clearAuthTokens,
+  readAuthTokens,
+  readLegacyRefreshToken,
+  writeAuthTokens,
+  type AuthTokens,
+} from '~/utils/authTokens';
 
 const API_BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
+interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+let refreshPromise: Promise<AuthTokens> | null = null;
+
+const refreshAuthTokens = () => {
+  if (refreshPromise) return refreshPromise;
+
+  const { accessToken } = readAuthTokens();
+  if (!accessToken) {
+    return Promise.reject(new Error('인증 토큰이 없습니다.'));
+  }
+
+  const legacyRefreshToken = readLegacyRefreshToken();
+  refreshPromise = axios
+    .post(
+      `${API_BASE_URL}${REISSUE}`,
+      { accessToken, ...(legacyRefreshToken && { refreshToken: legacyRefreshToken }) },
+      { withCredentials: true },
+    )
+    .then(({ data }) => {
+      const tokens: AuthTokens = {
+        accessToken: data.data.accessToken,
+        refreshToken: data.data.refreshToken,
+      };
+      writeAuthTokens(tokens);
+      return tokens;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+};
+
 apiClient.interceptors.request.use((config) => {
-  const accessToken = sessionStorage.getItem('accessToken');
+  const { accessToken } = readAuthTokens();
   if (accessToken) {
-    config.headers['Authorization'] = `Bearer ${accessToken}`;
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });
@@ -18,51 +63,26 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalConfig = error.config;
+    const originalConfig = error.config as RetryableRequestConfig | undefined;
 
     const isTokenExpired =
-      error.response?.status === 401 &&
-      error.response?.data?.code === 'TOKEN_EXPIRED';
+      error.response?.status === 401 && error.response?.data?.code === 'TOKEN_EXPIRED';
 
     if (isTokenExpired && originalConfig && !originalConfig._retry) {
       originalConfig._retry = true;
 
       try {
-        const accessToken = sessionStorage.getItem('accessToken');
-        const refreshToken = sessionStorage.getItem('refreshToken');
-
-        if (!accessToken || !refreshToken) {
-          throw new Error('토큰이 없습니다.');
-        }
-
-        const reissueRequestDto = {
-          accessToken,
-          refreshToken,
-        };
-
-        const reissueUrl = `${API_BASE_URL}${REISSUE}`;
-
-        const { data } = await axios.post(reissueUrl, reissueRequestDto);
-        const newAccessToken = data.data.accessToken;
-        const newRefreshToken = data.data.refreshToken;
-
-        sessionStorage.setItem('accessToken', newAccessToken);
-        sessionStorage.setItem('refreshToken', newRefreshToken);
-
-        originalConfig.headers = {
-          ...originalConfig.headers,
-          Authorization: `Bearer ${newAccessToken}`,
-        };
+        const { accessToken } = await refreshAuthTokens();
+        originalConfig.headers.Authorization = `Bearer ${accessToken}`;
 
         return apiClient.request(originalConfig);
       } catch (reissueError) {
-        console.error('토큰 재발급 실패:', reissueError);
-        sessionStorage.clear();
+        clearAuthTokens();
         redirectToLogin();
         return Promise.reject(reissueError);
       }
     } else if (error.response && error.response.status === 401) {
-      sessionStorage.clear();
+      clearAuthTokens();
       redirectToLogin();
     }
 

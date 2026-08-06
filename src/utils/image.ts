@@ -1,7 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:8080').replace(
-  /\/$/,
-  '',
-);
+const API_BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
 
 const API_ORIGIN = (() => {
   try {
@@ -38,6 +35,25 @@ const getUploadFileName = (imageUrl?: string | null) => {
   return parts.length > 0 ? parts[parts.length - 1] : null;
 };
 
+const isSignedUploadUrl = (imageUrl?: string | null) => {
+  if (!imageUrl) return false;
+
+  try {
+    const url = new URL(imageUrl, API_BASE_URL);
+    const isApiUrl = !url.origin || url.origin === API_ORIGIN;
+    const isProtectedVariant = /^\/uploads\/(optimized|thumbnails)\/[^/]+$/.test(url.pathname);
+
+    return (
+      isApiUrl &&
+      isProtectedVariant &&
+      url.searchParams.has('expires') &&
+      url.searchParams.has('signature')
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const resolveImageUrl = (imageUrl?: string | null) => {
   if (!imageUrl) return '';
 
@@ -58,6 +74,8 @@ export const resolveImageUrl = (imageUrl?: string | null) => {
 };
 
 export const resolveOptimizedImageUrl = (imageUrl?: string | null) => {
+  if (isSignedUploadUrl(imageUrl)) return resolveImageUrl(imageUrl);
+
   const fileName = getUploadFileName(imageUrl);
   if (!fileName) return resolveImageUrl(imageUrl);
 
@@ -65,6 +83,8 @@ export const resolveOptimizedImageUrl = (imageUrl?: string | null) => {
 };
 
 export const resolveThumbnailUrl = (imageUrl?: string | null) => {
+  if (isSignedUploadUrl(imageUrl)) return resolveImageUrl(imageUrl);
+
   const fileName = getUploadFileName(imageUrl);
   if (!fileName) return resolveImageUrl(imageUrl);
 

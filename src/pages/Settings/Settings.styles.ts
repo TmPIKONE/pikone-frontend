@@ -1,31 +1,27 @@
 import styled from '@emotion/styled';
+import { formPrimitives } from '~/styles/formPrimitives';
 import { theme } from '~/styles/theme';
 
 export const Container = styled.div`
-  padding: 20px 16px 40px;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top, 0px) + 22px) ${theme.app.pagePadding} 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 0;
+  background: ${theme.colors.white};
 `;
 
 export const HeaderRow = styled.div`
-  display: flex;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  gap: 12px;
-`;
-
-export const BackButton = styled.button`
-  border: none;
-  background: none;
-  font-size: ${theme.fontSizes.lg};
-  color: ${theme.colors.gray600};
-  cursor: pointer;
-  padding: 4px 8px;
 `;
 
 export const Title = styled.h1`
-  font-size: 18px;
-  font-weight: ${theme.fontWeights.semibold};
+  text-align: center;
+  font-size: 22px;
+  font-weight: 900;
 `;
 
 export const ProfileRow = styled.div`
@@ -53,15 +49,14 @@ export const ProfileNickname = styled.span`
   font-weight: ${theme.fontWeights.semibold};
 `;
 
-export const ProfileEmail = styled.span`
-  font-size: ${theme.fontSizes.xs};
-  color: ${theme.colors.gray500};
-`;
 
 export const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 26px 0;
+    border-bottom: 2px solid ${theme.colors.gray100};
+    background: ${theme.colors.white};
 `;
 
 export const SectionTitleRow = styled.div`
@@ -71,19 +66,20 @@ export const SectionTitleRow = styled.div`
 `;
 
 export const SectionTitle = styled.h2`
-  font-size: 16px;
-  font-weight: ${theme.fontWeights.semibold};
+  font-size: 18px;
+  font-weight: 900;
 `;
 
 export const AddButton = styled.button`
-  padding: 6px 12px;
-  border: none;
-  border-radius: ${theme.radius.full};
-  background-color: ${theme.colors.primary};
-  color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.semibold};
-  cursor: pointer;
+    min-height: 38px;
+    padding: 0 18px;
+    border: none;
+    border-radius: ${theme.radius.full};
+    background-color: ${theme.colors.black};
+    color: ${theme.colors.white};
+    font-size: ${theme.fontSizes.xs};
+    font-weight: ${theme.fontWeights.semibold};
+    cursor: pointer;
 `;
 
 export const Form = styled.form`
@@ -91,40 +87,35 @@ export const Form = styled.form`
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.gray100};
+  border-radius: 22px;
+  background-color: ${theme.colors.surfaceSubtle};
 `;
 
 export const Field = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  ${formPrimitives.field}
 `;
 
 export const Label = styled.label`
-  font-size: ${theme.fontSizes.xs};
-  font-weight: ${theme.fontWeights.medium};
-  color: ${theme.colors.gray600};
+  ${formPrimitives.label}
 `;
 
 export const Input = styled.input`
-  padding: 10px 12px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.sm};
-  font-size: ${theme.fontSizes.sm};
+  ${formPrimitives.control}
 `;
 
 export const LocationButtonRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   gap: 8px;
 `;
 
 export const UseLocationButton = styled.button`
-  padding: 8px 12px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.sm};
-  background-color: ${theme.colors.white};
+  min-height: 42px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: ${theme.radius.full};
+  background-color: ${theme.colors.gray100};
   font-size: ${theme.fontSizes.xs};
   cursor: pointer;
 `;
@@ -141,61 +132,35 @@ export const FormButtonRow = styled.div`
 `;
 
 export const CancelButton = styled.button`
+  ${formPrimitives.secondaryAction}
   flex: 1;
-  padding: 10px 0;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.sm};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.gray700};
-  font-size: ${theme.fontSizes.sm};
-  cursor: pointer;
 `;
 
 export const SubmitButton = styled.button`
+  ${formPrimitives.primaryAction}
   flex: 2;
-  padding: 10px 0;
-  border: none;
-  border-radius: ${theme.radius.sm};
-  background-color: ${theme.colors.primary};
-  color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.sm};
-  font-weight: ${theme.fontWeights.semibold};
-  cursor: pointer;
+`;
 
-  &:disabled {
-    background-color: ${theme.colors.gray300};
-    cursor: not-allowed;
-  }
+export const AccountHint = styled.p`
+  margin: -2px 0 2px;
+  color: ${theme.colors.gray500};
+  font-size: ${theme.fontSizes.xs};
+  line-height: 1.5;
+  word-break: keep-all;
 `;
 
 export const AccountButton = styled.button`
-  padding: 12px 0 12px 14px;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.gray700};
-  font-size: ${theme.fontSizes.sm};
-  cursor: pointer;
+  ${formPrimitives.secondaryAction}
+  min-height: 48px;
   text-align: left;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 `;
 
 export const DangerButton = styled.button`
-  padding: 12px 0 12px 14px;
-  border: 1px solid ${theme.colors.error};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.error};
-  font-size: ${theme.fontSizes.sm};
-  cursor: pointer;
+  ${formPrimitives.dangerAction}
+  min-height: 48px;
   text-align: left;
+`;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+export const SessionSection = styled.div`
+  margin-top: 24px;
 `;

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { usePendingDrafts } from '~/hooks/usePendingDrafts';
+import { usePendingDrafts } from '~/features/drafts/draft.queries';
 import DraftCard from '~/components/DraftCard/DraftCard';
 import * as S from './Draft.styles';
 

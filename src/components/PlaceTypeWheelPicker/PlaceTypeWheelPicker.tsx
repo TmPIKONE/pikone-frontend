@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent, UIEvent } from 'react';
-import { X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { UIEvent } from 'react';
+import { BottomSheet } from '~/components/BottomSheet/BottomSheet';
 import type { PlaceTypeWheelPickerProps } from './PlaceTypeWheelPicker.types';
 import * as S from './PlaceTypeWheelPicker.styles';
 
 const ITEM_HEIGHT = 48;
 
 export const PlaceTypeWheelPicker = ({
+  id,
   value,
   options,
   onChange,
@@ -25,28 +26,15 @@ export const PlaceTypeWheelPicker = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    setSelectedValue(value);
-    const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
+    const selectedIndex = Math.max(
+      0,
+      options.findIndex((option) => option.value === value),
+    );
     const animationFrame = window.requestAnimationFrame(() => {
       wheelRef.current?.scrollTo({ top: selectedIndex * ITEM_HEIGHT });
     });
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      document.body.style.overflow = previousOverflow;
-    };
+    return () => window.cancelAnimationFrame(animationFrame);
   }, [isOpen, options, value]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
 
   useEffect(
     () => () => {
@@ -70,20 +58,24 @@ export const PlaceTypeWheelPicker = ({
     }, 90);
   };
 
-  const handleOverlayClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) setIsOpen(false);
-  };
-
   const handleApply = () => {
     onChange(selectedValue);
     setIsOpen(false);
   };
 
+  const handleClose = useCallback(() => setIsOpen(false), []);
+
+  const handleOpen = () => {
+    setSelectedValue(value);
+    setIsOpen(true);
+  };
+
   return (
     <>
       <S.Trigger
+        id={id}
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
         aria-label={`${ariaLabel}: ${selectedLabel}`}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
@@ -92,47 +84,39 @@ export const PlaceTypeWheelPicker = ({
         <S.TriggerIcon size={20} strokeWidth={2.1} $isOpen={isOpen} />
       </S.Trigger>
 
-      <S.Overlay $isOpen={isOpen} onClick={handleOverlayClick} aria-hidden={!isOpen}>
-        <S.Sheet $isOpen={isOpen} role="dialog" aria-modal="true" aria-label={title}>
-          <S.Handle />
-          <S.Header>
-            <S.Title>{title}</S.Title>
-            <S.CloseButton
-              type="button"
-              onClick={() => setIsOpen(false)}
-              aria-label={`${title} 닫기`}
-            >
-              <X size={19} strokeWidth={2.2} />
-            </S.CloseButton>
-          </S.Header>
-
-          <S.WheelFrame>
-            <S.SelectionHighlight />
-            <S.Wheel ref={wheelRef} onScroll={handleScroll} aria-label={ariaLabel}>
-              {options.map((option, index) => (
-                <S.WheelItem
-                  key={option.value}
-                  type="button"
-                  $isSelected={option.value === selectedValue}
-                  onClick={() => {
-                    setSelectedValue(option.value);
-                    wheelRef.current?.scrollTo({
-                      top: index * ITEM_HEIGHT,
-                      behavior: 'smooth',
-                    });
-                  }}
-                >
-                  {option.label}
-                </S.WheelItem>
-              ))}
-            </S.Wheel>
-          </S.WheelFrame>
-
-          <S.ApplyButton type="button" onClick={handleApply}>
-            이 유형으로 선택
-          </S.ApplyButton>
-        </S.Sheet>
-      </S.Overlay>
+      <BottomSheet
+        isOpen={isOpen}
+        title={title}
+        ariaLabel={title}
+        closeLabel={`${title} 닫기`}
+        onClose={handleClose}
+        actionLabel="이 유형으로 선택"
+        actionDisabled={options.length === 0}
+        onAction={handleApply}
+        zIndex={1100}
+      >
+        <S.WheelFrame>
+          <S.SelectionHighlight />
+          <S.Wheel ref={wheelRef} onScroll={handleScroll} aria-label={ariaLabel}>
+            {options.map((option, index) => (
+              <S.WheelItem
+                key={option.value}
+                type="button"
+                $isSelected={option.value === selectedValue}
+                onClick={() => {
+                  setSelectedValue(option.value);
+                  wheelRef.current?.scrollTo({
+                    top: index * ITEM_HEIGHT,
+                    behavior: 'smooth',
+                  });
+                }}
+              >
+                {option.label}
+              </S.WheelItem>
+            ))}
+          </S.Wheel>
+        </S.WheelFrame>
+      </BottomSheet>
     </>
   );
 };

@@ -1,12 +1,14 @@
 import apiClient from '../apiClient';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+import type { QueryKey, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
+type ApiParam = string | number | boolean | null | undefined;
+
 type RequestConfig<T> = {
-  params?: Record<string, any>;
+  params?: Record<string, ApiParam>;
   data?: T;
   headers?: Record<string, string>;
 };
@@ -20,7 +22,7 @@ export interface ApiEnvelope<R> {
   data: R;
 }
 
-class ApiBuilder<T = any, R = any> {
+class ApiBuilder<T = void, R = unknown> {
   private endpoint: string;
   private method: ApiMethod = 'GET';
   private config: RequestConfig<T> = {};
@@ -38,7 +40,7 @@ class ApiBuilder<T = any, R = any> {
     return this;
   }
 
-  setParams(params: Record<string, any>) {
+  setParams(params: Record<string, ApiParam>) {
     this.config.params = params;
     return this;
   }
@@ -53,13 +55,22 @@ class ApiBuilder<T = any, R = any> {
     return this;
   }
 
-  async execute(): Promise<AxiosResponse<ApiEnvelope<R>>> {
+  private createRequestConfig(data?: T): AxiosRequestConfig {
     const requestConfig: AxiosRequestConfig = {
       method: this.method,
       url: this.endpoint,
-      ...this.config,
+      params: this.config.params,
+      headers: this.config.headers,
     };
-    return apiClient(requestConfig);
+
+    if (data !== undefined) requestConfig.data = data;
+    else if (this.config.data !== undefined) requestConfig.data = this.config.data;
+
+    return requestConfig;
+  }
+
+  async execute(): Promise<AxiosResponse<ApiEnvelope<R>>> {
+    return apiClient(this.createRequestConfig());
   }
 
   // envelope을 벗기고 실제 data만 반환
@@ -72,8 +83,7 @@ class ApiBuilder<T = any, R = any> {
 
   getMutationFn() {
     return async (data: T) => {
-      this.setData(data);
-      const response = await this.execute();
+      const response = await apiClient<ApiEnvelope<R>>(this.createRequestConfig(data));
       return response.data.data;
     };
   }
@@ -81,11 +91,11 @@ class ApiBuilder<T = any, R = any> {
 
 export function useApiQuery<T, R, TData = R>(
   apiBuilder: ApiBuilder<T, R>,
-  queryKey: any,
+  queryKey: QueryKey,
   options?: Omit<UseQueryOptions<R, unknown, TData>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<R, unknown, TData>({
-    queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+    queryKey,
     queryFn: apiBuilder.getQueryFn(),
     ...options,
   });

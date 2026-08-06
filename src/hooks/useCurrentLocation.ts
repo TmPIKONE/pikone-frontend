@@ -30,6 +30,7 @@ export const useCurrentLocation = () => {
       () => {
         setState({ isResolved: true, permissionDenied: true });
       },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300_000 },
     );
   }, []);
 

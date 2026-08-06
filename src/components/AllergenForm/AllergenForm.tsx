@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useAllergens } from '~/hooks/useAllergens';
-import { useUpdateAllergens } from '~/hooks/useUpdateAllergens';
+import { useState } from 'react';
+import { useAllergens, useUpdateAllergens } from '~/features/allergens/allergen.queries';
 import { ALLERGEN_OPTIONS } from '~/apis/allergen/allergen.types';
 import * as S from './AllergenForm.styles';
 
@@ -11,20 +10,16 @@ const AllergenForm = () => {
   const { data, isLoading } = useAllergens();
   const { mutate: updateAllergens, isPending } = useUpdateAllergens();
 
-  const [selected, setSelected] = useState<string[]>([]);
-  const [isDirty, setIsDirty] = useState(false);
-
-  useEffect(() => {
-    if (data) setSelected(data.allergens);
-  }, [data]);
+  const [draftSelection, setDraftSelection] = useState<string[] | null>(null);
+  const selected = draftSelection ?? data?.allergens ?? [];
+  const isDirty = draftSelection !== null;
 
   const handleToggle = (allergen: string) => {
-    setSelected((prev) => toggleInArray(prev, allergen));
-    setIsDirty(true);
+    setDraftSelection(toggleInArray(selected, allergen));
   };
 
   const handleSave = () => {
-    updateAllergens({ allergens: selected }, { onSuccess: () => setIsDirty(false) });
+    updateAllergens({ allergens: selected }, { onSuccess: () => setDraftSelection(null) });
   };
 
   if (isLoading) {
