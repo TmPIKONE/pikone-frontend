@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions } from '@tanstack/react-query';
-import { useApiMutation, useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
 import {
   approveDraftBuilder,
   getPendingCountBuilder,

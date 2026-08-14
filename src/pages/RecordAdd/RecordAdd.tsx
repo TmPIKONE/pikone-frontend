@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { CalendarDays, ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { HomeDatePicker } from '~/components/HomeDatePicker/HomeDatePicker';
-import Step1Photo from '~/components/RecordAddStep/Step1Photo';
-import Step2Save from '~/components/RecordAddStep/Step2Save';
+import PhotoStep from './components/PhotoStep/PhotoStep';
+import SaveStep from './components/SaveStep/SaveStep';
 import { MAX_RECORDS_PER_DAY } from '~/features/records/record.constants';
-import {
-  createRecordViewState,
-  RECORD_VIEW_PATH,
-} from '~/features/records/recordViewNavigation';
+import { createRecordViewState, RECORD_VIEW_PATH } from '~/features/records/recordViewNavigation';
 import {
   useAnalyzeImage,
   useRecordsByDate,
@@ -205,7 +202,7 @@ const RecordAdd = () => {
       )}
 
       {step === 1 && (
-        <Step1Photo
+        <PhotoStep
           file={photoFile}
           isLocationResolved={isLocationResolved}
           onFileChange={setPhotoFile}
@@ -215,7 +212,7 @@ const RecordAdd = () => {
       )}
 
       {step === 2 && (
-        <Step2Save
+        <SaveStep
           isAnalyzing={isAnalyzing}
           analysis={analysis}
           onRetryAnalysis={handleRetryAnalysis}

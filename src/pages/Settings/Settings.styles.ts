@@ -49,14 +49,13 @@ export const ProfileNickname = styled.span`
   font-weight: ${theme.fontWeights.semibold};
 `;
 
-
 export const Section = styled.section`
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 26px 0;
-    border-bottom: 2px solid ${theme.colors.gray100};
-    background: ${theme.colors.white};
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 0;
+  border-bottom: 2px solid ${theme.colors.gray100};
+  background: ${theme.colors.white};
 `;
 
 export const SectionTitleRow = styled.div`
@@ -71,15 +70,15 @@ export const SectionTitle = styled.h2`
 `;
 
 export const AddButton = styled.button`
-    min-height: 38px;
-    padding: 0 18px;
-    border: none;
-    border-radius: ${theme.radius.full};
-    background-color: ${theme.colors.black};
-    color: ${theme.colors.white};
-    font-size: ${theme.fontSizes.xs};
-    font-weight: ${theme.fontWeights.semibold};
-    cursor: pointer;
+  min-height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: ${theme.radius.full};
+  background-color: ${theme.colors.black};
+  color: ${theme.colors.white};
+  font-size: ${theme.fontSizes.xs};
+  font-weight: ${theme.fontWeights.semibold};
+  cursor: pointer;
 `;
 
 export const Form = styled.form`

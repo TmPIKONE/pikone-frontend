@@ -474,62 +474,6 @@ export const SaveButton = styled.button`
   }
 `;
 
-export const DeleteConfirmation = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  > div:first-of-type {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  strong {
-    color: ${theme.colors.black};
-    font-size: 12px;
-    font-weight: 900;
-  }
-
-  span {
-    color: ${theme.colors.gray500};
-    font-size: 10px;
-    font-weight: 650;
-  }
-
-  @media (max-width: 380px) {
-    align-items: stretch;
-    flex-direction: column;
-  }
-`;
-
-export const ConfirmationActions = styled.div`
-  flex: 0 0 auto;
-  display: flex;
-  gap: 6px;
-`;
-
-export const CancelButton = styled.button`
-  min-height: 40px;
-  padding: 0 13px;
-  border-radius: ${theme.radius.full};
-  background: ${theme.colors.gray100};
-  color: ${theme.colors.gray600};
-  font-size: 11px;
-  font-weight: 800;
-`;
-
-export const ConfirmDeleteButton = styled(CancelButton)`
-  background: ${theme.colors.error};
-  color: ${theme.colors.white};
-
-  &:disabled {
-    opacity: 0.5;
-  }
-`;
-
 export const EmptyState = styled.div`
   min-height: 220px;
   display: flex;
@@ -606,28 +550,28 @@ export const SkeletonCard = styled.div`
 `;
 
 export const BottomActions = styled.div`
-    position: fixed;
-    left: 50%;
-    bottom: calc(96px + env(safe-area-inset-bottom));
-    z-index: 60;
-    width: min(calc(100% - 32px), 448px);
-    display: flex;
-    justify-content: flex-end;
-    padding: 8px;
-    border-radius: 36px;
-    transform: translateX(-50%);
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 60;
+  width: min(calc(100% - 32px), 448px);
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  border-radius: 36px;
+  transform: translateX(-50%);
 `;
 
 export const AddButton = styled.button`
-    width: 160px;
-    min-height: 62px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border-radius: ${theme.radius.full};
-    background: rgba(52, 120, 246);
-    color: ${theme.colors.white};
-    font-size: 13px;
-    font-weight: 850;
+  width: 160px;
+  min-height: 62px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: ${theme.radius.full};
+  background: rgba(52, 120, 246);
+  color: ${theme.colors.white};
+  font-size: 13px;
+  font-weight: 850;
 `;

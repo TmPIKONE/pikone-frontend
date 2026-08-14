@@ -8,7 +8,8 @@ import {
 } from '~/features/companions/companion.queries';
 import type { CompanionType } from '~/apis/companion/companion.types';
 import * as S from './CompanionAdd.styles';
-import type { CompanionAddTab } from './CompanionAdd.types';
+
+type CompanionAddTab = 'code' | 'local';
 
 const COMPANION_TYPE_OPTIONS: {
   value: CompanionType;

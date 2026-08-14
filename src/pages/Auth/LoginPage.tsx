@@ -5,18 +5,18 @@ import foodTopRight from '~/assets/branding/foodTopRight.png';
 import foodBottomLeft from '~/assets/branding/foodBottomLeft.png';
 import foodBottomRight from '~/assets/branding/foodBottomRight.png';
 
-import { BASE_URL, KAKAO_LOGIN, NAVER_LOGIN } from '~/constants/endPoint';
+import { createOAuthLoginUrl } from '~/apis/auth/auth.api';
 import * as S from './LoginPage.styles';
 import type { SocialLoginButton } from './LoginPage.types';
 
 const SOCIAL_LOGIN_BUTTONS: SocialLoginButton[] = [
-  { provider: 'kakao', label: '카카오 로그인', url: KAKAO_LOGIN },
-  { provider: 'naver', label: '네이버 로그인', url: NAVER_LOGIN },
+  { provider: 'kakao', label: '카카오 로그인', url: createOAuthLoginUrl('kakao') },
+  { provider: 'naver', label: '네이버 로그인', url: createOAuthLoginUrl('naver') },
 ];
 
 export default function Login() {
   const login = (url: string) => {
-    window.location.assign(`${BASE_URL}${url}`);
+    window.location.assign(url);
   };
 
   return (

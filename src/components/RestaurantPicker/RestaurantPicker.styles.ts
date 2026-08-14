@@ -77,31 +77,31 @@ export const SearchBox = styled.label`
 `;
 
 export const SearchInput = styled.input`
-    min-width: 0;
-    flex: 1;
-    padding: 0;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+
+  color: ${theme.colors.black};
+  font-size: 14px;
+  font-weight: 700;
+
+  &:focus,
+  &:focus-visible {
     border: 0;
-    outline: 0;
-    border-radius: 0;
-    background: transparent;
+    outline: none;
     box-shadow: none;
-    appearance: none;
-    -webkit-appearance: none;
+  }
 
-    color: ${theme.colors.black};
-    font-size: 14px;
-    font-weight: 700;
-
-    &:focus,
-    &:focus-visible {
-        border: 0;
-        outline: none;
-        box-shadow: none;
-    }
-
-    &::placeholder {
-        color: ${theme.colors.gray400};
-    }
+  &::placeholder {
+    color: ${theme.colors.gray400};
+  }
 `;
 
 export const ResultSummary = styled.div`

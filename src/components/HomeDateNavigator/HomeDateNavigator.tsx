@@ -63,12 +63,6 @@ export const HomeDateNavigator = ({ selectedDate, onDateChange }: HomeDateNaviga
         <S.HeaderRow>
           <S.ModuleTabs>
             <S.ActiveModule>기록</S.ActiveModule>
-            <S.ModuleButton type="button" onClick={() => navigate('/ai')}>
-              AI
-            </S.ModuleButton>
-            <S.ModuleButton type="button" onClick={() => navigate('/calendar')}>
-              통계
-            </S.ModuleButton>
           </S.ModuleTabs>
 
           <S.HeaderActions>

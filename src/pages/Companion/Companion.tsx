@@ -19,6 +19,7 @@ import {
   useRespondCompanionRequest,
   useUpdateCompanionName,
 } from '~/features/companions/companion.queries';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import { useToast } from '~/components/Toast/useToast';
 import { resolveImageUrl } from '~/utils/image';
 import type { CompanionResponse, CompanionType } from '~/apis/companion/companion.types';
@@ -38,20 +39,25 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
   const navigate = useNavigate();
   const [isManaging, setIsManaging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    companionId: number;
+    displayName: string;
+  } | null>(null);
   const [name, setName] = useState(companion.displayName);
 
   const { mutate: updateName, isPending: isUpdating } = useUpdateCompanionName(
     companion.companionId,
   );
   const { mutate: deleteCompanion, isPending: isDeleting } = useDeleteCompanion(
-    companion.companionId,
+    deleteTarget?.companionId ?? companion.companionId,
   );
 
   const closeManagement = () => {
+    if (isDeleting) return;
+
     setName(companion.displayName);
     setIsEditing(false);
-    setIsConfirmingDelete(false);
+    setDeleteTarget(null);
     setIsManaging(false);
   };
 
@@ -74,8 +80,10 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
   };
 
   const handleDelete = () => {
+    if (!deleteTarget || isDeleting) return;
+
     deleteCompanion(undefined, {
-      onSuccess: () => setIsConfirmingDelete(false),
+      onSuccess: () => setDeleteTarget(null),
     });
   };
 
@@ -147,28 +155,21 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
                 </S.SaveButton>
               </S.NameEditRow>
             </S.NameEditForm>
-          ) : isConfirmingDelete ? (
-            <S.DeleteConfirmation role="alert">
-              <div>
-                <strong>{companion.displayName}님을 삭제할까요?</strong>
-                <span>기존 식사 기록은 삭제되지 않아요.</span>
-              </div>
-              <S.ConfirmationActions>
-                <S.CancelButton type="button" onClick={() => setIsConfirmingDelete(false)}>
-                  취소
-                </S.CancelButton>
-                <S.ConfirmDeleteButton type="button" onClick={handleDelete} disabled={isDeleting}>
-                  {isDeleting ? '삭제 중' : '삭제'}
-                </S.ConfirmDeleteButton>
-              </S.ConfirmationActions>
-            </S.DeleteConfirmation>
           ) : (
             <S.ManagementActions>
               <S.ManagementButton type="button" onClick={() => setIsEditing(true)}>
                 <Pencil size={16} aria-hidden="true" />
                 이름 수정
               </S.ManagementButton>
-              <S.DeleteButton type="button" onClick={() => setIsConfirmingDelete(true)}>
+              <S.DeleteButton
+                type="button"
+                onClick={() =>
+                  setDeleteTarget({
+                    companionId: companion.companionId,
+                    displayName: companion.displayName,
+                  })
+                }
+              >
                 <Trash2 size={16} aria-hidden="true" />
                 {companion.isAppUser ? '연결 해제' : '목록에서 삭제'}
               </S.DeleteButton>
@@ -176,6 +177,18 @@ const CompanionListItem = ({ companion }: { companion: CompanionResponse }) => {
           )}
         </S.ManagementPanel>
       )}
+      <ConfirmDialog
+        isOpen={deleteTarget !== null}
+        title={`${deleteTarget?.displayName ?? ''}님을 삭제할까요?`}
+        description="기존 식사 기록은 삭제되지 않아요."
+        confirmLabel="삭제"
+        pendingLabel="삭제 중"
+        isPending={isDeleting}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+        onConfirm={handleDelete}
+      />
     </S.CompanionCard>
   );
 };
@@ -192,6 +205,10 @@ const Companion = () => {
   const { data: pendingRequests } = usePendingCompanionRequests();
   const { data: myCode } = useMyCompanionCode();
   const { mutate: respondRequest, isPending: isResponding } = useRespondCompanionRequest();
+  const [rejectTarget, setRejectTarget] = useState<{
+    requestId: number;
+    fromUserNickname: string;
+  } | null>(null);
 
   const handleCopyCode = async () => {
     if (!myCode?.myCode) {
@@ -205,6 +222,15 @@ const Companion = () => {
     } catch {
       showToast('코드 복사에 실패했어요.', 'error');
     }
+  };
+
+  const handleReject = () => {
+    if (!rejectTarget || isResponding) return;
+
+    respondRequest(
+      { requestId: rejectTarget.requestId, accept: false },
+      { onSuccess: () => setRejectTarget(null) },
+    );
   };
 
   return (
@@ -256,7 +282,10 @@ const Companion = () => {
                       type="button"
                       disabled={isResponding}
                       onClick={() =>
-                        respondRequest({ requestId: request.requestId, accept: false })
+                        setRejectTarget({
+                          requestId: request.requestId,
+                          fromUserNickname: request.fromUserNickname,
+                        })
                       }
                     >
                       거절
@@ -322,6 +351,18 @@ const Companion = () => {
           동반자 추가
         </S.AddButton>
       </S.BottomActions>
+      <ConfirmDialog
+        isOpen={rejectTarget !== null}
+        title="동반자 신청을 거절할까요?"
+        description={`${rejectTarget?.fromUserNickname ?? ''}님의 신청을 거절하면 목록에서 사라져요.`}
+        confirmLabel="거절"
+        pendingLabel="거절 중"
+        isPending={isResponding}
+        onCancel={() => {
+          if (!isResponding) setRejectTarget(null);
+        }}
+        onConfirm={handleReject}
+      />
     </S.Container>
   );
 };

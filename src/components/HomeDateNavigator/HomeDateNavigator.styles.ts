@@ -6,7 +6,8 @@ export const Shell = styled.nav`
   top: 0;
   z-index: 40;
   padding: calc(env(safe-area-inset-top, 0px) + 26px) ${theme.app.pagePadding} 18px;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(247, 248, 250, 0.97);
+  backdrop-filter: blur(14px);
   outline: none;
   touch-action: pan-y;
 `;

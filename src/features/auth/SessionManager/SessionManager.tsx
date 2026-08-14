@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { AuthSessionResponse } from '~/apis/auth/session.types';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import { useAuthSessions, useRevokeAuthSession } from '~/features/auth/session.queries';
 import * as S from './SessionManager.styles';
 import type { SessionManagerViewProps } from './SessionManager.types';
@@ -79,21 +81,47 @@ export const SessionManagerView = ({
 const SessionManager = () => {
   const sessionsQuery = useAuthSessions();
   const revokeSession = useRevokeAuthSession();
+  const [revokeTarget, setRevokeTarget] = useState<Pick<
+    AuthSessionResponse,
+    'id' | 'deviceName'
+  > | null>(null);
 
   const handleRevoke = (session: AuthSessionResponse) => {
-    if (!window.confirm(`${session.deviceName}에서 로그아웃할까요?`)) return;
-    revokeSession.mutate(session.id);
+    if (revokeTarget || revokeSession.isPending) return;
+    setRevokeTarget({ id: session.id, deviceName: session.deviceName });
+  };
+
+  const handleConfirmRevoke = () => {
+    if (!revokeTarget || revokeSession.isPending) return;
+
+    revokeSession.mutate(revokeTarget.id, {
+      onSuccess: () => setRevokeTarget(null),
+    });
   };
 
   return (
-    <SessionManagerView
-      sessions={sessionsQuery.data ?? []}
-      isLoading={sessionsQuery.isLoading}
-      isError={sessionsQuery.isError}
-      revokingSessionId={revokeSession.isPending ? (revokeSession.variables ?? null) : null}
-      onRetry={() => void sessionsQuery.refetch()}
-      onRevoke={handleRevoke}
-    />
+    <>
+      <SessionManagerView
+        sessions={sessionsQuery.data ?? []}
+        isLoading={sessionsQuery.isLoading}
+        isError={sessionsQuery.isError}
+        revokingSessionId={revokeSession.isPending ? (revokeSession.variables ?? null) : null}
+        onRetry={() => void sessionsQuery.refetch()}
+        onRevoke={handleRevoke}
+      />
+      <ConfirmDialog
+        isOpen={revokeTarget !== null}
+        title="기기 로그아웃"
+        description={revokeTarget ? `${revokeTarget.deviceName}에서 로그아웃할까요?` : ''}
+        confirmLabel="로그아웃"
+        pendingLabel="로그아웃 중..."
+        isPending={revokeSession.isPending}
+        onCancel={() => {
+          if (!revokeSession.isPending) setRevokeTarget(null);
+        }}
+        onConfirm={handleConfirmRevoke}
+      />
+    </>
   );
 };
 

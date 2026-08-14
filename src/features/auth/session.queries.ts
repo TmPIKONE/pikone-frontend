@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAuthSessionsBuilder, revokeAuthSession } from '~/apis/auth/session.api';
+import { getAuthSessionsBuilder, revokeAuthSessionBuilder } from '~/apis/auth/session.api';
 import type { SessionRevocationResponse } from '~/apis/auth/session.types';
-import { useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiQuery } from '~/apis/config/queryHooks';
 import { queryKeys } from '~/apis/queryKeys';
 import { useToast } from '~/components/Toast/useToast';
 
@@ -12,7 +12,7 @@ export const useRevokeAuthSession = () => {
   const { showToast } = useToast();
 
   return useMutation<SessionRevocationResponse, unknown, number>({
-    mutationFn: revokeAuthSession,
+    mutationFn: (sessionId) => revokeAuthSessionBuilder(sessionId).execute(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.sessions });
       showToast('선택한 기기의 자동 로그인을 해제했어요.');

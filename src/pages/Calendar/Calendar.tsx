@@ -4,10 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MonthWheelPicker } from '~/components/MonthWheelPicker/MonthWheelPicker';
 import type { CalendarResponse } from '~/apis/record/record.types';
 import { MAX_RECORDS_PER_DAY } from '~/features/records/record.constants';
-import {
-  createRecordViewState,
-  RECORD_VIEW_PATH,
-} from '~/features/records/recordViewNavigation';
+import { createRecordViewState, RECORD_VIEW_PATH } from '~/features/records/recordViewNavigation';
 import { useCalendar } from '~/features/records/record.queries';
 import { padTwoDigits, parseLocalDate, toLocalIsoDate, toLocalIsoDateParts } from '~/utils/date';
 import { resolveThumbnailUrl } from '~/utils/image';

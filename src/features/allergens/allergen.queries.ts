@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import { getAllergensBuilder, updateAllergensBuilder } from '~/apis/allergen/allergen.api';
 import type { AllergenRequest, AllergenResponse } from '~/apis/allergen/allergen.types';
-import { useApiMutation, useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
 import { queryKeys } from '~/apis/queryKeys';
 import { useToast } from '~/components/Toast/useToast';
 

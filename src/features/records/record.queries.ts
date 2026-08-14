@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
-import { useApiMutation, useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
 import { queryKeys } from '~/apis/queryKeys';
 import {
   analyzeImageBuilder,
@@ -36,9 +36,10 @@ type VoidSuccess = NonNullable<UseMutationOptions<void, unknown, void>['onSucces
 
 const isDailyRecordLimitError = (error: unknown) => {
   if (!isAxiosError(error)) return false;
-  const responseData = error.response?.data as { message?: unknown } | undefined;
+  const responseData = error.response?.data as { code?: unknown; message?: unknown } | undefined;
   return (
-    typeof responseData?.message === 'string' && responseData.message.includes('하루 최대 3개')
+    responseData?.code === 'DAILY_RECORD_LIMIT_EXCEEDED' ||
+    (typeof responseData?.message === 'string' && responseData.message.includes('하루 최대 3개'))
   );
 };
 

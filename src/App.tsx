@@ -4,7 +4,7 @@ import { AuthProvider } from './contexts/Auth/AuthContext';
 import { ToastProvider } from './components/Toast/Toast';
 import { GlobalStyle } from './styles/GlobalStyle';
 import Router from './Router';
-import queryClient from './QueryClient';
+import queryClient from './apis/config/queryClient';
 
 const App = () => {
   return (

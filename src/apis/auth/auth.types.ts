@@ -1,9 +1,4 @@
-export interface ReissueRequest {
-  accessToken: string;
-  refreshToken?: string;
-}
-
-export interface TokenResponse {
+interface TokenResponse {
   grantType: string;
   accessToken: string;
   accessTokenExpiresIn: number;

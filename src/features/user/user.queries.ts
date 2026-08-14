@@ -1,4 +1,4 @@
-import { useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiQuery } from '~/apis/config/queryHooks';
 import { queryKeys } from '~/apis/queryKeys';
 import { getMyInfoBuilder } from '~/apis/user/user.api';
 

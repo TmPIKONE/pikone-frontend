@@ -4,6 +4,7 @@ const companionsRoot = ['companions'] as const;
 const draftsRoot = ['drafts'] as const;
 const homeLocationsRoot = ['homeLocations'] as const;
 const recordsRoot = ['records'] as const;
+const recommendationsRoot = ['recommendations'] as const;
 const userRoot = ['user'] as const;
 
 export const queryKeys = {
@@ -27,6 +28,12 @@ export const queryKeys = {
   },
   homeLocations: {
     all: homeLocationsRoot,
+  },
+  recommendations: {
+    all: recommendationsRoot,
+    usage: [...recommendationsRoot, 'usage'] as const,
+    locations: (query: string, latitude?: number, longitude?: number) =>
+      [...recommendationsRoot, 'locations', query, latitude ?? null, longitude ?? null] as const,
   },
   records: {
     all: recordsRoot,

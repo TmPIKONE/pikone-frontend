@@ -22,7 +22,8 @@ import { useDeleteRecord, useRecordsByDate } from '~/features/records/record.que
 import type { RecordDetailResponse } from '~/apis/record/record.types';
 import { parseLocalDate } from '~/utils/date';
 import { resolveOptimizedImageUrl } from '~/utils/image';
-import { buildNaverMapUrl } from '~/utils/naverMap';
+import { buildNaverMapUrl } from '~/features/records/restaurantMap';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import * as S from './RecordView.styles';
 
 interface RecordSlideProps {
@@ -31,6 +32,79 @@ interface RecordSlideProps {
   total: number;
   fallbackDate: string;
 }
+
+interface RecordActionMenuProps {
+  isDeleting: boolean;
+  onEdit: () => void;
+  onDelete: (returnFocusElement: HTMLButtonElement | null) => void;
+}
+
+const RecordActionMenu = ({ isDeleting, onEdit, onDelete }: RecordActionMenuProps) => {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <S.HeaderActionSlot ref={rootRef}>
+      <S.MoreButton
+        ref={moreButtonRef}
+        type="button"
+        aria-label="기록 메뉴 열기"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <MoreVertical size={23} aria-hidden="true" />
+      </S.MoreButton>
+      {isOpen && (
+        <S.ActionMenu role="menu">
+          <S.ActionMenuButton
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+              onEdit();
+            }}
+          >
+            <Pencil size={17} aria-hidden="true" />
+            전체 수정
+          </S.ActionMenuButton>
+          <S.ActionMenuButton
+            type="button"
+            role="menuitem"
+            $danger
+            disabled={isDeleting}
+            onClick={() => {
+              setIsOpen(false);
+              onDelete(moreButtonRef.current);
+            }}
+          >
+            <Trash2 size={17} aria-hidden="true" />
+            {isDeleting ? '삭제 중' : '삭제'}
+          </S.ActionMenuButton>
+        </S.ActionMenu>
+      )}
+    </S.HeaderActionSlot>
+  );
+};
 
 const RecordSlide = ({ record, index, total, fallbackDate }: RecordSlideProps) => {
   const companionNames = record.companionNames?.length
@@ -114,9 +188,9 @@ const RecordView = () => {
   const isValidDate =
     /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(parseLocalDate(date).getTime());
   const albumRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const deleteReturnFocusRef = useRef<HTMLButtonElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const { data: records, isLoading, isError, refetch } = useRecordsByDate(isValidDate ? date : '');
   const recordCount = records?.length ?? 0;
   const displayedIndex = Math.min(activeIndex, Math.max(recordCount - 1, 0));
@@ -131,9 +205,10 @@ const RecordView = () => {
     : '기록 보기';
 
   const { mutate: deleteRecord, isPending: isDeleting } = useDeleteRecord(
-    activeRecord?.recordId ?? 0,
+    deleteTargetId ?? activeRecord?.recordId ?? 0,
     {
       onSuccess: () => {
+        setDeleteTargetId(null);
         setActiveIndex((current) => Math.max(0, Math.min(current, recordCount - 2)));
         void refetch();
       },
@@ -152,46 +227,26 @@ const RecordView = () => {
     }
   }, [date, isValidDate, location.search, navigate]);
 
-  useEffect(() => {
-    if (!isActionMenuOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setIsActionMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsActionMenuOpen(false);
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isActionMenuOpen]);
-
-  useEffect(() => {
-    setIsActionMenuOpen(false);
-  }, [displayedIndex]);
-
   const handleAlbumScroll = () => {
     const album = albumRef.current;
     if (!album || album.clientWidth === 0) return;
-    setActiveIndex(Math.round(album.scrollLeft / album.clientWidth));
+    const nextIndex = Math.round(album.scrollLeft / album.clientWidth);
+    setActiveIndex(nextIndex);
   };
 
   const handleEdit = () => {
     if (!activeRecord) return;
-    setIsActionMenuOpen(false);
     navigate(`/record/edit/${activeRecord.recordId}?date=${date}`);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (returnFocusElement: HTMLButtonElement | null) => {
     if (!activeRecord || isDeleting) return;
-    setIsActionMenuOpen(false);
-    if (!window.confirm('이 기록을 삭제할까요? 삭제하면 되돌릴 수 없어요.')) return;
+    deleteReturnFocusRef.current = returnFocusElement;
+    setDeleteTargetId(activeRecord.recordId);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId == null || isDeleting) return;
     deleteRecord();
   };
 
@@ -213,39 +268,16 @@ const RecordView = () => {
         <S.HeaderCopy>
           <S.DateTitle>{dateLabel}</S.DateTitle>
         </S.HeaderCopy>
-        <S.HeaderActionSlot ref={menuRef}>
-          {activeRecord && (
-            <>
-              <S.MoreButton
-                type="button"
-                aria-label="기록 메뉴 열기"
-                aria-haspopup="menu"
-                aria-expanded={isActionMenuOpen}
-                onClick={() => setIsActionMenuOpen((open) => !open)}
-              >
-                <MoreVertical size={23} aria-hidden="true" />
-              </S.MoreButton>
-              {isActionMenuOpen && (
-                <S.ActionMenu role="menu">
-                  <S.ActionMenuButton type="button" role="menuitem" onClick={handleEdit}>
-                    <Pencil size={17} aria-hidden="true" />
-                    전체 수정
-                  </S.ActionMenuButton>
-                  <S.ActionMenuButton
-                    type="button"
-                    role="menuitem"
-                    $danger
-                    disabled={isDeleting}
-                    onClick={handleDelete}
-                  >
-                    <Trash2 size={17} aria-hidden="true" />
-                    {isDeleting ? '삭제 중' : '삭제'}
-                  </S.ActionMenuButton>
-                </S.ActionMenu>
-              )}
-            </>
-          )}
-        </S.HeaderActionSlot>
+        {activeRecord ? (
+          <RecordActionMenu
+            key={activeRecord.recordId}
+            isDeleting={isDeleting}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <S.HeaderActionSlot />
+        )}
       </S.HeaderRow>
 
       {!isValidDate ? (
@@ -299,13 +331,27 @@ const RecordView = () => {
           type="button"
           disabled={isDateFull}
           aria-label={isDateFull ? '하루 기록 3개를 모두 채웠어요' : '이 날짜에 기록 추가'}
-          title={isDateFull ? `하루에는 최대 ${MAX_RECORDS_PER_DAY}개까지 기록할 수 있어요.` : undefined}
+          title={
+            isDateFull ? `하루에는 최대 ${MAX_RECORDS_PER_DAY}개까지 기록할 수 있어요.` : undefined
+          }
           onClick={handleAdd}
         >
           <Plus size={19} strokeWidth={2.5} aria-hidden="true" />
           <span>{isDateFull ? '기록 완료' : '기록 추가'}</span>
         </S.FloatingAddButton>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteTargetId != null}
+        title="기록 삭제"
+        description="이 기록을 삭제할까요? 삭제하면 되돌릴 수 없어요."
+        confirmLabel="삭제"
+        pendingLabel="삭제 중..."
+        isPending={isDeleting}
+        onCancel={() => setDeleteTargetId(null)}
+        onConfirm={confirmDelete}
+        returnFocusRef={deleteReturnFocusRef}
+      />
     </S.Container>
   );
 };

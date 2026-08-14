@@ -7,7 +7,7 @@ import ProtectedRoute from '~/components/ProtectedRoute/ProtectedRoute';
 import LoadingSpinner from '~/components/LoadingSpinner/LoadingSpinner';
 
 const LoginPage = lazy(() => import('~/pages/Auth/LoginPage'));
-const TokenProcessor = lazy(() => import('~/utils/Authorization/TokenProcessor'));
+const OAuthCallback = lazy(() => import('~/pages/Auth/OAuthCallback'));
 const Home = lazy(() => import('~/pages/Home/Home'));
 const Calendar = lazy(() => import('~/pages/Calendar/Calendar'));
 const RecordAdd = lazy(() => import('~/pages/RecordAdd/RecordAdd'));
@@ -41,7 +41,7 @@ const Router = () => {
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/loginwait" element={<TokenProcessor />} />
+            <Route path="/loginwait" element={<OAuthCallback />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

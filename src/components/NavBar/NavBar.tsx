@@ -4,7 +4,7 @@ import type { NavItemType } from './NavBar.types';
 import * as S from './NavBar.styles';
 
 const NAV_ITEMS: NavItemType[] = [
-  { path: '/home', label: '기록', icon: Utensils },
+  { path: '/home', label: '홈', icon: Utensils },
   { path: '/ai', label: 'PIKONE AI', icon: Sparkles },
   { path: '/calendar', label: '달력', icon: CalendarDays },
   { path: '/companion', label: '동반자', icon: UsersRound },

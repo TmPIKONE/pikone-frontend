@@ -1,20 +1,6 @@
 import { Outlet, useLocation, matchPath } from 'react-router-dom';
-import styled from '@emotion/styled';
-import { theme } from '~/styles/theme';
 import NavBar from '~/components/NavBar/NavBar';
-
-const Layout = styled.div`
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: ${theme.colors.surfaceSubtle};
-`;
-
-const Content = styled.main<{ $reserveNavSpace: boolean }>`
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding-bottom: ${({ $reserveNavSpace }) => ($reserveNavSpace ? theme.app.bottomNavSpace : '0')};
-  background-color: ${theme.colors.white};
-`;
+import * as S from './MainLayout.styles';
 
 const MainLayout = () => {
   const { pathname } = useLocation();
@@ -32,13 +18,13 @@ const MainLayout = () => {
   const reserveNavSpace = !hideNav && pathname !== '/companion';
 
   return (
-    <Layout>
-      <Content $reserveNavSpace={reserveNavSpace}>
+    <S.Layout>
+      <S.Content $reserveNavSpace={reserveNavSpace}>
         <Outlet />
-      </Content>
+      </S.Content>
 
       {!hideNav && <NavBar />}
-    </Layout>
+    </S.Layout>
   );
 };
 

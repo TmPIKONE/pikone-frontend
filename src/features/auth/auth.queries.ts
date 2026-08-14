@@ -1,6 +1,6 @@
-import { logout, withdrawal } from '~/apis/auth/auth';
-import { useApiMutation } from '~/apis/config/ApiBuilder';
+import { logoutBuilder, withdrawalBuilder } from '~/apis/auth/auth.api';
+import { useApiMutation } from '~/apis/config/queryHooks';
 
-export const useLogout = () => useApiMutation<void, void>(logout());
+export const useLogout = () => useApiMutation<void, void>(logoutBuilder());
 
-export const useWithdrawal = () => useApiMutation<void, void>(withdrawal());
+export const useWithdrawal = () => useApiMutation<void, void>(withdrawalBuilder());

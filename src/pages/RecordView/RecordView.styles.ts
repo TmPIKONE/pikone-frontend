@@ -181,43 +181,43 @@ export const PositionBadge = styled.span`
 `;
 
 export const HeroCopy = styled.div`
-    position: absolute;
-    right: 20px;
-    bottom: 22px;
-    left: 20px;
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  left: 20px;
 
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
 
-    color: ${theme.colors.white};
+  color: ${theme.colors.white};
 `;
 
 export const RevisitLabel = styled.span`
-    min-height: 27px;
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 0 9px;
-    border-radius: ${theme.radius.full};
-    background: rgba(255, 255, 255, 0.18);
-    color: ${theme.colors.white};
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  min-height: 27px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  border-radius: ${theme.radius.full};
+  background: rgba(255, 255, 255, 0.18);
+  color: ${theme.colors.white};
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 `;
 
 export const FoodName = styled.h2`
-    min-width: 0;
-    overflow-wrap: anywhere;
-    font-size: clamp(24px, 5vw, 32px);
-    font-weight: 800;
-    letter-spacing: -0.055em;
-    line-height: 1.12;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.12;
 `;
 
 export const MemoryCard = styled.section`
@@ -296,16 +296,16 @@ export const RestaurantLine = styled.div`
 `;
 
 export const NaverMapLink = styled.a`
-    flex: 0 0 auto;
-    margin-right: 8px;
+  flex: 0 0 auto;
+  margin-right: 8px;
 
-    color: ${theme.colors.gray500};
-    font-size: 12px;
-    font-weight: 750;
-    text-decoration: underline;
-    text-decoration-color: ${theme.colors.gray400};
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+  color: ${theme.colors.gray500};
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: ${theme.colors.gray400};
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 `;
 export const FloatingAddButton = styled.button`
   position: fixed;

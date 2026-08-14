@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import { useDeleteHomeLocation } from '~/features/homeLocations/homeLocation.queries';
 import type {
   HomeLocationResponse,
@@ -18,11 +20,25 @@ interface HomeLocationRowProps {
 }
 
 const HomeLocationRow = ({ location, onEdit }: HomeLocationRowProps) => {
-  const { mutate: deleteHomeLocation, isPending } = useDeleteHomeLocation(location.id);
+  const [deleteTarget, setDeleteTarget] = useState<Pick<
+    HomeLocationResponse,
+    'id' | 'label'
+  > | null>(null);
+  const { mutate: deleteHomeLocation, isPending } = useDeleteHomeLocation(
+    deleteTarget?.id ?? location.id,
+  );
 
   const handleDelete = () => {
-    if (!window.confirm(`'${location.label}'을 삭제할까요?`)) return;
-    deleteHomeLocation();
+    if (deleteTarget || isPending) return;
+    setDeleteTarget({ id: location.id, label: location.label });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget || isPending) return;
+
+    deleteHomeLocation(undefined, {
+      onSuccess: () => setDeleteTarget(null),
+    });
   };
 
   return (
@@ -45,6 +61,19 @@ const HomeLocationRow = ({ location, onEdit }: HomeLocationRowProps) => {
           삭제
         </S.DeleteButton>
       </S.ActionRow>
+
+      <ConfirmDialog
+        isOpen={deleteTarget !== null}
+        title="고정 장소 삭제"
+        description={deleteTarget ? `'${deleteTarget.label}'을 삭제할까요?` : ''}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중..."
+        isPending={isPending}
+        onCancel={() => {
+          if (!isPending) setDeleteTarget(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </S.Row>
   );
 };

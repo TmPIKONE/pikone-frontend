@@ -7,6 +7,7 @@ import {
   useRejectDraft,
   useUpdateDraftLocationType,
 } from '~/features/drafts/draft.queries';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import CompanionSelector from '~/components/CompanionSelector/CompanionSelector';
 import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
 import Switch from '~/components/Switch/Switch';
@@ -29,6 +30,7 @@ interface DraftEditorProps {
 
 const DraftEditor = ({ draft }: DraftEditorProps) => {
   const navigate = useNavigate();
+  const [rejectTargetId, setRejectTargetId] = useState<number | null>(null);
   const [foodName, setFoodName] = useState(draft.foodName);
   const [locationType, setLocationType] = useState<LocationType>(draft.locationType);
   const [selectedCandidate, setSelectedCandidate] = useState<RestaurantCandidate | null>(
@@ -39,14 +41,27 @@ const DraftEditor = ({ draft }: DraftEditorProps) => {
   const [isPublic, setIsPublic] = useState(true);
 
   const { mutate: approveDraft, isPending: isApproving } = useApproveDraft(draft.draftId);
-  const { mutate: rejectDraft, isPending: isRejecting } = useRejectDraft(draft.draftId);
+  const { mutate: rejectDraft, isPending: isRejecting } = useRejectDraft(
+    rejectTargetId ?? draft.draftId,
+  );
   const { mutate: saveLocationType, isPending: isSavingLocation } = useUpdateDraftLocationType(
     draft.draftId,
   );
 
   const handleReject = () => {
-    if (!window.confirm('이 기록을 거절할까요? 거절하면 되돌릴 수 없어요.')) return;
-    rejectDraft(undefined, { onSuccess: () => navigate('/draft') });
+    if (rejectTargetId != null || isRejecting) return;
+    setRejectTargetId(draft.draftId);
+  };
+
+  const handleConfirmReject = () => {
+    if (rejectTargetId == null || isRejecting) return;
+
+    rejectDraft(undefined, {
+      onSuccess: () => {
+        setRejectTargetId(null);
+        navigate('/draft');
+      },
+    });
   };
 
   const handleApprove = () => {
@@ -186,6 +201,19 @@ const DraftEditor = ({ draft }: DraftEditorProps) => {
           {isApproving ? '추가 중...' : '내 기록에 추가'}
         </S.ApproveButton>
       </S.ButtonRow>
+
+      <ConfirmDialog
+        isOpen={rejectTargetId !== null}
+        title="기록 제외"
+        description="이 기록을 거절할까요? 거절하면 되돌릴 수 없어요."
+        confirmLabel="제외"
+        pendingLabel="처리 중..."
+        isPending={isRejecting}
+        onCancel={() => {
+          if (!isRejecting) setRejectTargetId(null);
+        }}
+        onConfirm={handleConfirmReject}
+      />
     </S.Container>
   );
 };

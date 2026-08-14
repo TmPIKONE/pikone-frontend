@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import {
-  cancelCompanionRequestBuilder,
   createLocalCompanionBuilder,
   deleteCompanionBuilder,
   getCompanionRecordsBuilder,
@@ -25,7 +24,7 @@ import type {
   SendRequestResponse,
   UpdateDisplayNameDto,
 } from '~/apis/companion/companion.types';
-import { useApiMutation, useApiQuery } from '~/apis/config/ApiBuilder';
+import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
 import { queryKeys } from '~/apis/queryKeys';
 import { useToast } from '~/components/Toast/useToast';
 
@@ -59,11 +58,6 @@ export const usePendingCompanionRequests = () =>
     getPendingCompanionRequestsBuilder(),
     queryKeys.companions.pendingRequests,
   );
-
-export const useCancelCompanionRequest = (
-  requestId: number,
-  options?: UseMutationOptions<void, unknown, void>,
-) => useApiMutation<void, void>(cancelCompanionRequestBuilder(requestId), options);
 
 export const useCreateLocalCompanion = (options?: CreateOptions) => {
   const queryClient = useQueryClient();

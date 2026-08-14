@@ -1,16 +1,11 @@
-import apiClient from '~/apis/apiClient';
-import ApiBuilder from '~/apis/config/ApiBuilder';
-import type { ApiEnvelope } from '~/apis/config/ApiBuilder';
+import ApiBuilder from '~/apis/config/builder/ApiBuilder';
+import { AUTH_ENDPOINTS } from './auth.endpoints';
 import type { AuthSessionResponse, SessionRevocationResponse } from './session.types';
 
-const AUTH_SESSIONS = '/auth/sessions';
-
 export const getAuthSessionsBuilder = () =>
-  ApiBuilder.create<void, AuthSessionResponse[]>(AUTH_SESSIONS).setMethod('GET');
+  ApiBuilder.create<void, AuthSessionResponse[]>(AUTH_ENDPOINTS.sessions).setMethod('GET');
 
-export const revokeAuthSession = async (sessionId: number) => {
-  const response = await apiClient.delete<ApiEnvelope<SessionRevocationResponse>>(
-    `${AUTH_SESSIONS}/${sessionId}`,
-  );
-  return response.data.data;
-};
+export const revokeAuthSessionBuilder = (sessionId: number) =>
+  ApiBuilder.create<void, SessionRevocationResponse>(
+    `${AUTH_ENDPOINTS.sessions}/${sessionId}`,
+  ).setMethod('DELETE');

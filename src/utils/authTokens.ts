@@ -1,10 +1,17 @@
 const ACCESS_TOKEN_KEY = 'accessToken';
 const LEGACY_REFRESH_TOKEN_KEY = 'refreshToken';
+export const AUTH_TOKENS_CHANGED_EVENT = 'pikone:auth-tokens-changed';
 
 export interface AuthTokens {
   accessToken: string;
   refreshToken?: string;
 }
+
+const notifyAuthTokensChanged = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(AUTH_TOKENS_CHANGED_EVENT));
+  }
+};
 
 export const hasAuthToken = () => Boolean(sessionStorage.getItem(ACCESS_TOKEN_KEY));
 
@@ -24,9 +31,11 @@ export const writeAuthTokens = ({ accessToken, refreshToken }: AuthTokens) => {
   } else {
     sessionStorage.removeItem(LEGACY_REFRESH_TOKEN_KEY);
   }
+  notifyAuthTokensChanged();
 };
 
 export const clearAuthTokens = () => {
   sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   sessionStorage.removeItem(LEGACY_REFRESH_TOKEN_KEY);
+  notifyAuthTokensChanged();
 };

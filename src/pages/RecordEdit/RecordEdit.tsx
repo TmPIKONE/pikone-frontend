@@ -5,11 +5,12 @@ import { HomeDatePicker } from '~/components/HomeDatePicker/HomeDatePicker';
 import MultiCompanionSelector from '~/components/MultiCompanionSelector/MultiCompanionSelector';
 import { RestaurantPicker } from '~/components/RestaurantPicker/RestaurantPicker';
 import Switch from '~/components/Switch/Switch';
-import { useAnalyzeImage, useRecordsByDate, useUpdateRecord } from '~/features/records/record.queries';
 import {
-  createRecordViewState,
-  RECORD_VIEW_PATH,
-} from '~/features/records/recordViewNavigation';
+  useAnalyzeImage,
+  useRecordsByDate,
+  useUpdateRecord,
+} from '~/features/records/record.queries';
+import { createRecordViewState, RECORD_VIEW_PATH } from '~/features/records/recordViewNavigation';
 import type { LocationType, RestaurantCandidate } from '~/apis/record/record.types';
 import { parseLocalDate } from '~/utils/date';
 import { resolveOptimizedImageUrl } from '~/utils/image';
@@ -162,10 +163,7 @@ const RecordEditForm = ({ record, fallbackDate }: RecordEditFormProps) => {
 
       <S.Form>
         <S.PhotoSection>
-          <S.Photo
-            src={localPreviewUrl ?? resolveOptimizedImageUrl(imageUrl)}
-            alt="수정할 음식"
-          />
+          <S.Photo src={localPreviewUrl ?? resolveOptimizedImageUrl(imageUrl)} alt="수정할 음식" />
           <S.PhotoChangeButton>
             {isPhotoUploading ? <Camera size={16} /> : <ImagePlus size={16} />}
             {isPhotoUploading ? '사진 올리는 중' : '사진 바꾸기'}

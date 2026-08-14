@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '~/contexts/Auth/useAuth';
 import { useLogout, useWithdrawal } from '~/features/auth/auth.queries';
 import {
   useCreateHomeLocation,
@@ -11,6 +10,7 @@ import {
 import { useMyInfo } from '~/features/user/user.queries';
 import { useCurrentLocation } from '~/hooks/useCurrentLocation';
 import { useToast } from '~/components/Toast/useToast';
+import { ConfirmDialog } from '~/components/ConfirmDialog/ConfirmDialog';
 import HomeLocationList from '~/components/HomeLocationList/HomeLocationList';
 import AllergenForm from '~/components/AllergenForm/AllergenForm';
 import PlaceTypeWheelPicker from '~/components/PlaceTypeWheelPicker/PlaceTypeWheelPicker';
@@ -39,11 +39,12 @@ interface LocationFormState {
   longitude?: number;
 }
 
+type AccountConfirmation = 'logout' | 'withdrawal' | null;
+
 const EMPTY_FORM: LocationFormState = { type: 'HOME', label: '', radiusMeters: '100' };
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth();
   const { showToast } = useToast();
 
   const { data: user } = useMyInfo();
@@ -54,6 +55,7 @@ const Settings = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [form, setForm] = useState<LocationFormState>(EMPTY_FORM);
+  const [accountConfirmation, setAccountConfirmation] = useState<AccountConfirmation>(null);
 
   const { mutate: updateHomeLocation, isPending: isUpdating } = useUpdateHomeLocation(
     editingId ?? -1,
@@ -122,17 +124,21 @@ const Settings = () => {
   };
 
   const handleLogout = () => {
-    if (!window.confirm('이 기기에서 로그아웃할까요? 다른 기기의 로그인은 유지돼요.')) return;
+    if (isLoggingOut || isWithdrawing) return;
+    setAccountConfirmation('logout');
+  };
+
+  const confirmLogout = () => {
     logout(undefined, {
       onSuccess: () => {
+        setAccountConfirmation(null);
         clearAuthTokens();
-        setIsAuthenticated(false);
         showToast('이 기기에서 로그아웃했어요.');
         navigate('/login');
       },
       onError: () => {
+        setAccountConfirmation(null);
         clearAuthTokens();
-        setIsAuthenticated(false);
         showToast('기기에서 로그아웃했어요.', 'info');
         navigate('/login');
       },
@@ -140,11 +146,15 @@ const Settings = () => {
   };
 
   const handleWithdrawal = () => {
-    if (!window.confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제되고 되돌릴 수 없어요.')) return;
+    if (isLoggingOut || isWithdrawing) return;
+    setAccountConfirmation('withdrawal');
+  };
+
+  const confirmWithdrawal = () => {
     withdraw(undefined, {
       onSuccess: () => {
+        setAccountConfirmation(null);
         clearAuthTokens();
-        setIsAuthenticated(false);
         showToast('회원탈퇴가 완료됐어요.');
         navigate('/login');
       },
@@ -270,6 +280,20 @@ const Settings = () => {
         <SessionManager />
       </S.SessionSection>
 
+      <ConfirmDialog
+        isOpen={accountConfirmation != null}
+        title={accountConfirmation === 'withdrawal' ? '회원 탈퇴' : '로그아웃'}
+        description={
+          accountConfirmation === 'withdrawal'
+            ? '정말 탈퇴하시겠어요? 모든 데이터가 삭제되고 되돌릴 수 없어요.'
+            : '이 기기에서 로그아웃할까요? 다른 기기의 로그인은 유지돼요.'
+        }
+        confirmLabel={accountConfirmation === 'withdrawal' ? '탈퇴' : '로그아웃'}
+        pendingLabel={accountConfirmation === 'withdrawal' ? '탈퇴 중...' : '로그아웃 중...'}
+        isPending={accountConfirmation === 'withdrawal' ? isWithdrawing : isLoggingOut}
+        onCancel={() => setAccountConfirmation(null)}
+        onConfirm={accountConfirmation === 'withdrawal' ? confirmWithdrawal : confirmLogout}
+      />
     </S.Container>
   );
 };

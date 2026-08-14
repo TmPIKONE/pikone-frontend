@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
+import { API_BASE_URL } from '~/apis/config/apiConfig';
 
 const API_ORIGIN = (() => {
   try {
