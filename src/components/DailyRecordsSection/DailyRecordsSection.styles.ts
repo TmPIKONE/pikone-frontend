@@ -16,82 +16,78 @@ const skeletonBackground = `
   )
 `;
 
+const pileLayouts = [
+  { x: '0px', y: '0px', rotation: '3deg' },
+  { x: '-78px', y: '-10px', rotation: '-11deg' },
+  { x: '75px', y: '-17px', rotation: '9deg' },
+  { x: '-91px', y: '67px', rotation: '-7deg' },
+  { x: '83px', y: '65px', rotation: '8deg' },
+  { x: '-42px', y: '86px', rotation: '5deg' },
+  { x: '39px', y: '89px', rotation: '-5deg' },
+  { x: '-43px', y: '-70px', rotation: '-4deg' },
+  { x: '45px', y: '-67px', rotation: '7deg' },
+] as const;
+
+const dayPhotoRotations = ['-2deg', '1.5deg', '-1deg'] as const;
+
 export const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 10px ${theme.app.pagePadding} 28px;
+  padding: 4px ${theme.app.pagePadding} 24px;
   background: ${theme.colors.surfaceSubtle};
 `;
 
-export const Card = styled.article`
-  padding: 17px;
-  border: 1px solid rgba(17, 19, 24, 0.035);
-  border-radius: 18px;
-  background: ${theme.colors.white};
-`;
-
-export const CardHeader = styled.header`
-  min-height: 25px;
+export const CoverButton = styled.button`
+  width: 100%;
+  min-height: clamp(440px, calc(100dvh - 198px), 570px);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-`;
-
-export const TitleGroup = styled.div`
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-`;
-
-export const CardTitle = styled.h2`
-  overflow: hidden;
-  color: ${theme.colors.gray700};
-  font-size: 15px;
-  font-weight: 750;
-  letter-spacing: -0.035em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export const Count = styled.span`
-  flex: 0 0 auto;
-  color: ${theme.colors.gray400};
-  font-size: 12px;
-  font-weight: 650;
-`;
-
-export const ViewAllButton = styled.button`
-  flex: 0 0 auto;
-  min-height: 28px;
-  display: inline-flex;
-  align-items: center;
-  gap: 1px;
-  color: ${theme.colors.gray400};
-  font-size: 11px;
-  font-weight: 600;
+  padding: 0 0 18px;
+  border-radius: ${theme.radius.lg};
+  background: rgba(255, 255, 255, 0.74);
+  text-align: center;
 
   &:active {
-    color: ${theme.colors.gray700};
+    background: ${theme.colors.white};
   }
 `;
 
-export const FeaturedPhotoButton = styled.button`
+export const PileStage = styled.span`
   position: relative;
   width: 100%;
-  height: 128px;
+  min-height: 340px;
+  flex: 1 1 auto;
+  display: block;
+`;
+
+export const PilePhoto = styled.span<{ $index: number; $total: number }>`
+  ${({ $index }) => {
+    const layout = pileLayouts[$index % pileLayouts.length];
+    return `
+      transform:
+        translate(-50%, -50%)
+        translate(${layout.x}, ${layout.y})
+        rotate(${layout.rotation});
+    `;
+  }}
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  z-index: ${({ $index, $total }) => $total - $index};
+  width: clamp(82px, 26vw, 104px);
+  padding: 6px 6px 19px;
+  border: 1px solid rgba(17, 19, 24, 0.08);
+    background: ${theme.colors.gray200};
+  box-shadow: 0 7px 18px rgba(33, 38, 47, 0.1);
+  transform-origin: center;
+`;
+
+export const PhotoViewport = styled.span`
+  width: 100%;
+  aspect-ratio: 4 / 5;
   display: block;
   overflow: hidden;
-  border-radius: 13px;
   background: ${theme.colors.gray100};
-  text-align: left;
-
-  &:active img {
-    transform: scale(1.018);
-  }
 `;
 
 export const RecordImage = styled.img`
@@ -99,7 +95,6 @@ export const RecordImage = styled.img`
   height: 100%;
   display: block;
   object-fit: cover;
-  transition: transform ${theme.motion.normal} ${theme.motion.easing};
 `;
 
 export const ImageFallback = styled.span`
@@ -108,191 +103,341 @@ export const ImageFallback = styled.span`
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 75% 16%, rgba(145, 200, 210, 0.26), transparent 34%),
+    radial-gradient(circle at 70% 20%, rgba(145, 200, 210, 0.22), transparent 38%),
     ${theme.colors.gray100};
   color: ${theme.colors.gray400};
 `;
 
-export const FeaturedOverlay = styled.span`
+export const EmptyPile = styled.span`
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 44%, rgba(17, 19, 24, 0.55) 100%);
-  pointer-events: none;
-`;
+  top: 47%;
+  left: 50%;
+  width: 230px;
+  height: 190px;
+  display: block;
+  transform: translate(-50%, -50%);
 
-export const PhotoDate = styled.span`
-  position: absolute;
-  left: 14px;
-  bottom: 11px;
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-`;
+  > span {
+    position: absolute;
+    top: 16px;
+    left: 68px;
+    width: 94px;
+    height: 122px;
+    display: grid;
+    place-items: center;
+    padding-bottom: 20px;
+    border: 1px dashed ${theme.colors.gray300};
+    background: rgba(255, 255, 255, 0.82);
+    color: ${theme.colors.gray500};
+  }
 
-export const GalleryButton = styled.button<{ $count: number }>`
-  width: 100%;
-  height: 206px;
-  display: grid;
-  grid-template-columns: ${({ $count }) => ($count === 1 ? '1fr' : 'minmax(0, 2fr) minmax(0, 1fr)')};
-  grid-template-rows: ${({ $count }) => ($count <= 2 ? '1fr' : 'repeat(2, minmax(0, 1fr))')};
-  gap: 4px;
-  overflow: hidden;
-  border-radius: 13px;
-  background: ${theme.colors.gray100};
+  > span:first-of-type {
+    transform: translate(-55px, 31px) rotate(-10deg);
+  }
 
-  &:active img {
-    transform: scale(1.015);
+  > span:nth-of-type(2) {
+    transform: translate(55px, 27px) rotate(9deg);
+  }
+
+  > span:last-of-type {
+    z-index: 1;
+    box-shadow: 0 7px 18px rgba(33, 38, 47, 0.07);
+    transform: rotate(2deg);
   }
 `;
 
-export const GalleryCell = styled.span<{ $index: number; $count: number }>`
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  background: ${theme.colors.gray100};
-
-  ${({ $count, $index }) => {
-    if ($count === 1) {
-      return `grid-column: 1; grid-row: 1;`;
-    }
-
-    if ($count === 2) {
-      return $index === 0 ? `grid-column: 1; grid-row: 1;` : `grid-column: 2; grid-row: 1;`;
-    }
-
-    return $index === 0
-      ? `grid-column: 1; grid-row: 1 / span 2;`
-      : `grid-column: 2; grid-row: ${$index};`;
-  }}
-`;
-
-export const EmptyPhotoButton = styled.button`
-  position: relative;
-  width: 100%;
-  min-height: 184px;
+export const CoverCopy = styled.span`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding: 18px;
-  overflow: hidden;
-  border: 1px dashed ${theme.colors.gray300};
-  border-radius: 13px;
-  background:
-    radial-gradient(circle at 88% 8%, rgba(145, 200, 210, 0.23), transparent 32%),
-    ${theme.colors.gray50};
-  text-align: left;
-
-  &:active {
-    background-color: ${theme.colors.gray100};
-  }
-`;
-
-export const EmptyIcon = styled.span`
-  position: absolute;
-  top: 17px;
-  right: 17px;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 15px;
-  background: ${theme.colors.white};
-  color: ${theme.colors.gray600};
-`;
-
-export const EmptyText = styled.span`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  padding: 0 16px;
 
   strong {
     color: ${theme.colors.gray900};
-    font-size: 19px;
-    font-weight: 820;
-    letter-spacing: -0.05em;
-    line-height: 1.3;
+    font-size: 20px;
+    font-weight: 780;
+    letter-spacing: -0.045em;
+    line-height: 1.35;
   }
 
   span {
-    margin-top: 7px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 5px;
     color: ${theme.colors.gray500};
     font-size: 11px;
     font-weight: 550;
-    line-height: 1.45;
   }
 `;
 
-export const AddLabel = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 1px;
-  margin-top: 13px;
-  color: ${theme.colors.gray700};
-  font-size: 12px;
-  font-weight: 750;
+export const ExpandedSection = styled.section`
+  min-height: calc(100dvh - ${theme.app.bottomNavSpace});
+  padding: 8px ${theme.app.pagePadding} 32px;
+  background: ${theme.colors.surfaceSubtle};
 `;
 
-export const StatusCard = styled.button`
-  width: 100%;
-  min-height: 92px;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+export const MonthToolbar = styled.header`
+  display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 17px;
-  border: 1px solid rgba(17, 19, 24, 0.035);
-  border-radius: 18px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 29px;
+`;
+
+export const CollapseButton = styled.button`
+  min-width: 88px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: ${theme.colors.gray500};
+  font-size: 11px;
+  font-weight: 650;
+`;
+
+export const MonthNavigation = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+export const MonthArrow = styled.button`
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: ${theme.colors.gray400};
+`;
+
+export const MonthTitle = styled.h2`
+  min-width: 92px;
+  color: ${theme.colors.gray900};
+  font-size: 14px;
+  font-weight: 780;
+  letter-spacing: -0.035em;
+  text-align: center;
+`;
+
+export const Timeline = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+`;
+
+export const DayGroup = styled.article`
+  min-width: 0;
+`;
+
+export const DayHeading = styled.h3`
+  min-height: 26px;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 9px;
+  color: ${theme.colors.gray400};
+  font-size: 12px;
+  font-weight: 550;
+
+  strong {
+    color: ${theme.colors.gray900};
+    font-size: 15px;
+    font-weight: 780;
+    letter-spacing: -0.03em;
+  }
+`;
+
+export const DayPhotos = styled.div`
+  min-height: 134px;
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 2px 8px;
+`;
+
+export const DayPhotoButton = styled.button<{
+  $index: number;
+  $count: number;
+}>`
+  position: relative;
+  z-index: ${({ $index }) => 5 - $index};
+  width: ${({ $count }) => {
+    if ($count === 1) return 'min(34%, 116px)';
+    if ($count === 2) return 'min(42%, 116px)';
+    return 'min(calc((100% + 18px) / 3), 116px)';
+  }};
+  flex: 0 0 auto;
+  padding: 6px 6px 8px;
+  border: 1px solid rgba(17, 19, 24, 0.08);
+  background: ${theme.colors.white};
+  box-shadow: 0 5px 13px rgba(33, 38, 47, 0.08);
+  text-align: left;
+  transform: rotate(${({ $index }) => dayPhotoRotations[$index % dayPhotoRotations.length]});
+
+  & + & {
+    margin-left: -9px;
+  }
+
+  &:active {
+    z-index: 10;
+    transform: rotate(0) translateY(-2px);
+  }
+`;
+
+export const DayPhotoViewport = styled.span`
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  display: block;
+  overflow: hidden;
+  background: ${theme.colors.gray100};
+`;
+
+export const PhotoNote = styled.span`
+  max-width: 100%;
+  height: 22px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  padding: 0 2px;
+  color: ${theme.colors.gray500};
+  font-size: 9px;
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const EmptyMonth = styled.div`
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: ${theme.colors.gray500};
+  text-align: center;
+
+  strong {
+    margin-top: 17px;
+    color: ${theme.colors.gray900};
+    font-size: 17px;
+    font-weight: 780;
+    letter-spacing: -0.04em;
+  }
+
+  > span:not(:first-of-type) {
+    margin-top: 6px;
+    font-size: 11px;
+  }
+`;
+
+export const EmptyMonthIcon = styled.span`
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 21px;
   background: ${theme.colors.white};
   color: ${theme.colors.gray400};
-  text-align: left;
+`;
+
+export const AddButton = styled.button`
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 16px;
+  padding: 0 17px;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.gray900};
+  color: ${theme.colors.white};
+  font-size: 12px;
+  font-weight: 700;
+`;
+
+export const StatusButton = styled.button`
+  width: 100%;
+  min-height: clamp(440px, calc(100dvh - 198px), 570px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border-radius: ${theme.radius.lg};
+  background: ${theme.colors.white};
+  color: ${theme.colors.gray500};
+
+  strong {
+    margin-top: 15px;
+    color: ${theme.colors.gray900};
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  > span:last-of-type {
+    margin-top: 5px;
+    font-size: 11px;
+  }
 `;
 
 export const StatusIcon = styled.span`
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 50px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 16px;
   background: ${theme.colors.gray100};
   color: ${theme.colors.gray600};
 `;
 
-export const StatusCopy = styled.span`
-  min-width: 0;
+export const CoverSkeleton = styled.div`
+  min-height: clamp(440px, calc(100dvh - 198px), 570px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 0 30px;
+  border-radius: ${theme.radius.lg};
+  background: rgba(255, 255, 255, 0.7);
+`;
 
-  strong {
-    color: ${theme.colors.gray700};
-    font-size: 14px;
-    font-weight: 750;
-  }
+export const SkeletonPile = styled.span`
+  position: relative;
+  width: 230px;
+  min-height: 320px;
+  display: block;
 
   span {
-    color: ${theme.colors.gray500};
-    font-size: 11px;
-    font-weight: 500;
+    position: absolute;
+    top: 84px;
+    left: 68px;
+    width: 94px;
+    height: 126px;
+    border: 6px solid ${theme.colors.white};
+    background: ${skeletonBackground};
+    background-size: 220% 100%;
+    animation: ${shimmer} 1.35s linear infinite;
+  }
+
+  span:first-of-type {
+    transform: translate(-55px, 31px) rotate(-10deg);
+  }
+
+  span:nth-of-type(2) {
+    transform: translate(55px, 27px) rotate(9deg);
+  }
+
+  span:last-of-type {
+    z-index: 1;
+    transform: rotate(2deg);
   }
 `;
 
-export const SkeletonLine = styled.span<{ $width: string }>`
+export const SkeletonLine = styled.span<{ $width: string; $large?: boolean }>`
   width: ${({ $width }) => $width};
-  height: 12px;
-  border-radius: ${theme.radius.full};
-  background: ${skeletonBackground};
-  background-size: 220% 100%;
-  animation: ${shimmer} 1.35s linear infinite;
-`;
-
-export const SkeletonPhoto = styled.span<{ $height: string }>`
-  width: 100%;
-  height: ${({ $height }) => $height};
+  height: ${({ $large }) => ($large ? '18px' : '11px')};
   display: block;
-  border-radius: 13px;
+  border-radius: ${theme.radius.full};
   background: ${skeletonBackground};
   background-size: 220% 100%;
   animation: ${shimmer} 1.35s linear infinite;

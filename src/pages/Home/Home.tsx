@@ -10,7 +10,7 @@ const Home = () => {
   return (
     <S.Container>
       <HomeDateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
-      <DailyRecordsSection selectedDate={selectedDate} />
+      <DailyRecordsSection selectedDate={selectedDate} onDateChange={setSelectedDate} />
     </S.Container>
   );
 };
