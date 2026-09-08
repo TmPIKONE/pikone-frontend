@@ -25,6 +25,7 @@ import type {
   VisibilityResponse,
 } from '~/apis/record/record.types';
 import { useToast } from '~/components/Toast/useToast';
+import { clearSelectedRecommendation } from '~/features/recommendations/recommendationStorage';
 
 type SaveOptions = UseMutationOptions<SaveResponse, unknown, SaveRequest>;
 type SaveSuccess = NonNullable<SaveOptions['onSuccess']>;
@@ -40,6 +41,21 @@ const isDailyRecordLimitError = (error: unknown) => {
   return (
     responseData?.code === 'DAILY_RECORD_LIMIT_EXCEEDED' ||
     (typeof responseData?.message === 'string' && responseData.message.includes('하루 최대 3개'))
+  );
+};
+
+const RECOMMENDATION_ATTRIBUTION_ERROR_CODES = new Set([
+  'INVALID_RECOMMENDATION_TRACKING',
+  'NOT_FOUND_RECOMMENDATION_CANDIDATE',
+  'FORBIDDEN_RECOMMENDATION_SESSION',
+]);
+
+const isRecommendationAttributionError = (error: unknown) => {
+  if (!isAxiosError(error)) return false;
+  const responseData = error.response?.data as { code?: unknown } | undefined;
+  return (
+    typeof responseData?.code === 'string' &&
+    RECOMMENDATION_ATTRIBUTION_ERROR_CODES.has(responseData.code)
   );
 };
 
@@ -96,9 +112,27 @@ export const useDeleteRecord = (
 export const useSaveRecord = (options?: SaveOptions) => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const builder = saveRecordBuilder();
 
-  return useApiMutation<SaveRequest, SaveResponse>(saveRecordBuilder(), {
+  return useApiMutation<SaveRequest, SaveResponse>(builder, {
     ...options,
+    mutationFn: async (request) => {
+      try {
+        return await builder.execute(request);
+      } catch (error) {
+        if (
+          request.sourceRecommendationCandidateId == null ||
+          !isRecommendationAttributionError(error)
+        ) {
+          throw error;
+        }
+
+        clearSelectedRecommendation();
+        const requestWithoutAttribution: SaveRequest = { ...request };
+        delete requestWithoutAttribution.sourceRecommendationCandidateId;
+        return builder.execute(requestWithoutAttribution);
+      }
+    },
     onSuccess: (...args: Parameters<SaveSuccess>) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.records.all });
       showToast('식사 기록을 저장했어요.');

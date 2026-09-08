@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { AiFoodResponse, SaveRequest, SaveResponse } from '~/apis/record/record.types';
+import { writeSelectedRecommendation } from '~/features/recommendations/recommendationStorage';
 import RecordAdd from './RecordAdd';
 
 type AnalyzeOptions = {
@@ -46,6 +47,7 @@ const analysisResponse: AiFoodResponse = {
 };
 
 beforeEach(() => {
+  localStorage.clear();
   Object.defineProperty(URL, 'createObjectURL', {
     configurable: true,
     value: vi.fn(() => 'blob:preview'),
@@ -105,5 +107,94 @@ describe('RecordAdd', () => {
         visitDate: '2026-07-31',
       }),
     );
+    expect(apiMocks.save.mock.calls[0]?.[0]).not.toHaveProperty('sourceRecommendationCandidateId');
+  });
+
+  it('최근 SELECT 식당과 저장 식당이 같으면 attribution을 포함하고 성공 후 정리한다', async () => {
+    writeSelectedRecommendation({
+      recommendationRequestId: 'request-1',
+      candidateSnapshotId: 501,
+      kakaoPlaceId: 'place-1',
+      selectedAt: new Date().toISOString(),
+    });
+    const view = render(
+      <MemoryRouter initialEntries={['/record/add']}>
+        <Routes>
+          <Route path="/record/add" element={<RecordAdd />} />
+          <Route path="/record/view" element={<div>저장 후 기록 페이지</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const photo = new File(['jpeg'], 'meal.jpg', { type: 'image/jpeg' });
+    fireEvent.change(view.container.querySelector<HTMLInputElement>('input[type="file"]')!, {
+      target: { files: [photo] },
+    });
+    fireEvent.click(view.getByRole('button', { name: '다음' }));
+
+    fireEvent.click(view.getByRole('button', { name: '기록하기' }));
+
+    await waitFor(() => expect(apiMocks.save).toHaveBeenCalledOnce());
+    expect(apiMocks.save.mock.calls[0]?.[0]).toMatchObject({
+      restaurant: { kakaoPlaceId: 'place-1' },
+      sourceRecommendationCandidateId: 501,
+    });
+    await waitFor(() => expect(localStorage.getItem('pikone:selected-recommendation')).toBeNull());
+  });
+
+  it('저장 식당이 다르면 attribution하지 않고 기존 선택 context를 유지한다', async () => {
+    writeSelectedRecommendation({
+      recommendationRequestId: 'request-2',
+      candidateSnapshotId: 502,
+      kakaoPlaceId: 'different-place',
+      selectedAt: new Date().toISOString(),
+    });
+    const view = render(
+      <MemoryRouter initialEntries={['/record/add']}>
+        <Routes>
+          <Route path="/record/add" element={<RecordAdd />} />
+          <Route path="/record/view" element={<div>저장 후 기록 페이지</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const photo = new File(['jpeg'], 'meal.jpg', { type: 'image/jpeg' });
+    fireEvent.change(view.container.querySelector<HTMLInputElement>('input[type="file"]')!, {
+      target: { files: [photo] },
+    });
+    fireEvent.click(view.getByRole('button', { name: '다음' }));
+    fireEvent.click(view.getByRole('button', { name: '기록하기' }));
+
+    await waitFor(() => expect(apiMocks.save).toHaveBeenCalledOnce());
+    expect(apiMocks.save.mock.calls[0]?.[0]).not.toHaveProperty('sourceRecommendationCandidateId');
+    expect(localStorage.getItem('pikone:selected-recommendation')).not.toBeNull();
+  });
+
+  it('만료되거나 손상된 context는 제거하고 일반 기록으로 저장한다', async () => {
+    localStorage.setItem(
+      'pikone:selected-recommendation',
+      JSON.stringify({
+        recommendationRequestId: 'old-request',
+        candidateSnapshotId: 503,
+        kakaoPlaceId: 'place-1',
+        selectedAt: '2020-01-01T00:00:00.000Z',
+      }),
+    );
+    const view = render(
+      <MemoryRouter initialEntries={['/record/add']}>
+        <Routes>
+          <Route path="/record/add" element={<RecordAdd />} />
+          <Route path="/record/view" element={<div>저장 후 기록 페이지</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const photo = new File(['jpeg'], 'meal.jpg', { type: 'image/jpeg' });
+    fireEvent.change(view.container.querySelector<HTMLInputElement>('input[type="file"]')!, {
+      target: { files: [photo] },
+    });
+    fireEvent.click(view.getByRole('button', { name: '다음' }));
+    fireEvent.click(view.getByRole('button', { name: '기록하기' }));
+
+    await waitFor(() => expect(apiMocks.save).toHaveBeenCalledOnce());
+    expect(apiMocks.save.mock.calls[0]?.[0]).not.toHaveProperty('sourceRecommendationCandidateId');
+    expect(localStorage.getItem('pikone:selected-recommendation')).toBeNull();
   });
 });

@@ -130,10 +130,12 @@ export const ResultList = styled.div`
   }
 `;
 
-export const ResultCard = styled.article<{ $isTopPick?: boolean }>`
+export const ResultCard = styled.article<{ $isTopPick?: boolean; $isSelected?: boolean }>`
   position: relative;
   padding: 18px;
-  border: 1px solid ${({ $isTopPick }) => ($isTopPick ? theme.colors.black : theme.colors.gray200)};
+  border: 1px solid
+    ${({ $isTopPick, $isSelected }) =>
+      $isSelected ? theme.colors.success : $isTopPick ? theme.colors.black : theme.colors.gray200};
   border-radius: ${({ $isTopPick }) => ($isTopPick ? '22px' : '18px')};
   background: ${theme.colors.white};
   box-shadow: ${({ $isTopPick }) => ($isTopPick ? '0 10px 28px rgba(17, 19, 24, 0.08)' : 'none')};
@@ -278,6 +280,23 @@ export const MapButton = styled.button`
 
   &:active {
     transform: scale(0.985);
+  }
+`;
+
+export const SelectButton = styled.button<{ $selected: boolean }>`
+  grid-column: 1 / -1;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid ${({ $selected }) => ($selected ? theme.colors.success : theme.colors.black)};
+  border-radius: ${theme.radius.full};
+  background: ${({ $selected }) => ($selected ? theme.colors.success : theme.colors.white)};
+  color: ${({ $selected }) => ($selected ? theme.colors.white : theme.colors.black)};
+  font-size: 11px;
+  font-weight: 850;
+  cursor: ${({ $selected }) => ($selected ? 'default' : 'pointer')};
+
+  &:active {
+    transform: ${({ $selected }) => ($selected ? 'none' : 'scale(0.985)')};
   }
 `;
 

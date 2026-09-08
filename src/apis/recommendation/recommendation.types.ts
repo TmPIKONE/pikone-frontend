@@ -55,9 +55,12 @@ export interface RecommendationRequest {
   priority?: RecommendationPriority;
   radiusMeters?: number;
   excludedPlaceIds?: string[];
+  parentRecommendationRequestId?: string;
 }
 
 export interface RecommendationResponse {
+  recommendationRequestId?: string | null;
+  candidateSnapshotId?: number | null;
   kakaoPlaceId: string;
   placeName: string;
   category?: string;
@@ -74,6 +77,23 @@ export interface RecommendationResponse {
   menuKeywords?: string[];
   reasonTags?: string[];
   recommendationReason?: string;
+}
+
+export interface RecommendationImpressionCandidate {
+  candidateSnapshotId: number;
+  position: number;
+}
+
+export interface RecommendationImpressionRequest {
+  candidates: RecommendationImpressionCandidate[];
+}
+
+export type RecommendationActionType = 'PLACE_OPEN' | 'EXCLUDE' | 'SELECT' | 'RERECOMMEND';
+
+export interface RecommendationActionRequest {
+  candidateSnapshotId?: number;
+  actionType: RecommendationActionType;
+  clientEventId: string;
 }
 
 export interface RecommendationUsageResponse {

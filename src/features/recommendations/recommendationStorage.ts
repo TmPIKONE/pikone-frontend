@@ -6,11 +6,20 @@ import type {
 
 const RESULT_STORAGE_KEY = 'pikone:recommendation-result';
 const RECENT_DESTINATIONS_KEY = 'pikone:recent-recommendation-destinations';
+const SELECTED_RECOMMENDATION_KEY = 'pikone:selected-recommendation';
 const MAX_RECENT_DESTINATIONS = 4;
+export const RECOMMENDATION_ATTRIBUTION_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface RecommendationResultState {
   recommendations?: RecommendationResponse[];
   request?: RecommendationRequest;
+}
+
+export interface SelectedRecommendationContext {
+  recommendationRequestId: string;
+  candidateSnapshotId: number;
+  kakaoPlaceId: string;
+  selectedAt: string;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -20,6 +29,11 @@ const isOptionalString = (value: unknown) => value === undefined || typeof value
 
 const isOptionalFiniteNumber = (value: unknown) =>
   value === undefined || (typeof value === 'number' && Number.isFinite(value));
+
+const isOptionalNullableString = (value: unknown) => value == null || typeof value === 'string';
+
+const isOptionalNullableFiniteNumber = (value: unknown) =>
+  value == null || (typeof value === 'number' && Number.isFinite(value));
 
 const isOptionalStringArray = (value: unknown) =>
   value === undefined || (Array.isArray(value) && value.every((item) => typeof item === 'string'));
@@ -41,7 +55,9 @@ const isRecommendation = (value: unknown): value is RecommendationResponse =>
   isOptionalString(value.oneLineSummary) &&
   isOptionalStringArray(value.menuKeywords) &&
   isOptionalStringArray(value.reasonTags) &&
-  isOptionalString(value.recommendationReason);
+  isOptionalString(value.recommendationReason) &&
+  isOptionalNullableString(value.recommendationRequestId) &&
+  isOptionalNullableFiniteNumber(value.candidateSnapshotId);
 
 const isRecommendationRequest = (value: unknown): value is RecommendationRequest =>
   isObject(value) &&
@@ -55,7 +71,8 @@ const isRecommendationRequest = (value: unknown): value is RecommendationRequest
   isOptionalFiniteNumber(value.companionId) &&
   isOptionalString(value.priority) &&
   isOptionalFiniteNumber(value.radiusMeters) &&
-  isOptionalStringArray(value.excludedPlaceIds);
+  isOptionalStringArray(value.excludedPlaceIds) &&
+  isOptionalString(value.parentRecommendationRequestId);
 
 const isDestination = (value: unknown): value is RecommendationLocationResponse =>
   isObject(value) &&
@@ -121,4 +138,61 @@ export const writeRecentRecommendationDestinations = (
   }
 
   return recentDestinations;
+};
+
+export const clearSelectedRecommendation = () => {
+  try {
+    localStorage.removeItem(SELECTED_RECOMMENDATION_KEY);
+  } catch {
+    // Storage can be unavailable in restricted browser environments.
+  }
+};
+
+const isSelectedRecommendationContext = (value: unknown): value is SelectedRecommendationContext =>
+  isObject(value) &&
+  typeof value.recommendationRequestId === 'string' &&
+  Boolean(value.recommendationRequestId.trim()) &&
+  typeof value.candidateSnapshotId === 'number' &&
+  Number.isInteger(value.candidateSnapshotId) &&
+  value.candidateSnapshotId > 0 &&
+  typeof value.kakaoPlaceId === 'string' &&
+  Boolean(value.kakaoPlaceId.trim()) &&
+  typeof value.selectedAt === 'string' &&
+  Number.isFinite(Date.parse(value.selectedAt));
+
+export const readSelectedRecommendation = (
+  now = Date.now(),
+): SelectedRecommendationContext | undefined => {
+  try {
+    const stored = localStorage.getItem(SELECTED_RECOMMENDATION_KEY);
+    if (!stored) return undefined;
+
+    const parsed: unknown = JSON.parse(stored);
+    if (!isSelectedRecommendationContext(parsed)) {
+      clearSelectedRecommendation();
+      return undefined;
+    }
+
+    if (now - Date.parse(parsed.selectedAt) > RECOMMENDATION_ATTRIBUTION_TTL_MS) {
+      clearSelectedRecommendation();
+      return undefined;
+    }
+
+    return {
+      ...parsed,
+      recommendationRequestId: parsed.recommendationRequestId.trim(),
+      kakaoPlaceId: parsed.kakaoPlaceId.trim(),
+    };
+  } catch {
+    clearSelectedRecommendation();
+    return undefined;
+  }
+};
+
+export const writeSelectedRecommendation = (context: SelectedRecommendationContext) => {
+  try {
+    localStorage.setItem(SELECTED_RECOMMENDATION_KEY, JSON.stringify(context));
+  } catch {
+    // Selection UI and action tracking remain usable without browser storage.
+  }
 };

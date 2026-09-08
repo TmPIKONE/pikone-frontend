@@ -21,6 +21,7 @@ import type {
 } from '~/apis/homeLocation/homeLocation.types';
 import { clearAuthTokens } from '~/utils/authTokens';
 import SessionManager from '~/features/auth/SessionManager/SessionManager';
+import { clearSelectedRecommendation } from '~/features/recommendations/recommendationStorage';
 import * as S from './Settings.styles';
 
 const DEFAULT_AVATAR = '/default-avatar.png';
@@ -133,12 +134,14 @@ const Settings = () => {
       onSuccess: () => {
         setAccountConfirmation(null);
         clearAuthTokens();
+        clearSelectedRecommendation();
         showToast('이 기기에서 로그아웃했어요.');
         navigate('/login');
       },
       onError: () => {
         setAccountConfirmation(null);
         clearAuthTokens();
+        clearSelectedRecommendation();
         showToast('기기에서 로그아웃했어요.', 'info');
         navigate('/login');
       },
@@ -155,6 +158,7 @@ const Settings = () => {
       onSuccess: () => {
         setAccountConfirmation(null);
         clearAuthTokens();
+        clearSelectedRecommendation();
         showToast('회원탈퇴가 완료됐어요.');
         navigate('/login');
       },

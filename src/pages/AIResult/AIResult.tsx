@@ -1,16 +1,29 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Footprints, MapPin, RefreshCw, Utensils } from 'lucide-react';
 import {
+  useRecommendationAction,
+  useRecommendationImpressions,
   useRecommendations,
   useRecommendationUsage,
 } from '~/features/recommendations/recommendation.queries';
 import {
   readRecommendationResult,
+  readSelectedRecommendation,
+  clearSelectedRecommendation,
+  writeSelectedRecommendation,
   writeRecommendationResult,
   type RecommendationResultState,
 } from '~/features/recommendations/recommendationStorage';
+import {
+  createClientEventId,
+  beginRecommendationImpression,
+  getRenderedImpressionCandidates,
+  getTrackableCandidateId,
+  resolveRecommendationRequestId,
+} from '~/features/recommendations/recommendationTracking';
 import type {
+  RecommendationActionType,
   RecommendationRequest,
   RecommendationResponse,
 } from '~/apis/recommendation/recommendation.types';
@@ -28,15 +41,18 @@ const normalizePlaceIds = (...groups: Array<Array<string | undefined> | undefine
   return Array.from(new Set(ids)).slice(-MAX_EXCLUDED_PLACE_IDS);
 };
 
-const uniqueRecommendations = (items: RecommendationResponse[]) => {
-  const seen = new Set<string>();
-
-  return items.filter((item) => {
-    const placeId = item.kakaoPlaceId?.trim();
-    if (!placeId || seen.has(placeId)) return false;
-    seen.add(placeId);
-    return true;
-  });
+const createRerecommendRequest = (
+  request: RecommendationRequest,
+  excludedPlaceIds: string[],
+  parentRecommendationRequestId: string | undefined,
+) => {
+  const nextRequest: RecommendationRequest = { ...request, excludedPlaceIds };
+  if (parentRecommendationRequestId) {
+    nextRequest.parentRecommendationRequestId = parentRecommendationRequestId;
+  } else {
+    delete nextRequest.parentRecommendationRequestId;
+  }
+  return nextRequest;
 };
 
 const getFallbackCategoryLabel = (category?: string) => {
@@ -75,7 +91,12 @@ const AIResult = () => {
   );
   const [request, setRequest] = useState<RecommendationRequest | undefined>(initialState.request);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const selectedPlaceIdRef = useRef<string | null>(null);
   const { mutate: refreshRecommendations, isPending } = useRecommendations();
+  const recommendationRequestId = resolveRecommendationRequestId(recommendations);
+  const { mutate: recordImpressions } = useRecommendationImpressions();
+  const { mutate: recordAction } = useRecommendationAction();
   const recommendationUsage = useRecommendationUsage();
   const usage = recommendationUsage.data;
   const isQuotaExhausted = usage?.exhausted ?? false;
@@ -85,7 +106,98 @@ const AIResult = () => {
     writeRecommendationResult({ recommendations, request });
   }, [recommendations, request]);
 
-  const replaceOneRecommendation = (target: RecommendationResponse, targetIndex: number) => {
+  useEffect(() => {
+    if (!recommendationRequestId) return;
+
+    const candidates = getRenderedImpressionCandidates(recommendations, recommendationRequestId);
+    if (candidates.length === 0) return;
+    const dedupeKey = beginRecommendationImpression(recommendationRequestId, candidates);
+    if (!dedupeKey) return;
+
+    recordImpressions({
+      requestId: recommendationRequestId,
+      body: { candidates },
+      dedupeKey,
+    });
+  }, [recommendationRequestId, recommendations, recordImpressions]);
+
+  const trackCandidateAction = (
+    recommendation: RecommendationResponse,
+    actionType: Exclude<RecommendationActionType, 'RERECOMMEND'>,
+  ) => {
+    const candidateSnapshotId = getTrackableCandidateId(recommendation, recommendationRequestId);
+    if (!recommendationRequestId || candidateSnapshotId == null) return;
+
+    recordAction({
+      requestId: recommendationRequestId,
+      body: {
+        candidateSnapshotId,
+        actionType,
+        clientEventId: createClientEventId(),
+      },
+    });
+  };
+
+  const trackRerecommend = () => {
+    if (!recommendationRequestId) return;
+    recordAction({
+      requestId: recommendationRequestId,
+      body: { actionType: 'RERECOMMEND', clientEventId: createClientEventId() },
+    });
+  };
+
+  const resetVisibleSelection = () => {
+    selectedPlaceIdRef.current = null;
+    setSelectedPlaceId(null);
+  };
+
+  const clearSelectionForCandidate = (recommendation: RecommendationResponse) => {
+    const candidateSnapshotId = getTrackableCandidateId(recommendation, recommendationRequestId);
+    const placeId = recommendation.kakaoPlaceId?.trim();
+    const selectedRecommendation = readSelectedRecommendation();
+    const isSelectedCandidate =
+      selectedRecommendation != null &&
+      selectedRecommendation.recommendationRequestId === recommendationRequestId &&
+      selectedRecommendation.candidateSnapshotId === candidateSnapshotId &&
+      selectedRecommendation.kakaoPlaceId === placeId;
+
+    if (selectedPlaceIdRef.current === placeId) resetVisibleSelection();
+    if (isSelectedCandidate) clearSelectedRecommendation();
+  };
+
+  const clearSelectionForNewSession = () => {
+    resetVisibleSelection();
+    clearSelectedRecommendation();
+  };
+
+  const selectRecommendation = (recommendation: RecommendationResponse) => {
+    const placeId = recommendation.kakaoPlaceId?.trim();
+    if (!placeId || selectedPlaceIdRef.current === placeId) return;
+
+    selectedPlaceIdRef.current = placeId;
+    setSelectedPlaceId(placeId);
+    clearSelectedRecommendation();
+
+    const candidateSnapshotId = getTrackableCandidateId(recommendation, recommendationRequestId);
+    if (!recommendationRequestId || candidateSnapshotId == null) return;
+
+    writeSelectedRecommendation({
+      recommendationRequestId,
+      candidateSnapshotId,
+      kakaoPlaceId: placeId,
+      selectedAt: new Date().toISOString(),
+    });
+    recordAction({
+      requestId: recommendationRequestId,
+      body: {
+        candidateSnapshotId,
+        actionType: 'SELECT',
+        clientEventId: createClientEventId(),
+      },
+    });
+  };
+
+  const replaceOneRecommendation = (target: RecommendationResponse) => {
     if (isQuotaExhausted) {
       setFeedbackMessage('오늘 추천 3회를 모두 사용했어요. 지도 보기는 계속 이용할 수 있어요.');
       return;
@@ -97,37 +209,32 @@ const AIResult = () => {
     }
 
     setFeedbackMessage(null);
+    trackCandidateAction(target, 'EXCLUDE');
+    trackRerecommend();
+    clearSelectionForCandidate(target);
 
     // 사용자가 실제로 거절한 식당만 다음 화면 상태에 누적한다.
     const rejectedPlaceIds = normalizePlaceIds(request.excludedPlaceIds, [targetPlaceId]);
 
-    // 한 자리만 교체할 때 현재 보이는 나머지 두 곳까지 임시로 제외해야
-    // 서버가 기존 카드들을 다시 반환하지 않고 완전히 새로운 후보를 내려준다.
-    const visiblePlaceIds = normalizePlaceIds(recommendations.map((item) => item.kakaoPlaceId));
-    const searchExcludedPlaceIds = normalizePlaceIds(rejectedPlaceIds, visiblePlaceIds);
-    const searchRequest: RecommendationRequest = {
-      ...request,
-      excludedPlaceIds: searchExcludedPlaceIds,
-    };
+    // 응답 전체를 새 session의 snapshot으로 갱신해야 이후 interaction이
+    // 이전 session ID와 섞이지 않는다. 제외 대상은 사용자가 거절한 식당만 유지한다.
+    const nextRequest = createRerecommendRequest(
+      request,
+      rejectedPlaceIds,
+      recommendationRequestId,
+    );
 
-    refreshRecommendations(searchRequest, {
+    refreshRecommendations(nextRequest, {
       onSuccess: (nextRecommendations) => {
-        const blockedIds = new Set(searchExcludedPlaceIds);
-        const replacement = uniqueRecommendations(nextRecommendations).find((item) => {
-          const placeId = item.kakaoPlaceId?.trim();
-          return placeId != null && !blockedIds.has(placeId);
-        });
-
-        if (!replacement) {
+        if (nextRecommendations.length === 0) {
           setFeedbackMessage('조건 안에서 바꿀 새 식당을 찾지 못했어요. 이동 범위를 넓혀보세요.');
           return;
         }
 
-        setRecommendations((current) =>
-          current.map((item, index) => (index === targetIndex ? replacement : item)),
-        );
-        setRequest({ ...request, excludedPlaceIds: rejectedPlaceIds });
-        setFeedbackMessage(`${target.placeName} 대신 ${replacement.placeName}으로 바꿨어요.`);
+        setRecommendations(nextRecommendations);
+        setRequest(nextRequest);
+        clearSelectionForNewSession();
+        setFeedbackMessage(`${target.placeName}을 빼고 새 후보를 골랐어요.`);
       },
       onError: () => {
         setFeedbackMessage('새 식당을 불러오지 못했어요. 잠시 후 다시 눌러주세요.');
@@ -147,25 +254,28 @@ const AIResult = () => {
     }
 
     setFeedbackMessage(null);
+    recommendations.forEach((recommendation) => trackCandidateAction(recommendation, 'EXCLUDE'));
+    trackRerecommend();
+    resetVisibleSelection();
+    clearSelectedRecommendation();
     const visiblePlaceIds = recommendations.map((item) => item.kakaoPlaceId);
     const excludedPlaceIds = normalizePlaceIds(request.excludedPlaceIds, visiblePlaceIds);
-    const nextRequest: RecommendationRequest = { ...request, excludedPlaceIds };
+    const nextRequest = createRerecommendRequest(
+      request,
+      excludedPlaceIds,
+      recommendationRequestId,
+    );
 
     refreshRecommendations(nextRequest, {
       onSuccess: (nextRecommendations) => {
-        const excluded = new Set(excludedPlaceIds);
-        const freshRecommendations = uniqueRecommendations(nextRecommendations).filter((item) => {
-          const placeId = item.kakaoPlaceId?.trim();
-          return placeId != null && !excluded.has(placeId);
-        });
-
-        if (freshRecommendations.length === 0) {
+        if (nextRecommendations.length === 0) {
           setFeedbackMessage('조건 안에서 더 찾을 식당이 없어요. 이동 범위를 넓혀보세요.');
           return;
         }
 
-        setRecommendations(freshRecommendations);
+        setRecommendations(nextRecommendations);
         setRequest(nextRequest);
+        clearSelectionForNewSession();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       onError: () => {
@@ -238,7 +348,11 @@ const AIResult = () => {
               (categoryLabel ? `${categoryLabel} 중심으로 고른 곳` : '오늘 조건에 맞는 선택');
 
             return (
-              <S.ResultCard key={item.kakaoPlaceId} $isTopPick={isTopPick}>
+              <S.ResultCard
+                key={item.kakaoPlaceId}
+                $isTopPick={isTopPick}
+                $isSelected={selectedPlaceId === item.kakaoPlaceId?.trim()}
+              >
                 <S.CardTopRow>
                   <S.PickLabel $isTopPick={isTopPick}>{getPickLabel(item, index)}</S.PickLabel>
                   {distanceLabel && (
@@ -280,27 +394,35 @@ const AIResult = () => {
                     disabled={
                       isPending || isQuotaExhausted || !request || !item.kakaoPlaceId?.trim()
                     }
-                    onClick={() => replaceOneRecommendation(item, index)}
+                    onClick={() => replaceOneRecommendation(item)}
                   >
                     {isQuotaExhausted ? '오늘 재추천 끝' : '이건 빼고 다시'}
                   </S.SkipButton>
                   <S.MapButton
                     type="button"
                     onClick={() => {
-                      window.open(
-                        buildRestaurantMapUrl({
-                          mapUrl: item.mapUrl,
-                          kakaoPlaceId: item.kakaoPlaceId,
-                          placeName: item.placeName,
-                          address: item.address,
-                        }),
-                        '_blank',
-                        'noopener,noreferrer',
-                      );
+                      const mapUrl = buildRestaurantMapUrl({
+                        mapUrl: item.mapUrl,
+                        kakaoPlaceId: item.kakaoPlaceId,
+                        placeName: item.placeName,
+                        address: item.address,
+                      });
+                      window.open(mapUrl, '_blank', 'noopener,noreferrer');
+                      trackCandidateAction(item, 'PLACE_OPEN');
                     }}
                   >
                     메뉴·지도 보기
                   </S.MapButton>
+                  <S.SelectButton
+                    type="button"
+                    $selected={selectedPlaceId === item.kakaoPlaceId?.trim()}
+                    aria-pressed={selectedPlaceId === item.kakaoPlaceId?.trim()}
+                    onClick={() => selectRecommendation(item)}
+                  >
+                    {selectedPlaceId === item.kakaoPlaceId?.trim()
+                      ? '이곳으로 선택했어요'
+                      : '여기로 갈래요'}
+                  </S.SelectButton>
                 </S.ActionRow>
               </S.ResultCard>
             );

@@ -16,7 +16,12 @@ import type {
   LocationType,
   RestaurantCandidate,
   RestaurantInfo,
+  SaveRequest,
 } from '~/apis/record/record.types';
+import {
+  clearSelectedRecommendation,
+  readSelectedRecommendation,
+} from '~/features/recommendations/recommendationStorage';
 import { toLocalIsoDate } from '~/utils/date';
 import * as S from './RecordAdd.styles';
 
@@ -121,7 +126,12 @@ const RecordAdd = () => {
       longitude: selectedRestaurant.longitude,
     };
 
-    const request = {
+    const attribution = readSelectedRecommendation();
+    const sourceRecommendationCandidateId =
+      attribution?.kakaoPlaceId === restaurant.kakaoPlaceId
+        ? attribution.candidateSnapshotId
+        : undefined;
+    const request: SaveRequest = {
       kakaoPlaceId: restaurant.kakaoPlaceId,
       restaurant,
       foodName: foodName.trim(),
@@ -131,6 +141,7 @@ const RecordAdd = () => {
       isPublic,
       companionId: companionIds[0],
       companionIds,
+      ...(sourceRecommendationCandidateId != null && { sourceRecommendationCandidateId }),
       locationType,
       placeName: restaurant.placeName,
       category: restaurant.category,
@@ -145,6 +156,10 @@ const RecordAdd = () => {
       // 분석 단계에서 원본 업로드와 서버 최적화가 끝났으므로
       // 최종 저장에서는 imageUrl을 포함한 작은 JSON만 전송한다.
       await saveRecord(request);
+
+      if (sourceRecommendationCandidateId != null) {
+        clearSelectedRecommendation();
+      }
 
       navigate(RECORD_VIEW_PATH, {
         replace: true,

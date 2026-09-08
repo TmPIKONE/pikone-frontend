@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   logout: vi.fn(),
   withdraw: vi.fn(),
   clearAuthTokens: vi.fn(),
+  clearSelectedRecommendation: vi.fn(),
   showToast: vi.fn(),
   isLoggingOut: false,
   isWithdrawing: false,
@@ -54,6 +55,9 @@ vi.mock('~/features/auth/SessionManager/SessionManager', () => ({
 }));
 
 vi.mock('~/utils/authTokens', () => ({ clearAuthTokens: mocks.clearAuthTokens }));
+vi.mock('~/features/recommendations/recommendationStorage', () => ({
+  clearSelectedRecommendation: mocks.clearSelectedRecommendation,
+}));
 
 const settingsTree = () => (
   <MemoryRouter initialEntries={['/mypage/settings']}>
@@ -116,6 +120,7 @@ describe('Settings account confirmations', () => {
     act(() => options.onSuccess());
 
     expect(mocks.clearAuthTokens).toHaveBeenCalledOnce();
+    expect(mocks.clearSelectedRecommendation).toHaveBeenCalledOnce();
     expect(mocks.showToast).toHaveBeenCalledWith('이 기기에서 로그아웃했어요.');
     expect(view.getByText('로그인 화면')).toBeTruthy();
     expect(view.queryByRole('alertdialog')).toBeNull();
@@ -131,6 +136,7 @@ describe('Settings account confirmations', () => {
     act(() => options.onError());
 
     expect(mocks.clearAuthTokens).toHaveBeenCalledOnce();
+    expect(mocks.clearSelectedRecommendation).toHaveBeenCalledOnce();
     expect(mocks.showToast).toHaveBeenCalledWith('기기에서 로그아웃했어요.', 'info');
     expect(view.getByText('로그인 화면')).toBeTruthy();
     expect(view.queryByRole('alertdialog')).toBeNull();
@@ -182,6 +188,7 @@ describe('Settings account confirmations', () => {
     const successfulOptions = mocks.withdraw.mock.calls[1][1] as { onSuccess: () => void };
     act(() => successfulOptions.onSuccess());
     expect(mocks.clearAuthTokens).toHaveBeenCalledOnce();
+    expect(mocks.clearSelectedRecommendation).toHaveBeenCalledOnce();
     expect(mocks.showToast).toHaveBeenCalledWith('회원탈퇴가 완료됐어요.');
     expect(view.getByText('로그인 화면')).toBeTruthy();
     expect(view.queryByRole('alertdialog')).toBeNull();

@@ -72,6 +72,7 @@ export interface SaveRequest {
   companionId?: number;
   companionIds?: number[];
   shareWithCompanion?: boolean;
+  sourceRecommendationCandidateId?: number;
   locationType?: LocationType;
   placeName?: string;
   category?: string;
