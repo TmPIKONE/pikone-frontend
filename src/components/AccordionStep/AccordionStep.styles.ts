@@ -6,9 +6,8 @@ export const SummaryRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-radius: ${theme.radius.md};
-  border: 1px solid ${theme.colors.gray200};
-  background-color: ${theme.colors.white};
+  border-radius: 22px;
+  background-color: ${theme.colors.gray100};
 `;
 
 export const SummaryLeft = styled.div`
@@ -24,8 +23,8 @@ export const CheckBadge = styled.span`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${theme.colors.primaryLight};
-  color: ${theme.colors.primary};
+  background-color: ${theme.colors.black};
+  color: ${theme.colors.white};
   flex-shrink: 0;
 `;
 
@@ -66,10 +65,9 @@ export const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 18px 16px;
-  border-radius: ${theme.radius.md};
-  border: 1px solid ${theme.colors.primary};
-  background-color: ${theme.colors.white};
+  padding: 21px 18px;
+  border-radius: 24px;
+  background-color: ${theme.colors.gray100};
 `;
 
 export const CardHeader = styled.div`
@@ -85,7 +83,7 @@ export const StepBadge = styled.span`
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background-color: ${theme.colors.primary};
+  background-color: ${theme.colors.black};
   color: ${theme.colors.white};
   font-size: ${theme.fontSizes.xs};
   font-weight: ${theme.fontWeights.bold};

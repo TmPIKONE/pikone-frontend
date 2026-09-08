@@ -1,29 +1,27 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import type { AuthContextType, AuthProviderProps } from './AuthContext.types';
-
-const defaultContext: AuthContextType = {
-  isAuthenticated: false,
-  isLoading: true,
-  setIsAuthenticated: () => {},
-};
-
-export const AuthContext = createContext<AuthContextType>(defaultContext);
+import { useEffect, useMemo, useState } from 'react';
+import { AUTH_TOKENS_CHANGED_EVENT, hasAuthToken } from '~/utils/authTokens';
+import { AuthContext } from './AuthContext.context';
+import type { AuthProviderProps } from './AuthContext.types';
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(hasAuthToken);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('accessToken');
-    setIsAuthenticated(!!token);
-    setIsLoading(false);
+    const synchronizeAuthentication = () => setIsAuthenticated(hasAuthToken());
+    window.addEventListener(AUTH_TOKENS_CHANGED_EVENT, synchronizeAuthentication);
+    window.addEventListener('storage', synchronizeAuthentication);
+    synchronizeAuthentication();
+
+    return () => {
+      window.removeEventListener(AUTH_TOKENS_CHANGED_EVENT, synchronizeAuthentication);
+      window.removeEventListener('storage', synchronizeAuthentication);
+    };
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, setIsAuthenticated }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ isAuthenticated, isLoading: false, setIsAuthenticated }),
+    [isAuthenticated],
   );
-};
 
-export const useAuth = () => useContext(AuthContext);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

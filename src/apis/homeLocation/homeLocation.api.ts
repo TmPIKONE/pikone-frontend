@@ -1,4 +1,4 @@
-import ApiBuilder from '../config/ApiBuilder';
+import ApiBuilder from '../config/builder/ApiBuilder';
 import type {
   HomeLocationCreateRequest,
   HomeLocationUpdateRequest,
@@ -16,9 +16,7 @@ export const createHomeLocationBuilder = () =>
   );
 
 export const updateHomeLocationBuilder = (id: number) =>
-  ApiBuilder.create<HomeLocationUpdateRequest, HomeLocationResponse>(
-    `${HOME_LOCATIONS}/${id}`,
-  ).setMethod('PUT');
+  ApiBuilder.create<HomeLocationUpdateRequest, void>(`${HOME_LOCATIONS}/${id}`).setMethod('PUT');
 
 export const deleteHomeLocationBuilder = (id: number) =>
   ApiBuilder.create<void, void>(`${HOME_LOCATIONS}/${id}`).setMethod('DELETE');

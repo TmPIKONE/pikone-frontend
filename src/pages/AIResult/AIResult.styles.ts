@@ -1,190 +1,328 @@
 import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
-// NOTE: theme.ts에 아래 토큰이 없다면 실제 값으로 바꿔주세요.
-// gray50, gray900 / primary 계열 색상 등
-
 export const Container = styled.div`
-  padding: 20px 16px 40px;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) ${theme.app.pagePadding} 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  background: ${theme.colors.white};
 `;
 
-export const HeaderRow = styled.div`
+export const HeaderRow = styled.header`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
 export const BackButton = styled.button`
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: none;
-  color: ${theme.colors.gray700};
-  cursor: pointer;
+  width: 36px;
+  height: 36px;
   padding: 0;
+  border: 0;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.gray900};
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.96);
+  }
+`;
+
+export const HeaderText = styled.div`
+  min-width: 0;
+  flex: 1;
 `;
 
 export const Title = styled.h1`
-  font-size: 18px;
-  font-weight: ${theme.fontWeights.bold};
+  margin-top: 3px;
+  color: ${theme.colors.black};
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.045em;
+`;
+
+export const UsageStrip = styled.section<{ $exhausted: boolean }>`
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px 11px 15px;
+  border-radius: 17px;
+  background: ${({ $exhausted }) => ($exhausted ? theme.colors.gray900 : theme.colors.gray100)};
+`;
+
+export const UsageStripText = styled.div<{ $exhausted: boolean }>`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: ${({ $exhausted }) => ($exhausted ? theme.colors.white : theme.colors.gray900)};
+
+  span {
+    color: ${({ $exhausted }) => ($exhausted ? 'rgba(255, 255, 255, 0.58)' : theme.colors.gray500)};
+    font-size: 9px;
+    font-weight: 750;
+  }
+
+  strong {
+    color: inherit;
+    font-size: 12px;
+    font-weight: 850;
+  }
+`;
+
+export const UsageStripCount = styled.span<{ $exhausted: boolean }>`
+  flex-shrink: 0;
+  min-width: 42px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${theme.radius.full};
+  background: ${({ $exhausted }) =>
+    $exhausted ? 'rgba(255, 255, 255, 0.12)' : theme.colors.white};
+  color: ${({ $exhausted }) => ($exhausted ? theme.colors.white : theme.colors.gray900)};
+  font-size: 11px;
+  font-weight: 900;
+`;
+
+export const RefreshStatus = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  border-radius: ${theme.radius.md};
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.gray600};
+  font-size: 11px;
+  font-weight: 700;
+
+  svg {
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 export const ResultList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 14px;
-`;
+  gap: 13px;
+  transition: opacity ${theme.motion.fast} ${theme.motion.easing};
 
-export const ResultCard = styled.div<{ $isTopPick?: boolean }>`
-  position: relative;
-  padding: 18px 16px 16px;
-  border-radius: 16px;
-  border: 1px solid
-    ${({ $isTopPick }) => ($isTopPick ? theme.colors.primary : theme.colors.gray200)};
-  background-color: ${theme.colors.white};
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: ${({ $isTopPick }) =>
-    $isTopPick ? `0 4px 14px rgba(59, 92, 255, 0.12)` : `0 1px 3px rgba(0, 0, 0, 0.05)`};
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-
-  &:active {
-    transform: scale(0.99);
+  &[aria-busy='true'] {
+    opacity: 0.55;
+    pointer-events: none;
   }
 `;
 
-export const TopPickRibbon = styled.span`
-  position: absolute;
-  top: -10px;
-  left: 14px;
-  padding: 3px 10px;
-  border-radius: ${theme.radius.full};
-  background-color: ${theme.colors.primary};
-  color: ${theme.colors.white};
-  font-size: 11px;
-  font-weight: ${theme.fontWeights.bold};
+export const ResultCard = styled.article<{ $isTopPick?: boolean; $isSelected?: boolean }>`
+  position: relative;
+  padding: 18px;
+  border: 1px solid
+    ${({ $isTopPick, $isSelected }) =>
+      $isSelected ? theme.colors.success : $isTopPick ? theme.colors.black : theme.colors.gray200};
+  border-radius: ${({ $isTopPick }) => ($isTopPick ? '22px' : '18px')};
+  background: ${theme.colors.white};
+  box-shadow: ${({ $isTopPick }) => ($isTopPick ? '0 10px 28px rgba(17, 19, 24, 0.08)' : 'none')};
+`;
+
+export const CardTopRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 3px;
-`;
-
-export const NameRow = styled.div`
-  display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 `;
 
-export const PlaceName = styled.span`
-  font-size: 17px;
-  font-weight: ${theme.fontWeights.bold};
-  color: ${theme.colors.gray900};
-  line-height: 1.3;
+export const PickLabel = styled.span<{ $isTopPick: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 9px;
+  border-radius: ${theme.radius.full};
+  background: ${({ $isTopPick }) => ($isTopPick ? theme.colors.black : theme.colors.gray100)};
+  color: ${({ $isTopPick }) => ($isTopPick ? theme.colors.white : theme.colors.gray700)};
+  font-size: 10px;
+  font-weight: 850;
 `;
 
 export const DistanceTag = styled.span`
   flex-shrink: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
-  font-size: ${theme.fontSizes.xs};
+  gap: 4px;
   color: ${theme.colors.gray500};
+  font-size: 11px;
+  font-weight: 750;
   white-space: nowrap;
-  padding-top: 2px;
 `;
 
-export const MetaRow = styled.div`
+export const PlaceName = styled.h2`
+  min-width: 0;
+  margin: 14px 0 0;
+  color: ${theme.colors.gray900};
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.28;
+  letter-spacing: -0.045em;
+`;
+
+export const MenuSection = styled.div`
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-`;
-
-export const TypeBadge = styled.span<{ $variant: 'taste' | 'new' | 'default' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border-radius: ${theme.radius.full};
-  font-size: 11px;
-  font-weight: ${theme.fontWeights.semibold};
-
-  ${({ $variant }) => {
-    if ($variant === 'taste') {
-      return `
-        background-color: #F0EBFF;
-        color: #6D4FE0;
-      `;
-    }
-    if ($variant === 'new') {
-      return `
-        background-color: #E6F7EE;
-        color: #1FA971;
-      `;
-    }
-    return `
-      background-color: ${theme.colors.gray100};
-      color: ${theme.colors.gray600};
-    `;
-  }}
-`;
-
-export const MetaTag = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border-radius: ${theme.radius.full};
-  background-color: ${theme.colors.gray100};
-  color: ${theme.colors.gray600};
-  font-size: 11px;
-`;
-
-export const ReasonBox = styled.div`
-  display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 4px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background-color: ${theme.colors.gray50};
+  margin-top: 17px;
+  padding: 13px 14px;
+  border-radius: 15px;
+  background: ${theme.colors.gray100};
 `;
 
-export const ReasonIcon = styled.span`
-  flex-shrink: 0;
+export const MenuLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: ${theme.colors.gray600};
+  font-size: 10px;
+  font-weight: 800;
+`;
+
+export const MenuKeywordRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+export const MenuKeyword = styled.strong`
+  color: ${theme.colors.gray900};
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+
+  & + &::before {
+    content: '·';
+    margin-right: 6px;
+    color: ${theme.colors.gray400};
+  }
+`;
+
+export const OneLineSummary = styled.p`
+  overflow: hidden;
+  margin: 14px 0 0;
+  color: ${theme.colors.gray700};
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const Address = styled.p`
   display: flex;
   align-items: center;
-  padding-top: 1px;
-  color: ${theme.colors.primary};
+  gap: 4px;
+  overflow: hidden;
+  margin: 12px 0 0;
+  color: ${theme.colors.gray500};
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
-export const RecommendReason = styled.p`
-  font-size: ${theme.fontSizes.sm};
-  color: ${theme.colors.gray700};
-  line-height: 1.5;
+export const ActionRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 8px;
+  margin-top: 15px;
 `;
 
-export const RetryButton = styled.button`
-  margin-top: 8px;
-  padding: 14px 0;
-  border: 1px solid ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.white};
-  color: ${theme.colors.gray700};
-  font-size: ${theme.fontSizes.md};
-  font-weight: ${theme.fontWeights.medium};
+export const SkipButton = styled.button`
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid ${theme.colors.gray200};
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.white};
+  color: ${theme.colors.gray600};
+  font-size: 10px;
+  font-weight: 750;
+
+  &:disabled {
+    color: ${theme.colors.gray400};
+    cursor: not-allowed;
+  }
+`;
+
+export const MapButton = styled.button`
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.black};
+  color: ${theme.colors.white};
+  font-size: 11px;
+  font-weight: 850;
   cursor: pointer;
 
   &:active {
-    background-color: ${theme.colors.gray50};
+    transform: scale(0.985);
+  }
+`;
+
+export const SelectButton = styled.button<{ $selected: boolean }>`
+  grid-column: 1 / -1;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid ${({ $selected }) => ($selected ? theme.colors.success : theme.colors.black)};
+  border-radius: ${theme.radius.full};
+  background: ${({ $selected }) => ($selected ? theme.colors.success : theme.colors.white)};
+  color: ${({ $selected }) => ($selected ? theme.colors.white : theme.colors.black)};
+  font-size: 11px;
+  font-weight: 850;
+  cursor: ${({ $selected }) => ($selected ? 'default' : 'pointer')};
+
+  &:active {
+    transform: ${({ $selected }) => ($selected ? 'none' : 'scale(0.985)')};
+  }
+`;
+
+export const RetryButton = styled.button`
+  width: 100%;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 16px;
+  border: 1px solid ${theme.colors.gray200};
+  border-radius: ${theme.radius.full};
+  background: ${theme.colors.white};
+  color: ${theme.colors.gray700};
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+
+  &:active {
+    background: ${theme.colors.gray100};
+  }
+
+  &:disabled {
+    color: ${theme.colors.gray400};
+    cursor: not-allowed;
   }
 `;
 
@@ -192,9 +330,18 @@ export const EmptyState = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 60px 0;
+  gap: 8px;
+  padding: 72px 12px;
   text-align: center;
+`;
+
+export const EmptyTitle = styled.strong`
+  color: ${theme.colors.gray900};
+  font-size: 15px;
+  font-weight: 800;
+`;
+
+export const EmptyDescription = styled.span`
   color: ${theme.colors.gray500};
-  font-size: ${theme.fontSizes.sm};
+  font-size: 11px;
 `;

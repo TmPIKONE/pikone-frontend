@@ -1,4 +1,4 @@
-import ApiBuilder from '../config/ApiBuilder';
+import ApiBuilder from '../config/builder/ApiBuilder';
 import type { UserResponseDto } from './user.types';
 
 const USERS = '/users';

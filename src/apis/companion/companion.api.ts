@@ -1,4 +1,4 @@
-import ApiBuilder from '../config/ApiBuilder';
+import ApiBuilder from '../config/builder/ApiBuilder';
 import type {
   CompanionResponse,
   SendRequestDto,
@@ -56,6 +56,3 @@ export const updateCompanionNameBuilder = (companionId: number) =>
 
 export const deleteCompanionBuilder = (companionId: number) =>
   ApiBuilder.create<void, void>(`${COMPANIONS}/${companionId}`).setMethod('DELETE');
-
-export const cancelCompanionRequestBuilder = (requestId: number) =>
-  ApiBuilder.create<void, void>(`${COMPANIONS_REQUEST}/${requestId}`).setMethod('DELETE');

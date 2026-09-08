@@ -7,6 +7,8 @@ const Switch = ({ checked, onChange, disabled, ariaLabel }: SwitchProps) => {
       type="button"
       $on={checked}
       disabled={disabled}
+      role="switch"
+      aria-checked={checked}
       aria-label={ariaLabel}
       onClick={() => onChange(!checked)}
     />

@@ -10,7 +10,7 @@ const TYPE_COLOR: Record<ToastType, string> = {
 
 export const ToastViewport = styled.div`
   position: fixed;
-  bottom: calc(${theme.nav.height} + 42px + env(safe-area-inset-bottom));
+  bottom: calc(112px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;

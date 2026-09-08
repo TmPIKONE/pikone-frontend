@@ -1,21 +1,30 @@
-import { Outlet } from 'react-router-dom';
-import styled from '@emotion/styled';
-import { theme } from '~/styles/theme';
+import { Outlet, useLocation, matchPath } from 'react-router-dom';
 import NavBar from '~/components/NavBar/NavBar';
-
-const Content = styled.main`
-  padding-bottom: ${theme.nav.height};
-  min-height: 100dvh;
-`;
+import * as S from './MainLayout.styles';
 
 const MainLayout = () => {
+  const { pathname } = useLocation();
+
+  const hideNav =
+    pathname === '/draft' ||
+    !!matchPath('/draft/:draftId', pathname) ||
+    pathname === '/companion/add' ||
+    !!matchPath('/companion/:companionId/records', pathname) ||
+    !!matchPath('/companion/:companionId/records/:recordId', pathname) ||
+    pathname === '/record/add' ||
+    pathname === '/record/view' ||
+    !!matchPath('/record/edit/:recordId', pathname);
+
+  const reserveNavSpace = !hideNav && pathname !== '/companion';
+
   return (
-    <>
-      <Content>
+    <S.Layout>
+      <S.Content $reserveNavSpace={reserveNavSpace}>
         <Outlet />
-      </Content>
-      <NavBar />
-    </>
+      </S.Content>
+
+      {!hideNav && <NavBar />}
+    </S.Layout>
   );
 };
 

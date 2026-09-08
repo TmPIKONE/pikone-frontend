@@ -2,7 +2,8 @@ import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
 export const Wrapper = styled.div`
-  width: 100%;
+  width: 146px;
+  max-width: 100%;
 `;
 
 export const HiddenInput = styled.input`
@@ -10,46 +11,55 @@ export const HiddenInput = styled.input`
 `;
 
 export const EmptyButton = styled.button`
+  width: 146px;
+  max-width: 100%;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  aspect-ratio: 1;
-  border: 1.5px dashed ${theme.colors.gray300};
-  border-radius: ${theme.radius.md};
-  background-color: ${theme.colors.gray100};
-  color: ${theme.colors.gray500};
-  font-size: ${theme.fontSizes.sm};
-  cursor: pointer;
+  gap: 7px;
+  border: 1px dashed ${theme.colors.gray300};
+  border-radius: 24px;
+  background: ${theme.colors.gray100};
+  color: ${theme.colors.gray400};
+  font-size: 11px;
+  font-weight: 700;
 `;
 
 export const PreviewButton = styled.button`
   position: relative;
-  width: 100%;
+  width: 146px;
+  max-width: 100%;
   aspect-ratio: 1;
-  border: none;
-  border-radius: ${theme.radius.md};
   overflow: hidden;
   padding: 0;
-  cursor: pointer;
+  border-radius: 24px;
 `;
 
 export const PreviewImage = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: cover;
   display: block;
+  object-fit: cover;
 `;
 
 export const ChangeLabel = styled.span`
   position: absolute;
-  bottom: 8px;
   right: 8px;
-  padding: 4px 10px;
+  bottom: 8px;
+  padding: 5px 9px;
   border-radius: ${theme.radius.full};
-  background-color: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.64);
   color: ${theme.colors.white};
-  font-size: ${theme.fontSizes.xs};
+  font-size: 9px;
+  font-weight: 800;
+`;
+
+export const ValidationError = styled.p`
+  width: 100%;
+  margin-top: 10px;
+  color: ${theme.colors.error};
+  font-size: 11px;
+  line-height: 1.45;
 `;
