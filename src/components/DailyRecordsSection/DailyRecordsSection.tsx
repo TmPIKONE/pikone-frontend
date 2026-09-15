@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, RefreshCw, Utensils } from 'lucide-react';
+import { ChevronRight, List, Plus, RefreshCw, Smile, Sparkles, Utensils } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { CalendarResponse } from '~/apis/record/record.types';
 import { useHomeRepresentativeRecord } from '~/features/records/record.queries';
@@ -8,6 +8,8 @@ import { parseLocalDate, toLocalIsoDate } from '~/utils/date';
 import { resolveThumbnailUrl } from '~/utils/image';
 import type { DailyRecordsSectionProps } from './DailyRecordsSection.types';
 import * as S from './DailyRecordsSection.styles';
+
+const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
 
 const formatRecordName = (record: CalendarResponse) =>
   record.foodName?.trim() || record.restaurantName?.trim() || '한 끼';
@@ -20,9 +22,14 @@ const formatDateLabel = (dateValue: string) => {
   return `${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
 
-const formatFullDateLabel = (dateValue: string) => {
+const formatCompactDate = (dateValue: string) => {
   const date = parseLocalDate(dateValue);
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  return `${date.getMonth() + 1}. ${date.getDate()}. (${WEEKDAY[date.getDay()]})`;
+};
+
+const formatPastDate = (dateValue: string) => {
+  const date = parseLocalDate(dateValue);
+  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
 
 const RecordThumbnail = ({ record }: { record: CalendarResponse }) => {
@@ -33,7 +40,7 @@ const RecordThumbnail = ({ record }: { record: CalendarResponse }) => {
   if (!imageUrl || hasError) {
     return (
       <S.ImageFallback aria-hidden="true">
-        <Utensils size={28} strokeWidth={1.55} />
+        <Utensils size={29} strokeWidth={1.55} />
       </S.ImageFallback>
     );
   }
@@ -65,9 +72,6 @@ export const DailyRecordsSection = ({ selectedDate }: DailyRecordsSectionProps) 
   const recordButtonLabel = isSelectedToday
     ? '오늘 한 끼 기록하기'
     : `${selectedDateLabel} 한 끼 기록하기`;
-  const emptyLead = isSelectedToday
-    ? '오늘은 아직 비어 있어요.'
-    : `${selectedDateLabel}은 아직 비어 있어요.`;
 
   const openRecordAdd = () => navigate(`/record/add?date=${selectedDate}`);
   const openRecord = (date: string) =>
@@ -76,15 +80,8 @@ export const DailyRecordsSection = ({ selectedDate }: DailyRecordsSectionProps) 
   if (isLoading) {
     return (
       <S.Section aria-label={`${selectedDateLabel} 대표 기록 불러오는 중`}>
-        <S.HeroSkeleton>
-          <S.SkeletonLine $width="52%" $large />
-          <S.SkeletonLine $width="42%" />
-          <S.SkeletonButton />
-          <S.SkeletonLine $width="48%" />
-          <S.SkeletonPhoto />
-          <S.SkeletonLine $width="38%" $large />
-          <S.SkeletonLine $width="54%" />
-        </S.HeroSkeleton>
+        <S.CardSkeleton />
+        <S.CardSkeleton $short />
       </S.Section>
     );
   }
@@ -94,124 +91,94 @@ export const DailyRecordsSection = ({ selectedDate }: DailyRecordsSectionProps) 
       <S.Section>
         <S.StatusButton type="button" onClick={() => void refetch()}>
           <S.StatusIcon>
-            <RefreshCw size={25} strokeWidth={1.9} aria-hidden="true" />
+            <RefreshCw size={24} strokeWidth={1.9} aria-hidden="true" />
           </S.StatusIcon>
-          <strong>홈 기록을 불러오지 못했어요</strong>
-          <span>눌러서 다시 시도해 주세요.</span>
+          <span>
+            <strong>홈 기록을 불러오지 못했어요</strong>
+            눌러서 다시 시도해 주세요.
+          </span>
         </S.StatusButton>
       </S.Section>
     );
   }
 
-  if (!representativeRecord) {
-    return (
-      <S.Section>
-        <S.EmptyState>
-          <S.EmptyCopy>
-            <S.HeroEyebrow>{isSelectedToday ? '오늘의 기록' : selectedDateLabel}</S.HeroEyebrow>
-            <S.HeroLead>{emptyLead}</S.HeroLead>
-            <S.HeroDescription>사진 한 장으로 오늘의 한 끼를 남겨보세요.</S.HeroDescription>
-          </S.EmptyCopy>
-
-          <S.PrimaryAddRecordButton type="button" onClick={openRecordAdd}>
-            <Plus size={18} strokeWidth={2.2} aria-hidden="true" />
-            {recordButtonLabel}
-          </S.PrimaryAddRecordButton>
-
-          <S.FirstRecordHint>
-            첫 기록을 남기면 다음부터 여기에서 지난 한 끼도 함께 꺼내볼 수 있어요.
-          </S.FirstRecordHint>
-        </S.EmptyState>
-      </S.Section>
-    );
-  }
-
-  const isExactDateRecord = representativeRecord.visitDate === selectedDate;
-  const representativeDateLabel = formatDateLabel(representativeRecord.visitDate);
-  const restaurantName = representativeRecord.restaurantName?.trim();
-  const recordName = formatRecordName(representativeRecord);
-  const showRestaurantName = Boolean(restaurantName && restaurantName !== recordName);
-
-  if (!isExactDateRecord) {
-    return (
-      <S.Section>
-        <S.EmptyTodayHero>
-          <S.HeroIntro $compact>
-            <S.HeroEyebrow>{isSelectedToday ? '오늘의 기록' : selectedDateLabel}</S.HeroEyebrow>
-            <S.HeroLead>{emptyLead}</S.HeroLead>
-            <S.HeroDescription>오늘의 한 끼를 남겨볼까요?</S.HeroDescription>
-          </S.HeroIntro>
-
-          <S.PrimaryAddRecordButton type="button" onClick={openRecordAdd}>
-            <Plus size={18} strokeWidth={2.2} aria-hidden="true" />
-            {recordButtonLabel}
-          </S.PrimaryAddRecordButton>
-
-          <S.MemorySection aria-label="지난 기록 추천">
-            <S.MemoryHeading>오늘 대신, 이런 기억은 어때요?</S.MemoryHeading>
-
-            <S.PhotoButton
-              type="button"
-              onClick={() => openRecord(representativeRecord.visitDate)}
-              aria-label={`${representativeRecord.visitDate} ${recordName} 기록 보기`}
-            >
-              <S.PhotoViewport>
-                <RecordThumbnail record={representativeRecord} />
-                <S.PhotoDateBadge>{representativeDateLabel}</S.PhotoDateBadge>
-              </S.PhotoViewport>
-            </S.PhotoButton>
-
-            <S.RecordSummary>
-              <S.RecordTitle>{recordName}</S.RecordTitle>
-              <S.RecordMeta>
-                <span>{formatFullDateLabel(representativeRecord.visitDate)}</span>
-                {showRestaurantName && (
-                  <>
-                    <i aria-hidden="true">·</i>
-                    <span>{restaurantName}</span>
-                  </>
-                )}
-              </S.RecordMeta>
-            </S.RecordSummary>
-          </S.MemorySection>
-        </S.EmptyTodayHero>
-      </S.Section>
-    );
-  }
+  const isExactDateRecord = representativeRecord?.visitDate === selectedDate;
+  const recordName = representativeRecord ? formatRecordName(representativeRecord) : '';
+  const restaurantName = representativeRecord?.restaurantName?.trim();
 
   return (
     <S.Section>
-      <S.Hero>
-        <S.HeroIntro>
-          <S.HeroEyebrow>{isSelectedToday ? '오늘의 기록' : `${selectedDateLabel}의 기록`}</S.HeroEyebrow>
-          <S.HeroLead>
-            {isSelectedToday ? '오늘 남긴 한 끼예요.' : `${selectedDateLabel}에 남긴 한 끼예요.`}
-          </S.HeroLead>
-        </S.HeroIntro>
+      <S.TodayCard>
+        <S.CardHeader>
+          <S.CardTitleGroup>
+            <S.CardTitle>{isSelectedToday ? '오늘' : selectedDateLabel}</S.CardTitle>
+            <S.CardDate>{formatCompactDate(selectedDate)}</S.CardDate>
+          </S.CardTitleGroup>
+        </S.CardHeader>
 
-        <S.PhotoButton
-          type="button"
-          onClick={() => openRecord(representativeRecord.visitDate)}
-          aria-label={`${representativeRecord.visitDate} ${recordName} 기록 보기`}
-        >
-          <S.PhotoViewport>
-            <RecordThumbnail record={representativeRecord} />
-          </S.PhotoViewport>
-        </S.PhotoButton>
+        {representativeRecord && isExactDateRecord ? (
+          <S.TodayPhotoButton
+            type="button"
+            onClick={() => openRecord(representativeRecord.visitDate)}
+            aria-label={`${representativeRecord.visitDate} ${recordName} 기록 보기`}
+          >
+            <S.TodayPhotoViewport>
+              <RecordThumbnail record={representativeRecord} />
+              <S.PhotoScrim />
+              <S.PhotoCopy>
+                <strong>{recordName}</strong>
+                {restaurantName && restaurantName !== recordName && <span>{restaurantName}</span>}
+              </S.PhotoCopy>
+            </S.TodayPhotoViewport>
+          </S.TodayPhotoButton>
+        ) : (
+          <S.AddRecordButton
+            type="button"
+            aria-label={recordButtonLabel}
+            onClick={openRecordAdd}
+          >
+            <Plus size={20} strokeWidth={2.1} aria-hidden="true" />
+            <span>{isSelectedToday ? '한 끼를 추가하세요' : `${selectedDateLabel} 기록을 추가하세요`}</span>
+          </S.AddRecordButton>
+        )}
+      </S.TodayCard>
 
-        <S.RecordSummary>
-          <S.RecordTitle>{recordName}</S.RecordTitle>
-          <S.RecordMeta>
-            <span>{formatFullDateLabel(representativeRecord.visitDate)}</span>
-            {showRestaurantName && (
-              <>
-                <i aria-hidden="true">·</i>
-                <span>{restaurantName}</span>
-              </>
-            )}
-          </S.RecordMeta>
-        </S.RecordSummary>
-      </S.Hero>
+      {representativeRecord && !isExactDateRecord ? (
+        <S.SecondaryCard>
+          <S.SecondaryHeader>
+            <S.SecondaryTitle>지난 기록</S.SecondaryTitle>
+          </S.SecondaryHeader>
+
+          <S.PastRecordButton
+            type="button"
+            onClick={() => openRecord(representativeRecord.visitDate)}
+            aria-label={`${representativeRecord.visitDate} ${recordName} 기록 보기`}
+          >
+            <S.PastImage>
+              <RecordThumbnail record={representativeRecord} />
+            </S.PastImage>
+            <S.PastCopy>
+              <strong>{recordName}</strong>
+              <span>{formatPastDate(representativeRecord.visitDate)}</span>
+            </S.PastCopy>
+            <ChevronRight size={22} strokeWidth={2} aria-hidden="true" />
+          </S.PastRecordButton>
+        </S.SecondaryCard>
+      ) : (
+        <S.SecondaryCard>
+          <S.SecondaryHeader>
+            <S.SecondaryTitle>다음 한 끼</S.SecondaryTitle>
+            <S.SmallListIcon aria-hidden="true">
+              <Sparkles size={23} strokeWidth={1.8} />
+            </S.SmallListIcon>
+          </S.SecondaryHeader>
+
+          <S.AiButton type="button" onClick={() => navigate('/ai')}>
+            <Plus size={19} strokeWidth={2.05} aria-hidden="true" />
+            <span>AI로 다음 한 끼 추천받기</span>
+          </S.AiButton>
+        </S.SecondaryCard>
+      )}
     </S.Section>
   );
 };

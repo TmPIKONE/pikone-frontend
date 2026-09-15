@@ -52,10 +52,7 @@ const renderSection = (selectedDate = '2020-08-18') =>
   render(
     <MemoryRouter initialEntries={['/home']}>
       <Routes>
-        <Route
-          path="/home"
-          element={<DailyRecordsSection selectedDate={selectedDate} />}
-        />
+        <Route path="/home" element={<DailyRecordsSection selectedDate={selectedDate} />} />
         <Route path="*" element={<LocationProbe />} />
       </Routes>
     </MemoryRouter>,
@@ -73,32 +70,30 @@ afterEach(() => {
   cleanup();
 });
 
-describe('DailyRecordsSection home priority UX', () => {
-  it('선택한 날짜 기록이 있으면 해당 기록을 대표 이미지 한 장으로 보여준다', () => {
+describe('DailyRecordsSection home card UX', () => {
+  it('선택한 날짜 기록이 있으면 오늘 카드 안에 대표 사진을 보여준다', () => {
     queryMock.data = createRecord(1, '2020-08-18');
     const view = renderSection();
 
-    expect(view.getByText('8월 18일에 남긴 한 끼예요.')).toBeTruthy();
+    expect(view.getByText('8월 18일')).toBeTruthy();
     expect(view.getByText('한 끼 1')).toBeTruthy();
     expect(view.container.querySelectorAll('img')).toHaveLength(1);
     expect(view.queryByRole('button', { name: /8월 18일 한 끼 기록하기/ })).toBeNull();
   });
 
-  it('선택한 날짜 기록이 없으면 기록 CTA를 과거 사진보다 먼저 제공한다', () => {
+  it('선택한 날짜 기록이 없으면 오늘 카드에서 바로 추가할 수 있다', () => {
     queryMock.data = createRecord(7, '2020-08-12');
     const view = renderSection();
 
-    expect(view.getByText('8월 18일은 아직 비어 있어요.')).toBeTruthy();
-    expect(view.getByText('오늘의 한 끼를 남겨볼까요?')).toBeTruthy();
-    expect(view.getByText('오늘 대신, 이런 기억은 어때요?')).toBeTruthy();
-    expect(view.getByText('8월 12일')).toBeTruthy();
-    expect(view.container.querySelectorAll('img')).toHaveLength(1);
+    expect(view.getByText('8월 18일 기록을 추가하세요')).toBeTruthy();
+    expect(view.getByText('지난 기록')).toBeTruthy();
+    expect(view.getByText('한 끼 7')).toBeTruthy();
 
     fireEvent.click(view.getByRole('button', { name: '8월 18일 한 끼 기록하기' }));
     expect(view.getByTestId('location').textContent).toBe('/record/add?date=2020-08-18');
   });
 
-  it('과거 대표 사진을 누르면 그 사진이 속한 날짜의 RecordView로 이동한다', () => {
+  it('과거 대표 사진을 누르면 그 날짜 RecordView로 이동한다', () => {
     queryMock.data = createRecord(3, '2020-08-12');
     const view = renderSection();
 
@@ -106,18 +101,15 @@ describe('DailyRecordsSection home priority UX', () => {
     expect(view.getByTestId('location').textContent).toBe('/record/view{"date":"2020-08-12"}');
   });
 
-  it('과거 기록도 없으면 큰 빈 사진 카드 없이 기록 CTA만 명확하게 보여준다', () => {
+  it('기록이 전혀 없으면 사진 없이 추가 CTA와 AI CTA를 제공한다', () => {
     const view = renderSection();
 
-    expect(view.getByText('8월 18일은 아직 비어 있어요.')).toBeTruthy();
-    expect(view.getByText('사진 한 장으로 오늘의 한 끼를 남겨보세요.')).toBeTruthy();
+    expect(view.getByText('8월 18일 기록을 추가하세요')).toBeTruthy();
+    expect(view.getByText('AI로 다음 한 끼 추천받기')).toBeTruthy();
     expect(view.container.querySelectorAll('img')).toHaveLength(0);
-
-    fireEvent.click(view.getByRole('button', { name: '8월 18일 한 끼 기록하기' }));
-    expect(view.getByTestId('location').textContent).toBe('/record/add?date=2020-08-18');
   });
 
-  it('사진 URL 없음과 로드 실패를 대표 사진 영역 안에서 대체한다', () => {
+  it('사진 URL 없음과 로드 실패를 카드 안에서 대체한다', () => {
     queryMock.data = createRecord(1, '2020-08-18', { thumbnailUrl: '' });
     const view = renderSection();
     expect(view.container.querySelectorAll('img')).toHaveLength(0);
