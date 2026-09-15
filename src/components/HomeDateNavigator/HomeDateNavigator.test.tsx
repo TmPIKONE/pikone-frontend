@@ -12,17 +12,16 @@ vi.mock('~/features/drafts/draft.queries', () => ({
 afterEach(cleanup);
 
 describe('HomeDateNavigator compact header', () => {
-  it('날짜 레일 없이 기존 홈 액션만 유지한다', () => {
+  it('홈에서는 하단 내비와 중복되는 AI/달력을 제거하고 알림만 유지한다', () => {
     const view = render(
       <MemoryRouter>
-        <HomeDateNavigator selectedDate="2020-08-18" onDateChange={vi.fn()} />
+        <HomeDateNavigator />
       </MemoryRouter>,
     );
 
     expect(view.getByRole('heading', { name: '기록' })).toBeTruthy();
-    expect(view.getByRole('button', { name: 'AI 추천' })).toBeTruthy();
-    expect(view.getByRole('button', { name: '날짜 선택' })).toBeTruthy();
     expect(view.getByRole('button', { name: '대기 기록' })).toBeTruthy();
-    expect(view.queryByText(/8\.17|8\.18|8\.19/)).toBeNull();
+    expect(view.queryByRole('button', { name: 'AI 추천' })).toBeNull();
+    expect(view.queryByRole('button', { name: '날짜 선택' })).toBeNull();
   });
 });

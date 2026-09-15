@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
@@ -26,6 +26,7 @@ import type {
 } from '~/apis/record/record.types';
 import { useToast } from '~/components/Toast/useToast';
 import { clearSelectedRecommendation } from '~/features/recommendations/recommendationStorage';
+import { parseLocalDate } from '~/utils/date';
 
 type SaveOptions = UseMutationOptions<SaveResponse, unknown, SaveRequest>;
 type SaveSuccess = NonNullable<SaveOptions['onSuccess']>;
@@ -71,6 +72,43 @@ export const useRecordsByDate = (date: string) =>
     queryKeys.records.byDate(date),
     { enabled: Boolean(date) },
   );
+
+const HOME_REPRESENTATIVE_LOOKBACK_MONTHS = 12;
+
+export const useHomeRepresentativeRecord = (date: string) => {
+  const queryClient = useQueryClient();
+
+  return useQuery<CalendarResponse | null>({
+    queryKey: queryKeys.records.homeRepresentative(date),
+    enabled: Boolean(date),
+    staleTime: 60_000,
+    queryFn: async () => {
+      const selected = parseLocalDate(date);
+
+      for (let offset = 0; offset < HOME_REPRESENTATIVE_LOOKBACK_MONTHS; offset += 1) {
+        const targetMonth = new Date(selected.getFullYear(), selected.getMonth() - offset, 1);
+        const year = targetMonth.getFullYear();
+        const month = targetMonth.getMonth() + 1;
+        const records = await queryClient.fetchQuery({
+          queryKey: queryKeys.records.calendar(year, month),
+          queryFn: () => getCalendarBuilder(year, month).execute(),
+          staleTime: 60_000,
+        });
+
+        const representative = [...records]
+          .filter((record) => record.visitDate <= date)
+          .sort(
+            (first, second) =>
+              second.visitDate.localeCompare(first.visitDate) || second.recordId - first.recordId,
+          )[0];
+
+        if (representative) return representative;
+      }
+
+      return null;
+    },
+  });
+};
 
 export const useAnalyzeImage = (latitude?: number, longitude?: number) =>
   useApiMutation<FormData, AiFoodResponse>(analyzeImageBuilder(latitude, longitude));

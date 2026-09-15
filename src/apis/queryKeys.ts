@@ -39,6 +39,7 @@ export const queryKeys = {
     all: recordsRoot,
     byDate: (date: string) => [...recordsRoot, 'byDate', date] as const,
     calendar: (year: number, month: number) => [...recordsRoot, 'calendar', year, month] as const,
+    homeRepresentative: (date: string) => [...recordsRoot, 'homeRepresentative', date] as const,
     restaurantSearch: (query: string, latitude?: number, longitude?: number) =>
       [...recordsRoot, 'restaurants', query, latitude ?? null, longitude ?? null] as const,
   },

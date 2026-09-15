@@ -4,7 +4,7 @@ import { theme } from '~/styles/theme';
 export const Container = styled.div`
   min-height: 100dvh;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 104px);
-  background: ${theme.colors.gray50};
+  background: #fdfdfd;
 `;
 
 export const HeaderRow = styled.header`
@@ -16,7 +16,7 @@ export const HeaderRow = styled.header`
   grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   padding: calc(env(safe-area-inset-top, 0px) + 9px) ${theme.app.pagePadding} 8px;
-  background: rgba(250, 250, 251, 0.92);
+  background: #fdfdfd;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 `;
@@ -226,7 +226,7 @@ export const MemoryCard = styled.section`
   margin: 12px 0 0;
   padding: 4px 16px;
   border-radius: 25px;
-  background: ${theme.colors.white};
+  background: #ebecee;
 `;
 
 export const InfoRow = styled.div`

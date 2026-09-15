@@ -5,13 +5,13 @@ export const Shell = styled.nav`
   position: sticky;
   top: 0;
   z-index: 40;
-  padding: calc(env(safe-area-inset-top, 0px) + 26px) ${theme.app.pagePadding} 10px;
-  background: rgba(247, 248, 250, 0.97);
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) ${theme.app.pagePadding} 2px;
+  background: #fdfdfd;
   backdrop-filter: blur(14px);
 `;
 
 export const HeaderRow = styled.div`
-  min-height: 52px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,6 +19,7 @@ export const HeaderRow = styled.div`
 `;
 
 export const ActiveModule = styled.h1`
+  margin: 0;
   color: ${theme.colors.black};
   font-size: 27px;
   font-weight: 950;
@@ -28,7 +29,6 @@ export const ActiveModule = styled.h1`
 export const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 2px;
 `;
 
 export const IconButton = styled.button`
@@ -39,12 +39,8 @@ export const IconButton = styled.button`
   place-items: center;
   color: ${theme.colors.gray400};
 
-  &:first-of-type {
-    color: #6aaec0;
-  }
-
-  @media (max-width: 340px) {
-    width: 37px;
+  &:active {
+    color: ${theme.colors.gray700};
   }
 `;
 
