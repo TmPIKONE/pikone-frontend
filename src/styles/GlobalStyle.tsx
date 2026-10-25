@@ -19,6 +19,21 @@ export const GlobalStyle = () => (
         -webkit-text-size-adjust: 100%;
       }
 
+      html,
+      body,
+      #root {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      #root::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+      }
+
       body {
         min-height: 100vh;
         min-height: 100dvh;

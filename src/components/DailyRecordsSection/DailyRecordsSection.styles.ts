@@ -20,7 +20,7 @@ export const Section = styled.section`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 0 ${theme.app.pagePadding} 26px;
+  padding: 0 ${theme.app.pagePadding} 12px;
   background: transparent;
 `;
 

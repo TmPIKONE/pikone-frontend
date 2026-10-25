@@ -3,18 +3,36 @@ import { isAxiosError } from 'axios';
 import { useApiMutation, useApiQuery } from '~/apis/config/queryHooks';
 import {
   getRecommendationUsageBuilder,
+  getRecommendationHistoryBuilder,
+  getRecommendationWorkspacesBuilder,
+  saveRecommendationWorkspaceBuilder,
+  getRecommendationHistoryDetailBuilder,
+  parseRecommendationContextBuilder,
   getRecommendationsBuilder,
   recordRecommendationActionBuilder,
   recordRecommendationImpressionsBuilder,
+  reverseRecommendationLocationBuilder,
   searchRecommendationLocationsBuilder,
+  getPromptSuggestionsBuilder,
+  recordPromptSuggestionEventBuilder,
+  recordPromptSubmissionBuilder,
 } from '~/apis/recommendation/recommendation.api';
 import type {
+  NaturalLanguageContextRequest,
+  NaturalLanguageContextResponse,
   RecommendationActionRequest,
   RecommendationImpressionRequest,
   RecommendationLocationResponse,
   RecommendationRequest,
   RecommendationResponse,
   RecommendationUsageResponse,
+  RecommendationHistoryResponse,
+  RecommendationWorkspaceResponse,
+  RecommendationWorkspaceUpsertRequest,
+  PromptSuggestionRequest,
+  PromptSuggestionResponse,
+  PromptSuggestionEventRequest,
+  PromptSubmissionRequest,
 } from '~/apis/recommendation/recommendation.types';
 import { queryKeys } from '~/apis/queryKeys';
 import {
@@ -111,3 +129,73 @@ export const useRecommendationLocationSearch = (
       retry: 1,
     },
   );
+
+export const useRecommendationLocationReverse = () =>
+  useMutation<RecommendationLocationResponse, unknown, { latitude: number; longitude: number }>({
+    mutationFn: async ({ latitude, longitude }) => {
+      const locations = await reverseRecommendationLocationBuilder(latitude, longitude).execute();
+      const location = locations[0];
+      if (!location) {
+        throw new Error('핀 위치의 주소를 찾지 못했어요.');
+      }
+      return location;
+    },
+    retry: 1,
+  });
+
+export const useRecommendationContextParser = () =>
+  useApiMutation<NaturalLanguageContextRequest, NaturalLanguageContextResponse>(
+    parseRecommendationContextBuilder(),
+  );
+
+export const usePromptSuggestions = () =>
+  useApiMutation<PromptSuggestionRequest, PromptSuggestionResponse>(getPromptSuggestionsBuilder());
+
+export const usePromptSuggestionEvent = () =>
+  useMutation<void, unknown, PromptSuggestionEventRequest>({
+    mutationFn: (body) => recordPromptSuggestionEventBuilder().execute(body),
+    retry: retryTrackingRequest,
+  });
+
+export interface PromptSubmissionMutationVariables {
+  requestId: string;
+  body: PromptSubmissionRequest;
+}
+
+export const usePromptSubmission = () =>
+  useMutation<void, unknown, PromptSubmissionMutationVariables>({
+    mutationFn: ({ requestId, body }) => recordPromptSubmissionBuilder(requestId).execute(body),
+    retry: retryTrackingRequest,
+  });
+
+export const useRecommendationHistory = () =>
+  useApiQuery<void, RecommendationHistoryResponse[]>(
+    getRecommendationHistoryBuilder(),
+    queryKeys.recommendations.history,
+    { staleTime: 60 * 1000, retry: 1 },
+  );
+
+export const useRecommendationHistoryDetail = (requestId: string | undefined) =>
+  useApiQuery<void, RecommendationHistoryResponse>(
+    getRecommendationHistoryDetailBuilder(requestId ?? ''),
+    queryKeys.recommendations.historyDetail(requestId ?? ''),
+    { enabled: Boolean(requestId), staleTime: 5 * 60 * 1000, retry: 1 },
+  );
+
+export const useRecommendationWorkspaces = () =>
+  useApiQuery<void, RecommendationWorkspaceResponse[]>(
+    getRecommendationWorkspacesBuilder(),
+    queryKeys.recommendations.workspaces,
+    { staleTime: 30 * 1000, retry: 1 },
+  );
+
+export const useSaveRecommendationWorkspace = (workspaceId: string | undefined) => {
+  const queryClient = useQueryClient();
+  return useApiMutation<RecommendationWorkspaceUpsertRequest, RecommendationWorkspaceResponse>(
+    saveRecommendationWorkspaceBuilder(workspaceId ?? ''),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: queryKeys.recommendations.workspaces }),
+    },
+  );
+};

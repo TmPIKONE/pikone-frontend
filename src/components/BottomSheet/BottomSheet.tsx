@@ -24,6 +24,7 @@ export const BottomSheet = ({
   actionDisabled = false,
   onAction,
   zIndex = 1000,
+  blurBackdrop = false,
 }: BottomSheetProps) => {
   const titleId = useId();
   const sheetRef = useRef<HTMLElement>(null);
@@ -92,7 +93,13 @@ export const BottomSheet = ({
   };
 
   return (
-    <S.Overlay $isOpen={isOpen} $zIndex={zIndex} onClick={handleOverlayClick} aria-hidden={!isOpen}>
+    <S.Overlay
+      $isOpen={isOpen}
+      $zIndex={zIndex}
+      $blurBackdrop={blurBackdrop}
+      onClick={handleOverlayClick}
+      aria-hidden={!isOpen}
+    >
       <S.Sheet
         ref={sheetRef}
         $isOpen={isOpen}

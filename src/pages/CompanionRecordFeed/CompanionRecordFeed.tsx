@@ -49,7 +49,7 @@ const CompanionRecordFeed = () => {
     return () => window.cancelAnimationFrame(frameId);
   }, [records, selectedRecordId]);
 
-  const displayName = companion?.displayName ?? '동반자';
+  const displayName = companion?.displayName ?? '함께 먹는 사람';
   const profileInitial = displayName.trim().charAt(0) || '함';
   const locationState = location.state as CompanionRecordFeedLocationState | null;
   const handleBack = () => {

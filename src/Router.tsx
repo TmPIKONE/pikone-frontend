@@ -10,6 +10,8 @@ const LoginPage = lazy(() => import('~/pages/Auth/LoginPage'));
 const OAuthCallback = lazy(() => import('~/pages/Auth/OAuthCallback'));
 const Home = lazy(() => import('~/pages/Home/Home'));
 const Calendar = lazy(() => import('~/pages/Calendar/Calendar'));
+const Discovery = lazy(() => import('~/pages/Discovery/Discovery'));
+const DiscoveryDetail = lazy(() => import('~/pages/DiscoveryDetail/DiscoveryDetail'));
 const RecordAdd = lazy(() => import('~/pages/RecordAdd/RecordAdd'));
 const RecordView = lazy(() => import('~/pages/RecordView/RecordView'));
 const RecordEdit = lazy(() => import('~/pages/RecordEdit/RecordEdit'));
@@ -17,6 +19,9 @@ const Draft = lazy(() => import('~/pages/Draft/Draft'));
 const DraftDetail = lazy(() => import('~/pages/DraftDetail/DraftDetail'));
 const AI = lazy(() => import('~/pages/AI/AI'));
 const AIResult = lazy(() => import('~/pages/AIResult/AIResult'));
+const AITrip = lazy(() => import('~/pages/AITrip/AITrip'));
+const DecisionRoomCreate = lazy(() => import('~/pages/DecisionRoomCreate/DecisionRoomCreate'));
+const DecisionRoom = lazy(() => import('~/pages/DecisionRoom/DecisionRoom'));
 const Settings = lazy(() => import('~/pages/Settings/Settings'));
 const Companion = lazy(() => import('~/pages/Companion/Companion'));
 const CompanionAdd = lazy(() => import('~/pages/CompanionAdd/CompanionAdd'));
@@ -38,6 +43,7 @@ const Router = () => {
       <Suspense fallback={<LoadingSpinner label="화면을 준비하고 있어요" fullScreen />}>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
+          <Route path="/decision-room/:inviteCode" element={<DecisionRoom />} />
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -48,6 +54,8 @@ const Router = () => {
             <Route element={<MainLayout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/calendar" element={<Calendar />} />
+              <Route path="/discover" element={<Discovery />} />
+              <Route path="/discover/:restaurantId" element={<DiscoveryDetail />} />
               <Route path="/record/add" element={<RecordAdd />} />
               <Route path="/record/view" element={<RecordView />} />
               <Route path="/record/edit/:recordId" element={<RecordEdit />} />
@@ -55,6 +63,8 @@ const Router = () => {
               <Route path="/draft/:draftId" element={<DraftDetail />} />
               <Route path="/ai" element={<AI />} />
               <Route path="/ai/result" element={<AIResult />} />
+              <Route path="/ai/trip" element={<AITrip />} />
+              <Route path="/decision-rooms/new" element={<DecisionRoomCreate />} />
               <Route path="/mypage/settings" element={<Settings />} />
               <Route path="/companion" element={<Companion />} />
               <Route path="/companion/add" element={<CompanionAdd />} />

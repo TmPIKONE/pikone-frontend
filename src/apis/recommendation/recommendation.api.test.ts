@@ -4,6 +4,7 @@ import {
   getRecommendationsBuilder,
   recordRecommendationActionBuilder,
   recordRecommendationImpressionsBuilder,
+  recordPromptSubmissionBuilder,
 } from './recommendation.api';
 
 const mocks = vi.hoisted(() => ({ apiClient: vi.fn() }));
@@ -44,6 +45,21 @@ describe('recommendation API contract', () => {
     });
   });
 
+  it('prompt submission은 추천 requestId를 path-safe하게 연결한다', async () => {
+    const body = {
+      clientEventId: 'prompt-submit:request/a b',
+      finalText: '친구와 조용하게 먹을 곳을 추천해 줘.',
+    };
+
+    await recordPromptSubmissionBuilder('request/a b').execute(body);
+
+    expect(mocks.apiClient).toHaveBeenCalledWith({
+      method: 'POST',
+      url: '/recommendations/request%2Fa%20b/prompt-submission',
+      data: body,
+    });
+  });
+
   it('parentRecommendationRequestId는 재추천에만 선택적으로 직렬화된다', async () => {
     const baseRequest: RecommendationRequest = { latitude: 37.5, longitude: 127 };
     const rerecommendRequest = {
@@ -59,5 +75,25 @@ describe('recommendation API contract', () => {
       'parentRecommendationRequestId',
     );
     expect(mocks.apiClient.mock.calls[1]?.[0].data).toEqual(rerecommendRequest);
+  });
+});
+
+it('posts authoritative family exclusions and explicit strict flags without transforming them', async () => {
+  const body: RecommendationRequest = {
+    latitude: 37.5,
+    longitude: 127,
+    excludedCategoryFamilies: ['MEAT', 'SUSHI_RAW'],
+    foodPreferences: ['파스타'],
+    strictFoodPreferences: false,
+    companionId: 7,
+    companionFoodPreferences: ['치킨'],
+    strictCompanionFoodPreferences: true,
+    parentRecommendationRequestId: 'latest',
+  };
+  await getRecommendationsBuilder().execute(body);
+  expect(mocks.apiClient).toHaveBeenLastCalledWith({
+    method: 'POST',
+    url: '/recommendations',
+    data: body,
   });
 });

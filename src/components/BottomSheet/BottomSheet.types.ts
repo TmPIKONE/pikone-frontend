@@ -11,4 +11,5 @@ export interface BottomSheetProps {
   actionDisabled?: boolean;
   onAction?: () => void;
   zIndex?: number;
+  blurBackdrop?: boolean;
 }

@@ -71,7 +71,7 @@ const CompanionAdd = () => {
       <S.TopBar>
         <S.BackButton
           type="button"
-          aria-label="동반자 화면으로 돌아가기"
+          aria-label="약속 화면으로 돌아가기"
           onClick={() => navigate('/companion')}
         >
           <ArrowLeft size={21} strokeWidth={2.3} />
@@ -79,13 +79,13 @@ const CompanionAdd = () => {
       </S.TopBar>
 
       <S.PageHeader>
-        <S.PageTitle>동반자 추가</S.PageTitle>
+        <S.PageTitle>사람 추가</S.PageTitle>
         <S.PageDescription>
           함께 피코원을 쓰는 사람은 코드로 연결하고, 그 외 사람은 내 목록에 바로 등록하세요.
         </S.PageDescription>
       </S.PageHeader>
 
-      <S.MethodTabs aria-label="동반자 추가 방법">
+      <S.MethodTabs aria-label="사람 추가 방법">
         <S.MethodButton
           type="button"
           $active={isCodeTab}
@@ -134,7 +134,7 @@ const CompanionAdd = () => {
               autoFocus
             />
             <S.FieldHint id="companion-code-hint">
-              상대방의 동반자 화면에 있는 6자리 코드를 입력해주세요.
+              상대방의 약속 화면에 있는 6자리 연결 코드를 입력해주세요.
             </S.FieldHint>
           </S.Field>
 
@@ -176,7 +176,7 @@ const CompanionAdd = () => {
 
           <S.Field>
             <S.Label as="span">어떤 사이인가요?</S.Label>
-            <S.RelationshipGrid role="radiogroup" aria-label="동반자 관계">
+            <S.RelationshipGrid role="radiogroup" aria-label="함께 먹는 사람 관계">
               {COMPANION_TYPE_OPTIONS.map((option) => (
                 <S.RelationshipButton
                   key={option.value}
@@ -210,7 +210,7 @@ const CompanionAdd = () => {
               : '등록하는 중'
             : isCodeTab
               ? '연결 신청 보내기'
-              : '동반자 등록하기'}
+              : '사람 등록하기'}
         </S.SubmitButton>
       </S.BottomAction>
     </S.Container>

@@ -26,10 +26,17 @@ describe('MainLayout', () => {
     expect(getByRole('navigation')).toBeTruthy();
   });
 
-  it('hides navigation on focused record flows', () => {
-    const { queryByRole } = renderLayoutAt('/record/add');
+  it('hides navigation on focused record and trip flows', () => {
+    const record = renderLayoutAt('/record/add');
+    expect(record.queryByRole('navigation')).toBeNull();
+    record.unmount();
 
-    expect(queryByRole('navigation')).toBeNull();
+    const trip = renderLayoutAt('/ai/trip');
+    expect(trip.queryByRole('navigation')).toBeNull();
+    trip.unmount();
+
+    const decisionRoomCreate = renderLayoutAt('/decision-rooms/new');
+    expect(decisionRoomCreate.queryByRole('navigation')).toBeNull();
   });
 
   it('keeps the companion route without reserved bottom space', () => {

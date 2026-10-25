@@ -13,9 +13,12 @@ const MainLayout = () => {
     !!matchPath('/companion/:companionId/records/:recordId', pathname) ||
     pathname === '/record/add' ||
     pathname === '/record/view' ||
+    pathname === '/ai/trip' ||
+    pathname === '/decision-rooms/new' ||
+    !!matchPath('/discover/:restaurantId', pathname) ||
     !!matchPath('/record/edit/:recordId', pathname);
 
-  const reserveNavSpace = !hideNav && pathname !== '/companion';
+  const reserveNavSpace = !hideNav && pathname !== '/companion' && pathname !== '/discover';
 
   return (
     <S.Layout>

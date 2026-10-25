@@ -34,8 +34,32 @@ export const writeAuthTokens = ({ accessToken, refreshToken }: AuthTokens) => {
   notifyAuthTokensChanged();
 };
 
+const clearUserScopedContinuityState = () => {
+  const prefixes = [
+    'pikone:recommendation-',
+    'pikone:selected-recommendation',
+    'pikone:recent-recommendation-',
+    'pikone:decision-room:',
+  ];
+  const clearMatching = (storage: Storage) => {
+    try {
+      const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index)).filter(
+        (key): key is string => Boolean(key),
+      );
+      keys.forEach((key) => {
+        if (prefixes.some((prefix) => key.startsWith(prefix))) storage.removeItem(key);
+      });
+    } catch {
+      // Restricted browser storage must not block logout itself.
+    }
+  };
+  if (typeof sessionStorage !== 'undefined') clearMatching(sessionStorage);
+  if (typeof localStorage !== 'undefined') clearMatching(localStorage);
+};
+
 export const clearAuthTokens = () => {
   sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   sessionStorage.removeItem(LEGACY_REFRESH_TOKEN_KEY);
+  clearUserScopedContinuityState();
   notifyAuthTokensChanged();
 };

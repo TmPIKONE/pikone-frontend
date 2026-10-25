@@ -172,7 +172,7 @@ const SaveStep = ({
 
         <S.ToggleRow>
           <S.ToggleCopy>
-            <S.ToggleLabel>동행자에게 공개</S.ToggleLabel>
+            <S.ToggleLabel>연결한 사람에게 공개</S.ToggleLabel>
           </S.ToggleCopy>
           <Switch checked={isPublic} onChange={onIsPublicChange} ariaLabel="기록 공개 여부" />
         </S.ToggleRow>

@@ -15,7 +15,8 @@ jobs:
 
       - name: Create .env
         run: |
-          echo "${{ secrets.CLIENT_ENV }}" > .env
+          printf '%s\n' "${{ secrets.CLIENT_ENV }}" > .env
+          printf '%s\n' "VITE_NAVER_MAP_NCP_KEY_ID=${{ secrets.VITE_NAVER_MAP_NCP_KEY_ID }}" >> .env
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -46,13 +47,8 @@ jobs:
           script_stop: true
           script: |
             sudo mkdir -p /var/www/html
-
             sudo rm -rf /var/www/html/*
-
             sudo cp -r /home/${{ secrets.EC2_USER }}/frontend/dist/* /var/www/html/
-
             sudo systemctl restart nginx
-
             rm -rf /home/${{ secrets.EC2_USER }}/frontend
-
             echo "Frontend Deploy Success"

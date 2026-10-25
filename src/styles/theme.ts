@@ -65,7 +65,7 @@ export const theme = {
   app: {
     maxWidth: '480px',
     pagePadding: '20px',
-    bottomNavSpace: '112px',
+    bottomNavSpace: 'calc(86px + env(safe-area-inset-bottom, 0px))',
   },
   shadows: {
     card: 'none',

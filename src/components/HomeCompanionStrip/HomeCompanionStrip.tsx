@@ -12,7 +12,7 @@ export const HomeCompanionStrip = () => {
   const profileImage = resolveImageUrl(user?.imageUrl);
 
   return (
-    <S.Section aria-label="동행자 바로가기">
+    <S.Section aria-label="함께 먹는 사람 바로가기">
       <S.PersonButton type="button" onClick={() => navigate('/mypage/settings')}>
         <S.Avatar>
           {profileImage ? (
@@ -30,9 +30,7 @@ export const HomeCompanionStrip = () => {
           type="button"
           onClick={() =>
             navigate(
-              companion.isAppUser
-                ? `/companion/${companion.companionId}/records`
-                : '/companion',
+              companion.isAppUser ? `/companion/${companion.companionId}/records` : '/companion',
             )
           }
         >
@@ -47,7 +45,7 @@ export const HomeCompanionStrip = () => {
         <S.Avatar $add>
           <Plus size={34} strokeWidth={1.65} aria-hidden="true" />
         </S.Avatar>
-        <S.Label>동행자 연결</S.Label>
+        <S.Label>사람 연결</S.Label>
       </S.PersonButton>
     </S.Section>
   );

@@ -230,7 +230,7 @@ const RecordEditForm = ({ record, fallbackDate }: RecordEditFormProps) => {
             <Switch checked={willRevisit} onChange={setWillRevisit} ariaLabel="재방문 의사" />
           </S.ToggleRow>
           <S.ToggleRow>
-            <span>동행자에게 공개</span>
+            <span>연결한 사람에게 공개</span>
             <Switch checked={isPublic} onChange={setIsPublic} ariaLabel="기록 공개 여부" />
           </S.ToggleRow>
         </S.ToggleGroup>

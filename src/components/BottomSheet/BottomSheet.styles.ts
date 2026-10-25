@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { theme } from '~/styles/theme';
 
-export const Overlay = styled.div<{ $isOpen: boolean; $zIndex: number }>`
+export const Overlay = styled.div<{ $isOpen: boolean; $zIndex: number; $blurBackdrop: boolean }>`
   position: fixed;
   inset: 0;
   z-index: ${({ $zIndex }) => $zIndex};
@@ -9,7 +9,9 @@ export const Overlay = styled.div<{ $isOpen: boolean; $zIndex: number }>`
   align-items: flex-end;
   justify-content: center;
   padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(15, 23, 42, 0.36);
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: ${({ $blurBackdrop }) => ($blurBackdrop ? 'blur(8px)' : 'none')};
+  -webkit-backdrop-filter: ${({ $blurBackdrop }) => ($blurBackdrop ? 'blur(8px)' : 'none')};
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
   pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};

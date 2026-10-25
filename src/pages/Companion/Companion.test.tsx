@@ -30,6 +30,8 @@ const mocks = vi.hoisted(() => ({
   updateName: vi.fn(),
   refetchCompanions: vi.fn(),
   showToast: vi.fn(),
+  decisionRooms: [],
+  getPublicDecisionRoom: vi.fn(),
 }));
 
 vi.mock('~/features/companions/companion.queries', () => ({
@@ -50,6 +52,14 @@ vi.mock('~/features/companions/companion.queries', () => ({
     isPending: mocks.isResponding,
   }),
   useUpdateCompanionName: () => ({ mutate: mocks.updateName, isPending: false }),
+}));
+
+vi.mock('~/features/decisionRooms/decisionRoom.queries', () => ({
+  useMyDecisionRooms: () => ({ data: mocks.decisionRooms, isLoading: false, isError: false }),
+}));
+
+vi.mock('~/apis/decisionRoom/decisionRoom.api', () => ({
+  getPublicDecisionRoom: (inviteCode: string) => mocks.getPublicDecisionRoom(inviteCode),
 }));
 
 vi.mock('~/components/Toast/useToast', () => ({
@@ -90,11 +100,14 @@ beforeEach(() => {
   mocks.updateName.mockReset();
   mocks.refetchCompanions.mockReset();
   mocks.showToast.mockReset();
+  mocks.decisionRooms = [];
+  mocks.getPublicDecisionRoom.mockReset();
 });
 
 describe('Companion 확인 다이얼로그', () => {
   it('삭제 대상을 고정하고 실패 시 유지한 뒤 성공 시에만 닫는다', () => {
     const view = renderCompanion();
+    fireEvent.click(view.getByRole('button', { name: /^사람/ }));
 
     fireEvent.click(view.getByRole('button', { name: '철수 관리' }));
     fireEvent.click(view.getByRole('button', { name: '연결 해제' }));
@@ -146,6 +159,7 @@ describe('Companion 확인 다이얼로그', () => {
 
   it('거절은 확인 후 처리하고 수락은 기존처럼 즉시 처리한다', () => {
     const view = renderCompanion();
+    fireEvent.click(view.getByRole('button', { name: /^사람/ }));
 
     fireEvent.click(view.getByRole('button', { name: '거절' }));
 
@@ -159,7 +173,7 @@ describe('Companion 확인 다이얼로그', () => {
       </MemoryRouter>,
     );
 
-    const dialog = view.getByRole('alertdialog', { name: '동반자 신청을 거절할까요?' });
+    const dialog = view.getByRole('alertdialog', { name: '연결 신청을 거절할까요?' });
     expect(within(dialog).getByText('영희님의 신청을 거절하면 목록에서 사라져요.')).toBeTruthy();
     fireEvent.click(within(dialog).getByRole('button', { name: '거절' }));
 

@@ -158,7 +158,7 @@ const RecordSlide = ({ record, index, total, fallbackDate }: RecordSlideProps) =
           </S.InfoIcon>
           <S.InfoCopy>
             <strong>{visitDate.replace(/-/g, '.')}</strong>
-            <span>{record.isPublic ? '동행자에게 공개 중' : '나만 보는 기록'}</span>
+            <span>{record.isPublic ? '연결한 사람에게 공개 중' : '나만 보는 기록'}</span>
           </S.InfoCopy>
         </S.InfoRow>
 

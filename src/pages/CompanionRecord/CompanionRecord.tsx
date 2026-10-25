@@ -18,14 +18,14 @@ const CompanionRecord = () => {
     () => companions?.find((item) => item.companionId === companionId),
     [companions, companionId],
   );
-  const displayName = companion?.displayName ?? '동반자';
+  const displayName = companion?.displayName ?? '함께 먹는 사람';
 
   return (
     <S.Container>
       <S.TopBar>
         <S.BackButton
           type="button"
-          aria-label="동반자 목록으로 돌아가기"
+          aria-label="약속 화면으로 돌아가기"
           onClick={() => navigate('/companion')}
         >
           <ArrowLeft size={21} strokeWidth={2.3} />
@@ -41,7 +41,7 @@ const CompanionRecord = () => {
         <S.ProfileBadge aria-hidden="true">{displayName.trim().charAt(0) || '함'}</S.ProfileBadge>
         <S.SummaryText>
           <strong>{displayName}</strong>
-          <span>피코원 동반자</span>
+          <span>함께 먹는 사람</span>
         </S.SummaryText>
         <S.RecordCount>
           <strong>{records?.length ?? 0}</strong>

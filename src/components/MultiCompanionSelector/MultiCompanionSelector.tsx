@@ -29,7 +29,7 @@ const MultiCompanionSelector = ({
         <S.Count>{value.length === 0 ? '혼자' : `${value.length}명`}</S.Count>
       </S.Heading>
 
-      <S.OptionList aria-label="식사 동행자 복수 선택">
+      <S.OptionList aria-label="함께 먹는 사람 복수 선택">
         <S.OptionChip
           type="button"
           $active={value.length === 0}

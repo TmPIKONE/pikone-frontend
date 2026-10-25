@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, List, Plus, RefreshCw, Smile, Sparkles, Utensils } from 'lucide-react';
+import { ChevronRight, Plus, RefreshCw, Sparkles, Utensils } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { CalendarResponse } from '~/apis/record/record.types';
 import { useHomeRepresentativeRecord } from '~/features/records/record.queries';
@@ -132,13 +132,11 @@ export const DailyRecordsSection = ({ selectedDate }: DailyRecordsSectionProps) 
             </S.TodayPhotoViewport>
           </S.TodayPhotoButton>
         ) : (
-          <S.AddRecordButton
-            type="button"
-            aria-label={recordButtonLabel}
-            onClick={openRecordAdd}
-          >
+          <S.AddRecordButton type="button" aria-label={recordButtonLabel} onClick={openRecordAdd}>
             <Plus size={20} strokeWidth={2.1} aria-hidden="true" />
-            <span>{isSelectedToday ? '한 끼를 추가하세요' : `${selectedDateLabel} 기록을 추가하세요`}</span>
+            <span>
+              {isSelectedToday ? '한 끼를 추가하세요' : `${selectedDateLabel} 기록을 추가하세요`}
+            </span>
           </S.AddRecordButton>
         )}
       </S.TodayCard>

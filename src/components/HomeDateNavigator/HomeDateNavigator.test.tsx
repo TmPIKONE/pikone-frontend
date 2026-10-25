@@ -19,7 +19,7 @@ describe('HomeDateNavigator planit-style header', () => {
       </MemoryRouter>,
     );
 
-    expect(view.getByRole('heading', { name: 'PIKONE' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'PIKONE 홈' })).toBeTruthy();
     expect(view.getByRole('button', { name: '소식' })).toBeTruthy();
     expect(view.getByRole('button', { name: '설정' })).toBeTruthy();
     expect(view.getByText('2')).toBeTruthy();

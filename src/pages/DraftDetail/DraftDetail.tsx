@@ -185,8 +185,8 @@ const DraftEditor = ({ draft }: DraftEditorProps) => {
       </S.ToggleRow>
 
       <S.ToggleRow>
-        <S.ToggleLabel>동반자에게 기록을 공개해요</S.ToggleLabel>
-        <Switch checked={isPublic} onChange={setIsPublic} ariaLabel="동반자 공개 여부" />
+        <S.ToggleLabel>연결한 사람에게 기록을 공개해요</S.ToggleLabel>
+        <Switch checked={isPublic} onChange={setIsPublic} ariaLabel="연결한 사람 공개 여부" />
       </S.ToggleRow>
 
       <S.ButtonRow>

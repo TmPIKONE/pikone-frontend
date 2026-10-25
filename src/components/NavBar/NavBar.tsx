@@ -1,14 +1,14 @@
-import { CalendarDays, Sparkles, UserRound, UsersRound, Utensils } from 'lucide-react';
+import { BookOpenText, Compass, Sparkles, UsersRound, Utensils } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { NavItemType } from './NavBar.types';
 import * as S from './NavBar.styles';
 
 const NAV_ITEMS: NavItemType[] = [
   { path: '/home', label: '홈', icon: Utensils },
-  { path: '/ai', label: 'PIKONE AI', icon: Sparkles },
-  { path: '/calendar', label: '달력', icon: CalendarDays },
-  { path: '/companion', label: '동반자', icon: UsersRound },
-  { path: '/mypage/settings', label: 'MY', icon: UserRound },
+  { path: '/discover', label: '크리에이터', icon: Compass },
+  { path: '/ai', label: '추천', icon: Sparkles },
+  { path: '/calendar', label: '기록', icon: BookOpenText },
+  { path: '/companion', label: '함께', icon: UsersRound },
 ];
 
 const NavBar = () => {

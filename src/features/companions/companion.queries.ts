@@ -69,11 +69,11 @@ export const useCreateLocalCompanion = (options?: CreateOptions) => {
       ...options,
       onSuccess: (...args: Parameters<CreateSuccess>) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.companions.all });
-        showToast('동반자를 추가했어요.');
+        showToast('사람을 추가했어요.');
         options?.onSuccess?.(...args);
       },
       onError: (...args) => {
-        showToast('동반자 추가에 실패했어요.', 'error');
+        showToast('사람 추가에 실패했어요.', 'error');
         options?.onError?.(...args);
       },
     },
@@ -91,11 +91,11 @@ export const useDeleteCompanion = (
     ...options,
     onSuccess: (...args: Parameters<VoidSuccess>) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.companions.all });
-      showToast('동반자를 삭제했어요.');
+      showToast('사람을 삭제했어요.');
       options?.onSuccess?.(...args);
     },
     onError: (...args) => {
-      showToast('동반자 삭제에 실패했어요.', 'error');
+      showToast('사람 삭제에 실패했어요.', 'error');
       options?.onError?.(...args);
     },
   });
@@ -113,7 +113,7 @@ export const useRespondCompanionRequest = (options?: RespondOptions) => {
         const [, variables] = args;
         queryClient.invalidateQueries({ queryKey: queryKeys.companions.all });
         queryClient.invalidateQueries({ queryKey: queryKeys.companions.pendingRequests });
-        showToast(variables.accept ? '동반자 신청을 수락했어요.' : '동반자 신청을 거절했어요.');
+        showToast(variables.accept ? '연결 신청을 수락했어요.' : '연결 신청을 거절했어요.');
         options?.onSuccess?.(...args);
       },
       onError: (...args) => {
@@ -132,11 +132,11 @@ export const useSendCompanionRequest = (
   return useApiMutation<SendRequestDto, SendRequestResponse>(sendCompanionRequestBuilder(), {
     ...options,
     onSuccess: (...args) => {
-      showToast('동반자 신청을 보냈어요.');
+      showToast('연결 신청을 보냈어요.');
       options?.onSuccess?.(...args);
     },
     onError: (...args) => {
-      showToast('동반자 신청에 실패했어요.', 'error');
+      showToast('연결 신청에 실패했어요.', 'error');
       options?.onError?.(...args);
     },
   });
@@ -150,7 +150,7 @@ export const useUpdateCompanionName = (companionId: number, options?: UpdateName
     ...options,
     onSuccess: (...args: Parameters<UpdateNameSuccess>) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.companions.all });
-      showToast('동반자 이름을 수정했어요.');
+      showToast('표시 이름을 수정했어요.');
       options?.onSuccess?.(...args);
     },
     onError: (...args) => {

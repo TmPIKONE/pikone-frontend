@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Calendar from './Calendar';
@@ -25,7 +25,15 @@ vi.mock('~/features/records/record.queries', () => ({
   }),
 }));
 
-afterEach(cleanup);
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 7, 3, 12));
+});
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('Calendar view toggle', () => {
   it('사진 피드에서 사진을 누르면 별도 기록 페이지로 이동한다', () => {

@@ -2,6 +2,8 @@ const allergensRoot = ['allergens'] as const;
 const authRoot = ['auth'] as const;
 const companionsRoot = ['companions'] as const;
 const draftsRoot = ['drafts'] as const;
+const discoveryRoot = ['discovery'] as const;
+const decisionRoomsRoot = ['decisionRooms'] as const;
 const homeLocationsRoot = ['homeLocations'] as const;
 const recordsRoot = ['records'] as const;
 const recommendationsRoot = ['recommendations'] as const;
@@ -26,12 +28,40 @@ export const queryKeys = {
     pending: [...draftsRoot, 'pending'] as const,
     pendingCount: [...draftsRoot, 'pendingCount'] as const,
   },
+  decisionRooms: {
+    all: decisionRoomsRoot,
+    mine: [...decisionRoomsRoot, 'mine'] as const,
+    detail: (inviteCode: string, hasParticipantToken: boolean) =>
+      [...decisionRoomsRoot, 'detail', inviteCode.toUpperCase(), hasParticipantToken] as const,
+    locations: (inviteCode: string, query: string, latitude?: number, longitude?: number) =>
+      [
+        ...decisionRoomsRoot,
+        'locations',
+        inviteCode.toUpperCase(),
+        query,
+        latitude ?? null,
+        longitude ?? null,
+      ] as const,
+  },
+  discovery: {
+    all: discoveryRoot,
+    feed: (params: object) => [...discoveryRoot, 'feed', params] as const,
+    creators: [...discoveryRoot, 'creators'] as const,
+    detail: (restaurantId: number, latitude?: number, longitude?: number) =>
+      [...discoveryRoot, 'detail', restaurantId, latitude ?? null, longitude ?? null] as const,
+    commentReaction: (restaurantId: number) =>
+      [...discoveryRoot, 'commentReaction', restaurantId] as const,
+    todayCandidates: [...discoveryRoot, 'todayCandidates'] as const,
+  },
   homeLocations: {
     all: homeLocationsRoot,
   },
   recommendations: {
     all: recommendationsRoot,
     usage: [...recommendationsRoot, 'usage'] as const,
+    workspaces: [...recommendationsRoot, 'workspaces'] as const,
+    history: [...recommendationsRoot, 'history'] as const,
+    historyDetail: (requestId: string) => [...recommendationsRoot, 'history', requestId] as const,
     locations: (query: string, latitude?: number, longitude?: number) =>
       [...recommendationsRoot, 'locations', query, latitude ?? null, longitude ?? null] as const,
   },

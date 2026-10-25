@@ -3,7 +3,7 @@ import { theme } from '~/styles/theme';
 
 export const Container = styled.main`
   min-height: calc(100dvh - ${theme.app.bottomNavSpace});
-  padding-bottom: 28px;
+  padding-bottom: 0;
   overflow-x: clip;
   background: #f4f4f7;
 `;
@@ -63,27 +63,49 @@ export const HighlightPlus = styled.span`
 `;
 
 export const HistoryCard = styled.button`
-    width: calc(100% - ${theme.app.pagePadding} * 2);
-    min-height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 0 ${theme.app.pagePadding} 20px;
-    padding: 0 19px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.96);
-    color: #438bda;
-    font-size: 18px;
-    font-weight: 850;
-    letter-spacing: -0.05em;
-    text-align: left;
+  width: calc(100% - ${theme.app.pagePadding} * 2);
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 ${theme.app.pagePadding} 20px;
+  padding: 0 19px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #438bda;
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -0.05em;
+  text-align: left;
 
-    svg {
-        color: #9da0a7;
-    }
+  svg {
+    color: #9da0a7;
+  }
 
-    &:active {
-        transform: scale(0.993);
-    }
+  &:active {
+    transform: scale(0.993);
+  }
+`;
+
+export const UtilityRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: max(10px, env(safe-area-inset-top)) ${theme.app.pagePadding} 0;
+`;
+
+export const SettingsButton = styled.button`
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 12px;
+  color: #777b83;
+  font-size: 12px;
+  font-weight: 750;
+
+  &:active {
+    background: rgba(0, 0, 0, 0.04);
+  }
 `;
